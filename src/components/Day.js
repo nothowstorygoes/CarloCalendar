@@ -1,8 +1,8 @@
 import dayjs from "dayjs";
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import GlobalContext from "../context/GlobalContext";
 
-export default function Day({ day, rowIdx, currentMonthIdx }) {
+export default function Day({ day, rowIdx, currentMonthIdx, year }) {
   const [dayEvents, setDayEvents] = useState([]);
   const {
     setDaySelected,
@@ -33,8 +33,21 @@ export default function Day({ day, rowIdx, currentMonthIdx }) {
     }
   }
 
+  const displayEvents = dayEvents.slice(0, 2);
+  if (dayEvents.length > 3) {
+    displayEvents.push({ title: `+${dayEvents.length - 2} more`, label: "gray" });
+  } else {
+    displayEvents.push(...dayEvents.slice(2, 3));
+  }
+
   return (
-    <div className={`border border-gray-200 flex flex-col ${getDayClass()}`}>
+    <div
+      className={`border border-gray-200 flex flex-col ${getDayClass()}`}
+      onClick={() => {
+        setDaySelected(day);
+        setShowDayInfoModal(true);
+      }}
+    >
       <header className="flex flex-col items-center">
         {rowIdx === 0 && (
           <p className="text-sm mt-1">
@@ -42,23 +55,20 @@ export default function Day({ day, rowIdx, currentMonthIdx }) {
           </p>
         )}
         <p
-          className={`text-sm p-1 my-1 text-center  ${getCurrentDayClass()}`}
+          className={`text-sm p-1 my-1 text-center ${getCurrentDayClass()}`}
         >
           {day.format("DD")}
         </p>
       </header>
-      <div
-        className="flex-1 cursor-pointer"
-        onClick={() => {
-          setDaySelected(day);
-          setShowDayInfoModal(true);
-        }}
-      >
-        {dayEvents.map((evt, idx) => (
+      <div className="flex-1">
+        {displayEvents.map((evt, idx) => (
           <div
             key={idx}
-            onClick={() => setSelectedEvent(evt)}
-            className={`bg-${evt.label}-200 p-1 mr-3 text-gray-600 text-sm rounded mb-1 truncate`}
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent triggering the modal when clicking on an event
+              setSelectedEvent(evt);
+            }}
+            className={`bg-${evt.label}-200 p-1 mr-3 ml-3 text-gray-600 text-sm rounded mb-1 truncate`}
           >
             {evt.title}
           </div>

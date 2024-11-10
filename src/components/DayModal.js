@@ -4,7 +4,7 @@ import GlobalContext from "../context/GlobalContext";
 import CreateEventButton from "./CreateEventButton"; // Import the CreateEventButton component
 
 export default function DayInfoModal() {
-  const { daySelected, setShowDayInfoModal, filteredEvents } = useContext(GlobalContext);
+  const { daySelected, setShowDayInfoModal, filteredEvents, showEventModal, dispatchCalEvent, setSelectedEvent, setShowEventModal } = useContext(GlobalContext);
   const modalRef = useRef(null);
 
   const dayEvents = filteredEvents.filter(
@@ -17,43 +17,55 @@ export default function DayInfoModal() {
     }
   };
 
+  const handleDeleteEvent = (eventId) => {
+    dispatchCalEvent({ type: "delete", payload: { id: eventId } });
+  };
+
+  const handleEventClick = (event) => {
+    setSelectedEvent(event);
+    setShowEventModal(true);
+  };
+
   return (
     <div
-      className="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50"
+      className={`h-screen w-full fixed left-0 top-0 flex justify-center items-center ${showEventModal ? 'bg-opacity-0' : 'bg-black bg-opacity-50'}`}
       onClick={handleClickOutside}
     >
-      <div ref={modalRef} className="bg-white rounded-lg shadow-2xl w-1/4 overflow-hidden">
+      <div ref={modalRef} className="bg-white rounded-lg shadow-2xl w-1/3 overflow-hidden">
         <header className="bg-gray-100 px-4 py-2 flex justify-between items-center rounded-t-lg">
           <span className="material-icons-outlined text-gray-400">
             drag_handle
           </span>
-          <button onClick={() => setShowDayInfoModal(false)}>
-            <span className="material-icons-outlined text-gray-400">
-              close
-            </span>
+          <button onClick={() => setShowDayInfoModal(false)} className="material-icons-outlined text-gray-400">
+            close
           </button>
         </header>
-        <div className="p-3">
-          <h2 className="text-lg font-bold">{daySelected.format("dddd, MMMM DD")}</h2>
-          {dayEvents.length === 0 ? (
-            <p className="text-gray-600">You have no upcoming events today.</p>
-          ) : (
-            <div className="space-y-2"> {/* Add space between events */}
-              {dayEvents.map((evt, idx) => (
-                <div key={idx} className={`p-2 rounded bg-${evt.label}-200 flex items-start`}>
-                  <span className="mr-2 mt-1 text-gray-600">•</span> {/* Bullet point */}
-                  <div>
-                    <p className="font-semibold">{evt.title}</p>
-                    <p className="text-gray-600">{evt.description}</p>
-                  </div>
+        <div className="p-4">
+          <h2 className="text-lg font-bold mb-4">{daySelected.format("dddd, MMMM D, YYYY")}</h2>
+          {dayEvents.map((evt) => (
+            <div key={evt.id} className={`flex justify-between items-center mb-2 bg-${evt.label}-200 p-2 rounded`} onClick={() => handleEventClick(evt)}>
+              <div className="flex items-center">
+                <span className={`bg-${evt.label}-500 w-2 h-2 rounded-full mr-2`}></span>
+                <div>
+                  <span className="text-gray-600 font-bold">{evt.title}</span>
+                  <p className="text-gray-500 text-sm">{evt.description}</p>
                 </div>
-              ))}
+              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent triggering the modal when clicking on the delete button
+                  handleDeleteEvent(evt.id);
+                }}
+                className="material-icons-outlined text-black-600 cursor-pointer"
+              >
+                delete
+              </button>
             </div>
-          )}
-          <div className="mt-4">
-            <CreateEventButton /> {/* Add the CreateEventButton component */}
-          </div>
+          ))}
         </div>
+        <footer className="bg-gray-100 px-4 py-2 flex justify-end items-center rounded-b-lg">
+          <CreateEventButton />
+        </footer>
       </div>
     </div>
   );

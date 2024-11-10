@@ -23,10 +23,11 @@ function initEvents() {
 
 export default function ContextWrapper(props) {
   const [monthIndex, setMonthIndex] = useState(dayjs().month());
+  const [year, setYear] = useState(dayjs().year());
   const [smallCalendarMonth, setSmallCalendarMonth] = useState(null);
   const [daySelected, setDaySelected] = useState(dayjs());
   const [showEventModal, setShowEventModal] = useState(false);
-  const [showDayInfoModal, setShowDayInfoModal] = useState(false); // New state
+  const [showDayInfoModal, setShowDayInfoModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [labels, setLabels] = useState([]);
   const [savedEvents, dispatchCalEvent] = useReducer(
@@ -81,6 +82,8 @@ export default function ContextWrapper(props) {
       value={{
         monthIndex,
         setMonthIndex,
+        year,
+        setYear,
         smallCalendarMonth,
         setSmallCalendarMonth,
         daySelected,
@@ -88,7 +91,7 @@ export default function ContextWrapper(props) {
         showEventModal,
         setShowEventModal,
         showDayInfoModal,
-        setShowDayInfoModal, // New context value
+        setShowDayInfoModal,
         dispatchCalEvent,
         selectedEvent,
         setSelectedEvent,

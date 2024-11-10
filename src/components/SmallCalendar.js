@@ -4,31 +4,38 @@ import GlobalContext from "../context/GlobalContext";
 import { getMonth } from "../util";
 
 export default function SmallCalendar() {
-  const [currentMonthIdx, setCurrentMonthIdx] = useState(dayjs().month());
-  const [currentMonth, setCurrentMonth] = useState(getMonth());
-
   const {
     monthIndex,
     setMonthIndex,
+    year,
+    setYear,
     setSmallCalendarMonth,
     setDaySelected,
     daySelected,
   } = useContext(GlobalContext);
 
-  useEffect(() => {
-    setCurrentMonth(getMonth(currentMonthIdx));
-  }, [currentMonthIdx]);
+  const [currentMonth, setCurrentMonth] = useState(getMonth(monthIndex, year));
 
   useEffect(() => {
-    setCurrentMonthIdx(monthIndex);
-  }, [monthIndex]);
+    setCurrentMonth(getMonth(monthIndex, year));
+  }, [monthIndex, year]);
 
   function handlePrevMonth() {
-    setMonthIndex((prev) => (prev === 0 ? 11 : prev - 1));
+    if (monthIndex === 0) {
+      setMonthIndex(11);
+      setYear(year - 1);
+    } else {
+      setMonthIndex(monthIndex - 1);
+    }
   }
 
   function handleNextMonth() {
-    setMonthIndex((prev) => (prev === 11 ? 0 : prev + 1));
+    if (monthIndex === 11) {
+      setMonthIndex(0);
+      setYear(year + 1);
+    } else {
+      setMonthIndex(monthIndex + 1);
+    }
   }
 
   function getDayClass(day) {
@@ -40,7 +47,7 @@ export default function SmallCalendar() {
       return "bg-blue-500 rounded-full text-white";
     } else if (currDay === slcDay) {
       return "bg-blue-100 rounded-full text-blue-600 font-bold";
-    } else if (day.month() !== currentMonthIdx) {
+    } else if (day.month() !== monthIndex) {
       return "text-gray-400"; // Grey out days from past month
     } else {
       return "";
@@ -51,7 +58,7 @@ export default function SmallCalendar() {
     <div className="mt-9">
       <header className="flex justify-between">
         <p className="text-gray-500 font-bold">
-          {dayjs(new Date(dayjs().year(), currentMonthIdx)).format("MMMM YYYY")}
+          {dayjs(new Date(year, monthIndex)).format("MMMM YYYY")}
         </p>
         <div>
           <button onClick={handlePrevMonth}>
@@ -78,7 +85,7 @@ export default function SmallCalendar() {
               <button
                 key={idx}
                 onClick={() => {
-                  setSmallCalendarMonth(currentMonthIdx);
+                  setSmallCalendarMonth(monthIndex);
                   setDaySelected(day);
                 }}
                 className={`py-1 w-full ${getDayClass(day)}`}

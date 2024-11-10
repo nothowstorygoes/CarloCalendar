@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import GlobalContext from "../context/GlobalContext";
 
 const labelsClasses = [
@@ -18,17 +18,17 @@ export default function EventModal() {
     selectedEvent,
   } = useContext(GlobalContext);
 
-  const [title, setTitle] = useState(
-    selectedEvent ? selectedEvent.title : ""
-  );
-  const [description, setDescription] = useState(
-    selectedEvent ? selectedEvent.description : ""
-  );
-  const [selectedLabel, setSelectedLabel] = useState(
-    selectedEvent
-      ? labelsClasses.find((lbl) => lbl === selectedEvent.label)
-      : labelsClasses[0]
-  );
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [selectedLabel, setSelectedLabel] = useState(labelsClasses[0]);
+
+  useEffect(() => {
+    if (selectedEvent) {
+      setTitle(selectedEvent.title);
+      setDescription(selectedEvent.description);
+      setSelectedLabel(selectedEvent.label);
+    }
+  }, [selectedEvent]);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -47,10 +47,11 @@ export default function EventModal() {
 
     setShowEventModal(false);
   }
+
   return (
-    <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center">
-      <form className="bg-white rounded-lg shadow-2xl w-1/4">
-        <header className="bg-gray-100 px-4 py-2 flex justify-between items-center">
+    <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
+      <form className="bg-white rounded-lg shadow-2xl w-1/3">
+        <header className="bg-gray-100 px-4 py-2 flex justify-between items-center rounded-t-lg">
           <span className="material-icons-outlined text-gray-400">
             drag_handle
           </span>

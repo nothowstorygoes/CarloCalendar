@@ -4,19 +4,19 @@ import GlobalContext from "../context/GlobalContext";
 import { getMonth } from "../util";
 
 export default function Month() {
-  const { monthIndex } = useContext(GlobalContext);
-  const [currentMonth, setCurrentMonth] = useState(getMonth(monthIndex));
+  const { monthIndex, year } = useContext(GlobalContext);
+  const [currentMonth, setCurrentMonth] = useState(getMonth(monthIndex, year));
 
   useEffect(() => {
-    setCurrentMonth(getMonth(monthIndex));
-  }, [monthIndex]);
+    setCurrentMonth(getMonth(monthIndex, year));
+  }, [monthIndex, year]);
 
   return (
     <div className="flex-1 grid grid-cols-7 grid-rows-5">
       {currentMonth.map((row, i) => (
         <React.Fragment key={i}>
           {row.map((day, idx) => (
-            <Day day={day} key={idx} rowIdx={i} currentMonthIdx={monthIndex} />
+            <Day day={day} key={idx} rowIdx={i} currentMonthIdx={monthIndex} year={year} />
           ))}
         </React.Fragment>
       ))}
