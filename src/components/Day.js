@@ -2,11 +2,11 @@ import dayjs from "dayjs";
 import React, { useContext, useState, useEffect } from "react";
 import GlobalContext from "../context/GlobalContext";
 
-export default function Day({ day, rowIdx }) {
+export default function Day({ day, rowIdx, currentMonthIdx }) {
   const [dayEvents, setDayEvents] = useState([]);
   const {
     setDaySelected,
-    setShowEventModal,
+    setShowDayInfoModal,
     filteredEvents,
     setSelectedEvent,
   } = useContext(GlobalContext);
@@ -24,8 +24,17 @@ export default function Day({ day, rowIdx }) {
       ? "bg-blue-600 text-white rounded-full w-7"
       : "";
   }
+
+  function getDayClass() {
+    if (day.month() !== currentMonthIdx) {
+      return "text-gray-400"; // Grey out days from past month
+    } else {
+      return "";
+    }
+  }
+
   return (
-    <div className="border border-gray-200 flex flex-col">
+    <div className={`border border-gray-200 flex flex-col ${getDayClass()}`}>
       <header className="flex flex-col items-center">
         {rowIdx === 0 && (
           <p className="text-sm mt-1">
@@ -42,7 +51,7 @@ export default function Day({ day, rowIdx }) {
         className="flex-1 cursor-pointer"
         onClick={() => {
           setDaySelected(day);
-          setShowEventModal(true);
+          setShowDayInfoModal(true);
         }}
       >
         {dayEvents.map((evt, idx) => (
