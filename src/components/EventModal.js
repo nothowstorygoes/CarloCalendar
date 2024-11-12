@@ -50,7 +50,7 @@ export default function EventModal() {
 
   return (
     <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
-      <form className="bg-white rounded-lg shadow-2xl w-1/3">
+      <form className="bg-white rounded-lg shadow-2xl w-1/3 z-50">
         <header className="bg-gray-100 px-4 py-2 flex justify-between items-center rounded-t-lg">
           <span className="material-icons-outlined text-gray-400">
             drag_handle
@@ -96,12 +96,12 @@ export default function EventModal() {
             <span className="material-icons-outlined text-gray-400">
               segment
             </span>
-            <input
-              type="text"
+            <textarea
               name="description"
               placeholder="Add a description"
               value={description}
               required
+              rows="4"
               className="pt-3 border-0 text-gray-600 pb-2 w-full border-b-2 border-gray-200 focus:outline-none focus:ring-0 focus:border-blue-500"
               onChange={(e) => setDescription(e.target.value)}
             />

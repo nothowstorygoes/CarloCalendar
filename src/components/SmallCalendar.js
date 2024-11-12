@@ -11,6 +11,7 @@ export default function SmallCalendar() {
     setYear,
     setSmallCalendarMonth,
     setDaySelected,
+    setViewMode,
     daySelected,
   } = useContext(GlobalContext);
 
@@ -87,6 +88,7 @@ export default function SmallCalendar() {
                 onClick={() => {
                   setSmallCalendarMonth(monthIndex);
                   setDaySelected(day);
+                  setViewMode("day");
                 }}
                 className={`py-1 w-full ${getDayClass(day)}`}
               >

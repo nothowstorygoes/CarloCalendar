@@ -12,16 +12,18 @@ const GlobalContext = React.createContext({
   setDaySelected: (day) => {},
   showEventModal: false,
   setShowEventModal: () => {},
-  showDayInfoModal: false,
-  setShowDayInfoModal: () => {},
   dispatchCalEvent: ({ type, payload }) => {},
   savedEvents: [],
   selectedEvent: null,
+  labelManager: false,
+  toggleLabelManager: () => {},
   setSelectedEvent: () => {},
   setLabels: () => {},
   labels: [],
   updateLabel: () => {},
   filteredEvents: [],
+  viewMode: "month",
+  setViewMode: () => {},
 });
 
 export default GlobalContext;

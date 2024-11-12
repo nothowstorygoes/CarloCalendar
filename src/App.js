@@ -1,16 +1,17 @@
-import React, { useState, useContext, useEffect } from "react";
-import "./App.css";
-import { getMonth } from "./util";
+import React, { useContext, useEffect, useState } from "react";
 import CalendarHeader from "./components/CalendarHeader";
 import Sidebar from "./components/Sidebar";
 import Month from "./components/Month";
-import GlobalContext from "./context/GlobalContext";
+import DayInfoModal from "./components/DayView";
+import WeeklyView from "./components/WeeklyView";
 import EventModal from "./components/EventModal";
-import DayInfoModal from "./components/DayModal";
+import LabelManager from "./components/LabelManager";
+import GlobalContext from "./context/GlobalContext";
+import { getMonth } from "./util";
 
 function App() {
-  const [currenMonth, setCurrentMonth] = useState(getMonth());
-  const { monthIndex, showEventModal, showDayInfoModal} = useContext(GlobalContext);
+  const [currentMonth, setCurrentMonth] = useState(getMonth());
+  const { monthIndex, showEventModal, viewMode, labelManager } = useContext(GlobalContext);
 
   useEffect(() => {
     setCurrentMonth(getMonth(monthIndex));
@@ -19,13 +20,23 @@ function App() {
   return (
     <React.Fragment>
       {showEventModal && <EventModal />}
-      {showDayInfoModal && <DayInfoModal />}
+      {labelManager && <LabelManager />}
 
       <div className="h-screen flex flex-col">
         <CalendarHeader />
         <div className="flex flex-1">
           <Sidebar />
-          <Month month={currenMonth} />
+          {viewMode === "month" && <Month month={currentMonth} />}
+          {viewMode === "day" && (
+            <div className="w-[calc(100%-16rem)] h-full">
+              <DayInfoModal />
+            </div>
+          )}
+          {viewMode === "week" && (
+            <div className="w-[calc(100%-16rem)] h-full">
+              <WeeklyView />
+            </div>
+          )}
         </div>
       </div>
     </React.Fragment>

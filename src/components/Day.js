@@ -6,9 +6,9 @@ export default function Day({ day, rowIdx, currentMonthIdx, year }) {
   const [dayEvents, setDayEvents] = useState([]);
   const {
     setDaySelected,
-    setShowDayInfoModal,
     filteredEvents,
     setSelectedEvent,
+    setViewMode,
   } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function Day({ day, rowIdx, currentMonthIdx, year }) {
       className={`border border-gray-200 flex flex-col ${getDayClass()}`}
       onClick={() => {
         setDaySelected(day);
-        setShowDayInfoModal(true);
+        setViewMode("day");
       }}
     >
       <header className="flex flex-col items-center">

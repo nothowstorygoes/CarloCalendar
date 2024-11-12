@@ -2,10 +2,14 @@ import React, { useContext } from "react";
 import GlobalContext from "../context/GlobalContext";
 
 export default function Labels() {
-  const { labels, updateLabel } = useContext(GlobalContext);
+  const { labels, updateLabel, toggleLabelManager} = useContext(GlobalContext);
   return (
     <React.Fragment>
-      <p className="text-gray-500 font-bold mt-10">Label</p>
+      <div className="flex items-center mt-10">
+        <p className="text-gray-500 font-bold">Label</p>
+        <span className="material-icons text-gray-500 ml-32" onClick={toggleLabelManager}>settings</span>
+
+      </div>
       {labels.map(({ label: lbl, checked }, idx) => (
         <label key={idx} className="items-center mt-3 block">
           <input
