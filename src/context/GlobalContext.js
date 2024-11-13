@@ -21,9 +21,15 @@ const GlobalContext = React.createContext({
   setLabels: () => {},
   labels: [],
   updateLabel: () => {},
+  deleteLabel: () => {},
+  createLabel: () => {},
   filteredEvents: [],
   viewMode: "month",
   setViewMode: () => {},
+  showLabelEventsModal: false,
+  setShowLabelEventsModal: () => {},
+  selectedLabel: null,
+  setSelectedLabel: () => {},
 });
 
 export default GlobalContext;

@@ -1,14 +1,5 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import GlobalContext from "../context/GlobalContext";
-
-const labelsClasses = [
-  "indigo",
-  "gray",
-  "green",
-  "blue",
-  "red",
-  "purple",
-];
 
 export default function EventModal() {
   const {
@@ -16,17 +7,26 @@ export default function EventModal() {
     daySelected,
     dispatchCalEvent,
     selectedEvent,
+    labels,
   } = useContext(GlobalContext);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedLabel, setSelectedLabel] = useState(labelsClasses[0]);
+  const [selectedLabel, setSelectedLabel] = useState(labels[0]?.name || "");
+  const [specificTime, setSpecificTime] = useState(false);
+  const [hours, setHours] = useState("");
+  const [minutes, setMinutes] = useState("");
 
   useEffect(() => {
     if (selectedEvent) {
       setTitle(selectedEvent.title);
       setDescription(selectedEvent.description);
       setSelectedLabel(selectedEvent.label);
+      if (selectedEvent.time) {
+        setSpecificTime(true);
+        setHours(selectedEvent.time.hours);
+        setMinutes(selectedEvent.time.minutes);
+      }
     }
   }, [selectedEvent]);
 
@@ -38,6 +38,8 @@ export default function EventModal() {
       label: selectedLabel,
       day: daySelected.valueOf(),
       id: selectedEvent ? selectedEvent.id : Date.now(),
+      checked: false,
+      time: specificTime ? { hours, minutes } : null,
     };
     if (selectedEvent) {
       dispatchCalEvent({ type: "update", payload: calendarEvent });
@@ -59,10 +61,7 @@ export default function EventModal() {
             {selectedEvent && (
               <span
                 onClick={() => {
-                  dispatchCalEvent({
-                    type: "delete",
-                    payload: selectedEvent,
-                  });
+                  dispatchCalEvent({ type: "delete", payload: selectedEvent });
                   setShowEventModal(false);
                 }}
                 className="material-icons-outlined text-gray-400 cursor-pointer"
@@ -70,58 +69,107 @@ export default function EventModal() {
                 delete
               </span>
             )}
-            <button onClick={() => setShowEventModal(false)}>
-              <span className="material-icons-outlined text-gray-400">
-                close
-              </span>
+            <button
+              onClick={() => setShowEventModal(false)}
+              className="material-icons-outlined text-gray-400"
+            >
+              close
             </button>
           </div>
         </header>
         <div className="p-3">
-          <div className="grid grid-cols-1/5 items-end gap-y-7">
-            <div></div>
-            <input
-              type="text"
-              name="title"
-              placeholder="Add title"
-              value={title}
-              required
-              className="pt-3 border-0 text-gray-600 text-xl font-semibold pb-2 w-full border-b-2 border-gray-200 focus:outline-none focus:ring-0 focus:border-blue-500"
-              onChange={(e) => setTitle(e.target.value)}
-            />
-            <span className="material-icons-outlined text-gray-400">
-              schedule
-            </span>
-            <p>{daySelected.format("dddd, MMMM DD")}</p>
-            <span className="material-icons-outlined text-gray-400">
-              segment
-            </span>
+          <div className="flex flex-col gap-y-4">
+            <div className="flex items-center">
+              <span className="material-icons-outlined text-gray-400">
+                edit
+              </span>
+              <input
+                type="text"
+                name="title"
+                placeholder="Add title"
+                value={title}
+                required
+                className="ml-6 pt-3 border-0 text-gray-600 text-xl font-semibold pb-2 w-60 border-b-2 border-gray-200 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4"
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </div>
             <textarea
               name="description"
-              placeholder="Add a description"
+              placeholder="Add description"
               value={description}
               required
               rows="4"
-              className="pt-3 border-0 text-gray-600 pb-2 w-full border-b-2 border-gray-200 focus:outline-none focus:ring-0 focus:border-blue-500"
+              className=" ml-12 pt-3 border-0 text-gray-600 pb-2 w-96 border-b-2 border-gray-200 focus:outline-none focus:ring-0 focus:border-blue-500"
               onChange={(e) => setDescription(e.target.value)}
             />
-            <span className="material-icons-outlined text-gray-400">
-              bookmark_border
-            </span>
-            <div className="flex gap-x-2">
-              {labelsClasses.map((lblClass, i) => (
-                <span
-                  key={i}
-                  onClick={() => setSelectedLabel(lblClass)}
-                  className={`bg-${lblClass}-500 w-6 h-6 rounded-full flex items-center justify-center cursor-pointer`}
-                >
-                  {selectedLabel === lblClass && (
-                    <span className="material-icons-outlined text-white text-sm">
-                      check
-                    </span>
-                  )}
+            <div className="flex items-center flex-row mt-5">
+              <div className="flex items-center">
+                <span className="material-icons text-gray-400">
+                  access_time
                 </span>
-              ))}
+                <input
+                  type="checkbox"
+                  checked={specificTime}
+                  onChange={() => setSpecificTime(!specificTime)}
+                  className="ml-6 rounded-full"
+                />
+                <label className="ml-4 text-gray-600">At time:</label>
+              </div>
+              <div className="flex items-center gap-x-2 ml-2">
+                <input
+                  type="number"
+                  name="hours"
+                  placeholder="HH"
+                  value={hours}
+                  onChange={(e) => setHours(e.target.value)}
+                  disabled={!specificTime}
+                  className={`w-16 p-2 border rounded ${
+                    specificTime
+                      ? "border-black"
+                      : "border-gray-300 bg-gray-100"
+                  }`}
+                  min="0"
+                  max="23"
+                />
+                <input
+                  type="number"
+                  name="minutes"
+                  placeholder="MM"
+                  value={minutes}
+                  onChange={(e) => setMinutes(e.target.value)}
+                  disabled={!specificTime}
+                  className={`w-16 p-2 border rounded ${
+                    specificTime
+                      ? "border-black"
+                      : "border-gray-300 bg-gray-100"
+                  }`}
+                  min="0"
+                  max="59"
+                />
+              </div>
+            </div>
+            <div className="flex flex-row items-center justify-between mt-4">
+              <span className="material-icons text-gray-400">
+                bookmark_border
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {labels.map((lbl, i) => (
+                  <div
+                    key={i}
+                    onClick={() => setSelectedLabel(lbl.name)}
+                    className="flex items-center justify-center cursor-pointer rounded"
+                    style={{
+                      backgroundColor:
+                        selectedLabel === lbl.name
+                          ? lbl.color
+                          : `${lbl.color}80`,
+                      padding: "0.5rem 1rem",
+                    }}
+                  >
+                    <span className="text-white">{lbl.name}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

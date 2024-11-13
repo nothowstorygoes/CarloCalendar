@@ -11,6 +11,7 @@ export default function WeeklyView() {
     setSelectedEvent,
     setShowEventModal,
     setViewMode,
+    labels,
   } = useContext(GlobalContext);
   const modalRef = useRef(null);
   const [currentWeek, setCurrentWeek] = useState([]);
@@ -41,6 +42,11 @@ export default function WeeklyView() {
 
   const handleNextWeek = () => {
     setDaySelected(daySelected.add(1, "week"));
+  };
+
+  const getLabelColor = (labelName) => {
+    const label = labels.find((lbl) => lbl.name === labelName);
+    return label ? label.color : "gray";
   };
 
   return (
@@ -95,24 +101,27 @@ export default function WeeklyView() {
                       .map((evt) => (
                         <div
                           key={evt.id}
-                          className={`flex justify-between items-center mb-2 bg-${evt.label}-200 p-2 rounded cursor-pointer`}
+                          className="flex justify-between items-center mb-2 p-2 rounded cursor-pointer"
+                          style={{ backgroundColor: evt.checked ? "rgba(128, 128, 128, 0.8)" : `${getLabelColor(evt.label)}80` }}
                           onClick={() => handleEventClick(evt)}
                         >
                           <div className="flex items-center">
                             <span
-                              className={`bg-${evt.label}-500 w-2 h-2 rounded-full mr-4`}
+                              className="w-2 h-2 rounded-full mr-4"
+                              style={{ backgroundColor: evt.checked ? "black" : getLabelColor(evt.label) }}
                             ></span>
-                            <div>
-                              <span className="text-black-600 font-bold">
+                            <div className="w-76">
+                              <span className="font-bold w-80" style={{ color: evt.checked ? "black" : getLabelColor(evt.label) }}>
                                 {evt.title}
                               </span>
-                              <p className="text-gray-500 text-sm">
+                              <p className="text-sm w-80" style={{ color: evt.checked ? "black" : getLabelColor(evt.label) }}>
                                 {evt.description}
                               </p>
                             </div>
-                          </div>
+                            {evt.time && (<p className="text-sm" style={{color: evt.checked ? "black" : `${getLabelColor(evt.label)}`}}> at {evt.time.hours}:{evt.time.minutes}</p>)}
+                            </div>
                           <div className="flex flex-row items-center">
-                            <p className={`text-gray-700 text-sm mr-3`}>
+                            <p className="text-sm mr-3" style={{ color: evt.checked ? "black" : getLabelColor(evt.label) }}>
                               {evt.label}
                             </p>
                             <button
@@ -120,7 +129,7 @@ export default function WeeklyView() {
                                 e.stopPropagation(); // Prevent triggering the modal when clicking on the delete button
                                 handleDeleteEvent(evt.id);
                               }}
-                              className="material-icons-outlined text-red-600 cursor-pointer"
+                              className="material-icons cursor-pointer" style={{ color: evt.checked ? "black" : getLabelColor(evt.label) }}
                             >
                               delete
                             </button>
@@ -171,24 +180,28 @@ export default function WeeklyView() {
                       .map((evt) => (
                         <div
                           key={evt.id}
-                          className={`flex justify-between items-center mb-2 bg-${evt.label}-200 p-2 rounded cursor-pointer`}
+                          className="flex justify-between items-center mb-2 p-2 rounded cursor-pointer"
+                          style={{ backgroundColor: evt.checked ? "rgba(128, 128, 128, 0.8)" : `${getLabelColor(evt.label)}80` }}
                           onClick={() => handleEventClick(evt)}
                         >
                           <div className="flex items-center">
                             <span
-                              className={`bg-${evt.label}-500 w-2 h-2 rounded-full mr-4`}
+                              className="w-2 h-2 rounded-full mr-4"
+                              style={{ backgroundColor: evt.checked ? "black" : getLabelColor(evt.label) }}
                             ></span>
-                            <div>
-                              <span className="text-black-600 font-bold">
+                            <div className="w-76">
+                              <span className="font-bold w-76" style={{ color: evt.checked ? "black" : getLabelColor(evt.label) }}>
                                 {evt.title}
                               </span>
-                              <p className="text-gray-500 text-sm">
+                              <p className="text-sm w-80" style={{ color: evt.checked ? "black" : getLabelColor(evt.label) }}>
                                 {evt.description}
                               </p>
                             </div>
+                            {evt.time && (<p className="text-sm" style={{color: evt.checked ? "black" : `${getLabelColor(evt.label)}`}}> at {evt.time.hours}:{evt.time.minutes}</p>)}
+
                           </div>
                           <div className="flex flex-row items-center">
-                            <p className={`text-gray-700 text-sm mr-3`}>
+                            <p className="text-sm mr-3" style={{ color: evt.checked ? "black" : getLabelColor(evt.label) }}>
                               {evt.label}
                             </p>
                             <button
@@ -196,7 +209,7 @@ export default function WeeklyView() {
                                 e.stopPropagation(); // Prevent triggering the modal when clicking on the delete button
                                 handleDeleteEvent(evt.id);
                               }}
-                              className="material-icons-outlined text-red-600 cursor-pointer"
+                              className="material-icons cursor-pointer" style={{ color: evt.checked ? "black" : getLabelColor(evt.label) }}
                             >
                               delete
                             </button>

@@ -9,6 +9,7 @@ export default function Day({ day, rowIdx, currentMonthIdx, year }) {
     filteredEvents,
     setSelectedEvent,
     setViewMode,
+    labels,
   } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -33,16 +34,21 @@ export default function Day({ day, rowIdx, currentMonthIdx, year }) {
     }
   }
 
+  const getLabelColor = (labelName) => {
+    const label = labels.find((lbl) => lbl.name === labelName);
+    return label ? label.color : "gray";
+  };
+
   const displayEvents = dayEvents.slice(0, 2);
   if (dayEvents.length > 3) {
-    displayEvents.push({ title: `+${dayEvents.length - 2} more`, label: "gray" });
+    displayEvents.push({ title: `+${dayEvents.length - 2} more`, label: { color: "gray" } });
   } else {
     displayEvents.push(...dayEvents.slice(2, 3));
   }
 
   return (
     <div
-      className={`border border-gray-200 flex flex-col ${getDayClass()}`}
+      className={`transition-shadow duration-300 ease-in-out hover:shadow-2xl border border-gray-200 flex flex-col ${getDayClass()}`}
       onClick={() => {
         setDaySelected(day);
         setViewMode("day");
@@ -68,7 +74,8 @@ export default function Day({ day, rowIdx, currentMonthIdx, year }) {
               e.stopPropagation(); // Prevent triggering the modal when clicking on an event
               setSelectedEvent(evt);
             }}
-            className={`bg-${evt.label}-200 p-1 mr-3 ml-3 text-gray-600 text-sm rounded mb-1 truncate`}
+            className="p-1 mr-3 ml-3 text-sm rounded mb-1 truncate text-center"
+            style={{ backgroundColor: evt.checked ? "rgba(128, 128, 128, 0.8)" : `${getLabelColor(evt.label)}80` , color: evt.checked ? "black" : `${getLabelColor(evt.label)}` }}
           >
             {evt.title}
           </div>

@@ -4,7 +4,17 @@ import logo from "../assets/logo.png";
 import GlobalContext from "../context/GlobalContext";
 
 export default function CalendarHeader() {
-  const { monthIndex, setMonthIndex, year, setYear, viewMode, setViewMode, setDaySelected } = useContext(GlobalContext);
+  const {
+    monthIndex,
+    setMonthIndex,
+    year,
+    setYear,
+    viewMode,
+    setViewMode,
+    setDaySelected,
+    setShowLabelEventsModal,
+    toggleLabelManager,
+  } = useContext(GlobalContext);
 
   function handleReset() {
     const today = dayjs();
@@ -21,6 +31,8 @@ export default function CalendarHeader() {
     } else {
       setViewMode("month");
     }
+    setShowLabelEventsModal(false); // Hide LabelEventsView
+    toggleLabelManager(false); // Hide LabelManager
   }
 
   return (

@@ -29,8 +29,10 @@ export default function ContextWrapper(props) {
   const [showEventModal, setShowEventModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [labelManager, toggleLabelManager] = useState(false);
-  const [labels, setLabels] = useState([]);
+  const [labels, setLabels] = useState([]); // Initialize as an empty array
   const [viewMode, setViewMode] = useState("month");
+  const [showLabelEventsModal, setShowLabelEventsModal] = useState(false);
+  const [selectedLabel, setSelectedLabel] = useState(null);
   const [savedEvents, dispatchCalEvent] = useReducer(
     savedEventsReducer,
     [],
@@ -41,7 +43,7 @@ export default function ContextWrapper(props) {
     return savedEvents.filter((evt) =>
       labels
         .filter((lbl) => lbl.checked)
-        .map((lbl) => lbl.label)
+        .map((lbl) => lbl.name)
         .includes(evt.label)
     );
   }, [savedEvents, labels]);
@@ -51,11 +53,23 @@ export default function ContextWrapper(props) {
   }, [savedEvents]);
 
   useEffect(() => {
+    const storageLabels = localStorage.getItem("labels");
+    if (storageLabels) {
+      setLabels(JSON.parse(storageLabels));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("labels", JSON.stringify(labels));
+  }, [labels]);
+
+  useEffect(() => {
     setLabels((prevLabels) => {
       return [...new Set(savedEvents.map((evt) => evt.label))].map((label) => {
-        const currentLabel = prevLabels.find((lbl) => lbl.label === label);
+        const currentLabel = prevLabels.find((lbl) => lbl.name === label);
         return {
-          label,
+          name: label,
+          color: currentLabel ? currentLabel.color : "gray",
           checked: currentLabel ? currentLabel.checked : true,
         };
       });
@@ -74,8 +88,16 @@ export default function ContextWrapper(props) {
     }
   }, [showEventModal]);
 
-  function updateLabel(label) {
-    setLabels(labels.map((lbl) => (lbl.label === label.label ? label : lbl)));
+  function updateLabel(updatedLabel) {
+    setLabels(labels.map((lbl) => (lbl.name === updatedLabel.name ? updatedLabel : lbl)));
+  }
+
+  function deleteLabel(labelName) {
+    setLabels(labels.filter((lbl) => lbl.name !== labelName));
+  }
+
+  function createLabel(newLabel) {
+    setLabels([...labels, newLabel]);
   }
 
   return (
@@ -94,15 +116,21 @@ export default function ContextWrapper(props) {
         dispatchCalEvent,
         selectedEvent,
         setSelectedEvent,
-        labelManager,
-        toggleLabelManager,
         savedEvents,
         setLabels,
         labels,
         updateLabel,
+        deleteLabel,
+        createLabel,
         filteredEvents,
         viewMode,
         setViewMode,
+        labelManager,
+        toggleLabelManager,
+        showLabelEventsModal,
+        setShowLabelEventsModal,
+        selectedLabel,
+        setSelectedLabel,
       }}
     >
       {props.children}
