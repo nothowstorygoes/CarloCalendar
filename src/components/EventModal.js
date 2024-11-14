@@ -14,6 +14,7 @@ export default function EventModal() {
   const [description, setDescription] = useState("");
   const [selectedLabel, setSelectedLabel] = useState(labels[0]?.name || "");
   const [specificTime, setSpecificTime] = useState(false);
+  const [date, setDate] = useState("");
   const [hours, setHours] = useState("");
   const [minutes, setMinutes] = useState("");
 
@@ -22,6 +23,7 @@ export default function EventModal() {
       setTitle(selectedEvent.title);
       setDescription(selectedEvent.description);
       setSelectedLabel(selectedEvent.label);
+      setDate(daySelected.valueOf());
       if (selectedEvent.time) {
         setSpecificTime(true);
         setHours(selectedEvent.time.hours);

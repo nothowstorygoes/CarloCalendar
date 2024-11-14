@@ -64,7 +64,7 @@ export default function DayInfoModal() {
 
   const eventsWithoutTime = dayEvents.filter((evt) => !evt.time);
 
-  const orderedEvents = [...eventsWithTime, ...eventsWithoutTime];
+  const orderedEvents = [...eventsWithoutTime, ...eventsWithTime];
 
   return (
     <div className="h-full w-full fixed left-0 top-0 flex justify-center items-center">
@@ -96,7 +96,7 @@ export default function DayInfoModal() {
               There are no upcoming events today.
             </p>
           )}
-          {orderedEvents.map((evt) => (
+          {eventsWithoutTime.map((evt) => (
             <div className="flex justify-center items-center">
               <div
                 key={evt.id}
@@ -164,7 +164,104 @@ export default function DayInfoModal() {
                   >
                     {evt.label}
                   </p>
+                  {!evt.time && (
+                    <>
+                      <input
+                        type="checkbox"
+                        className="rounded-full w-6 h-6 cursor-pointer mr-6 ml-6"
+                        checked={evt.checked}
+                        onChange={(e) => handleCheckboxChange(e, evt)}
+                      />
+                    </>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent triggering the modal when clicking on the delete button
+                      handleDeleteEvent(evt.id);
+                    }}
+                    className="material-icons cursor-pointer"
+                    style={{
+                      color: evt.checked
+                        ? "black"
+                        : `${getLabelColor(evt.label)}`,
+                    }}
+                  >
+                    delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+          <div class="w-full h-0.5 bg-gradient-to-r from-transparent via-gray-500 to-transparent"></div>
+          {eventsWithTime.map((evt) => (
+            <div className="flex justify-center items-center">
+              <div
+                key={evt.id}
+                className="flex justify-between w-5/6 items-center mb-2 p-2 rounded cursor-pointer transition-all duration-300"
+                style={{
+                  backgroundColor: evt.checked
+                    ? "rgba(128, 128, 128, 0.8)"
+                    : `${getLabelColor(evt.label)}80`,
+                  color: evt.checked ? "black" : "inherit",
+                }}
+              >
+                <div
+                  className="flex items-center"
+                  onClick={() => handleEventClick(evt)}
+                >
+                  <div className="flex justify-between items-center">
+                    <span
+                      className="w-2 h-2 rounded-full mr-4"
+                      style={{
+                        backgroundColor: evt.checked
+                          ? "black"
+                          : getLabelColor(evt.label),
+                      }}
+                    ></span>
+                    <div>
+                      <span className="text-black-600 font-bold w-68">
+                        {evt.title}
+                      </span>
+                      <p
+                        className="text-sm w-96"
+                        style={{
+                          color: evt.checked
+                            ? "black"
+                            : `${getLabelColor(evt.label)}`,
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {evt.description}
+                      </p>
+                    </div>
+                  </div>
                   {evt.time && (
+                    <p
+                      className="text-sm"
+                      style={{
+                        color: evt.checked
+                          ? "black"
+                          : `${getLabelColor(evt.label)}`,
+                      }}
+                    >
+                      {" "}
+                      at {evt.time.hours}:{evt.time.minutes}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex flex-row items-center">
+                  <p
+                    className="text-sm mr-3"
+                    style={{
+                      color: evt.checked
+                        ? "black"
+                        : `${getLabelColor(evt.label)}`,
+                    }}
+                  >
+                    {evt.label}
+                  </p>
+                  {!evt.time && (
                     <>
                       <input
                         type="checkbox"
