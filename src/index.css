@@ -1,3 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Add custom dark mode styles */
+body {
+  @apply bg-white text-black;
+}
+
+body.dark {
+  @apply bg-gray-900 text-white;
+}

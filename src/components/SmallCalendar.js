@@ -47,7 +47,7 @@ export default function SmallCalendar() {
     if (nowDay === currDay) {
       return "bg-blue-500 rounded-full text-white";
     } else if (currDay === slcDay) {
-      return "bg-blue-100 rounded-full text-blue-600 font-bold";
+      return "bg-blue-100 dark:bg-blue-700 rounded-full text-blue-600 dark:text-blue-200 font-bold";
     } else if (day.month() !== monthIndex) {
       return "text-gray-400"; // Grey out days from past month
     } else {
@@ -58,17 +58,17 @@ export default function SmallCalendar() {
   return (
     <div className="mt-9">
       <header className="flex justify-between">
-        <p className="text-gray-500 font-bold">
+        <p className="text-gray-500 dark:text-gray-200 font-bold">
           {dayjs(new Date(year, monthIndex)).format("MMMM YYYY")}
         </p>
         <div>
           <button onClick={handlePrevMonth}>
-            <span className="material-icons-outlined cursor-pointer text-gray-600 mx-2">
+            <span className="material-icons-outlined cursor-pointer text-gray-600 dark:text-gray-200 mx-2">
               chevron_left
             </span>
           </button>
           <button onClick={handleNextMonth}>
-            <span className="material-icons-outlined cursor-pointer text-gray-600 mx-2">
+            <span className="material-icons-outlined cursor-pointer text-gray-600 dark:text-gray-200 mx-2">
               chevron_right
             </span>
           </button>
@@ -76,7 +76,7 @@ export default function SmallCalendar() {
       </header>
       <div className="grid grid-cols-7 grid-rows-6">
         {currentMonth[0].map((day, i) => (
-          <span key={i} className="text-sm py-1 text-center">
+          <span key={i} className="text-sm py-1 text-center text-gray-500 dark:text-gray-200">
             {day.format("dd").charAt(0)}
           </span>
         ))}
@@ -92,7 +92,7 @@ export default function SmallCalendar() {
                 }}
                 className={`py-1 w-full ${getDayClass(day)}`}
               >
-                <span className="text-sm">{day.format("D")}</span>
+                <span className="text-sm text-gray-600 dark:text-gray-200">{day.format("D")}</span>
               </button>
             ))}
           </React.Fragment>

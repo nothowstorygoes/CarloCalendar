@@ -1,7 +1,7 @@
-import dayjs from "dayjs";
 import React, { useContext } from "react";
-import logo from "../assets/logo.png";
+import dayjs from "dayjs";
 import GlobalContext from "../context/GlobalContext";
+import logo from "../assets/logo.png";
 
 export default function CalendarHeader() {
   const {
@@ -17,10 +17,9 @@ export default function CalendarHeader() {
   } = useContext(GlobalContext);
 
   function handleReset() {
-    const today = dayjs();
-    setDaySelected(today);
-    setMonthIndex(today.month());
-    setYear(today.year());
+    setMonthIndex(dayjs().month());
+    setYear(dayjs().year());
+    setDaySelected(dayjs());
   }
 
   function toggleViewMode() {
@@ -36,23 +35,23 @@ export default function CalendarHeader() {
   }
 
   return (
-    <header className="px-4 py-2 flex items-center justify-between z-40">
+    <header className="px-4 py-2 flex items-center justify-between z-40 bg-white dark:bg-gray-900">
       <div className="flex items-center">
         <img src={logo} alt="calendar" className="mr-2 w-12 h-12" />
-        <h1 className="mr-16 text-xl text-gray-500 font-bold">Calendar</h1>
-        <h2 className="ml-10 text-xl text-gray-500 font-bold mr-4">
+        <h1 className="mr-16 text-xl text-gray-500 dark:text-gray-200 font-bold">Calendar</h1>
+        <h2 className="ml-10 text-xl text-gray-500 dark:text-gray-200 font-bold mr-4">
           {dayjs(new Date(year, monthIndex)).format("MMMM YYYY")}
         </h2>
         <button
           onClick={handleReset}
-          className="border rounded py-2 px-4 mr-5 ml-5"
+          className="border rounded py-2 px-4 mr-5 ml-5 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
         >
           Today
         </button>
       </div>
       <button
         onClick={toggleViewMode}
-        className="border rounded py-2 px-4 mr-5 ml-1 flex items-center"
+        className="border rounded py-2 px-4 mr-5 ml-1 flex items-center bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
       >
         {viewMode === "month" ? (
           <span className="material-icons">view_day</span>

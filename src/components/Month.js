@@ -12,7 +12,7 @@ export default function Month() {
   }, [monthIndex, year]);
 
   return (
-    <div className="flex-1 grid grid-cols-7 grid-rows-5">
+    <div className="flex-1 grid grid-cols-7 grid-rows-5 bg-white dark:bg-gray-900">
       {currentMonth.map((row, i) => (
         <React.Fragment key={i}>
           {row.map((day, idx) => (

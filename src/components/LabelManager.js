@@ -27,33 +27,33 @@ export default function LabelManager() {
   return (
     <div
       id="label-manager-overlay"
-      className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50"
+      className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50 bg-black bg-opacity-50 dark:bg-gray-800 dark:bg-opacity-75"
       onClick={handleClickOutside}
     >
-      <div className="bg-white w-[calc(100%-16rem)] h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative ml-64 mt-16">
-        <header className="bg-gray-100 px-4 py-2 flex items-center w-full">
+      <div className="bg-white dark:bg-gray-900 w-[calc(100%-16rem)] h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative ml-64 mt-16">
+        <header className="bg-gray-100 dark:bg-gray-800 px-4 py-2 flex items-center w-full">
           <button
             onClick={() => toggleLabelManager()}
-            className="material-icons-outlined text-gray-400 ml-auto mr-9"
+            className="material-icons-outlined text-gray-400 dark:text-gray-200 ml-auto mr-9"
           >
             close
           </button>
         </header>
         <div className="p-4 overflow-auto relative">
-          <h2 className="text-lg font-bold mb-4 flex justify-center tracking-widest">Manage Labels</h2>
+          <h2 className="text-lg font-bold mb-4 flex justify-center tracking-widest text-gray-600 dark:text-gray-200">Manage Labels</h2>
           <div className="mb-8 flex justify-center">
             <input
               type="text"
               placeholder="Label name"
               value={newLabelName}
               onChange={(e) => setNewLabelName(e.target.value)}
-              className="border p-2 rounded mr-2 w-64"
+              className="border p-2 rounded mr-2 w-64 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-200"
             />
             <input
               type="color"
               value={newLabelColor}
               onChange={(e) => setNewLabelColor(e.target.value)}
-              className="border p-5 rounded w-14"
+              className="border p-5 rounded w-14 bg-gray-100 dark:bg-gray-700"
             />
             <button
               onClick={handleCreateLabel}

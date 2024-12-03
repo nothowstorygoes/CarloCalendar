@@ -13,6 +13,8 @@ import dayjs from "dayjs";
 
 function App() {
   const [currentMonth, setCurrentMonth] = useState(getMonth());
+  const [darkMode, setDarkMode] = useState(false);
+
   const { monthIndex, showEventModal, viewMode, labelManager, showLabelEventsModal, selectedLabel, setShowLabelEventsModal, filteredEvents, dispatchCalEvent } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -51,6 +53,18 @@ function App() {
     });
   }, [filteredEvents, dispatchCalEvent]);
 
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
+
   return (
     <React.Fragment>
       {showEventModal && <EventModal />}
@@ -61,6 +75,12 @@ function App() {
 
       <div className="h-screen flex flex-col">
         <CalendarHeader />
+        <button
+          onClick={toggleDarkMode}
+          className="fixed top-4 right-24 bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200 p-2 rounded z-50"
+        >
+          Toggle Dark Mode
+        </button>
         <div className="flex flex-1">
           <Sidebar />
           {viewMode === "month" && <Month month={currentMonth} />}

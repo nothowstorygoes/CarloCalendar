@@ -15,7 +15,7 @@ export default function Labels() {
   return (
     <React.Fragment>
       <div className="flex items-center mt-10">
-        <p className="text-gray-500 font-bold">Labels</p>
+        <p className="text-gray-500 font-bold dark:text-white">Labels</p>
         <span className="material-icons text-gray-500 ml-32" onClick={toggleLabelManager}>
           settings
         </span>
@@ -29,7 +29,7 @@ export default function Labels() {
             className="form-checkbox h-5 w-5 rounded focus:ring-0 cursor-pointer"
             style={{ borderColor: color, backgroundColor: checked ? color : 'transparent' }}
           />
-          <span className="ml-2 text-gray-700 capitalize cursor-pointer" onClick={() => handleLabelClick({ name, color })}>
+          <span className="ml-2 text-gray-700 capitalize cursor-pointer dark:text-white" onClick={() => handleLabelClick({ name, color })}>
             {name}
           </span>
         </div>

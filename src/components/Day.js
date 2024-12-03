@@ -48,7 +48,7 @@ export default function Day({ day, rowIdx, currentMonthIdx, year }) {
 
   return (
     <div
-      className={`transition-shadow duration-300 ease-in-out hover:shadow-2xl border border-gray-200 flex flex-col ${getDayClass()}`}
+      className={`transition-shadow duration-300 ease-in-out hover:shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col ${getDayClass()}`}
       onClick={() => {
         setDaySelected(day);
         setViewMode("day");
@@ -56,12 +56,12 @@ export default function Day({ day, rowIdx, currentMonthIdx, year }) {
     >
       <header className="flex flex-col items-center">
         {rowIdx === 0 && (
-          <p className="text-sm mt-1">
+          <p className="text-sm mt-1 text-gray-500 dark:text-gray-200">
             {day.format("ddd").toUpperCase()}
           </p>
         )}
         <p
-          className={`text-sm p-1 my-1 text-center ${getCurrentDayClass()}`}
+          className={`dark:text-white text-sm p-1 my-1 text-center ${getCurrentDayClass()}`}
         >
           {day.format("DD")}
         </p>
