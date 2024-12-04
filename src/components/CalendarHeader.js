@@ -35,23 +35,23 @@ export default function CalendarHeader() {
   }
 
   return (
-    <header className="px-4 py-2 flex items-center justify-between z-40 bg-white dark:bg-gray-900">
-      <div className="flex items-center">
+    <header className="px-4 py-2 flex items-center justify-between z-40 bg-white dark:bg-zinc-800">
+      <div className="flex items-center ml-1">
         <img src={logo} alt="calendar" className="mr-2 w-12 h-12" />
-        <h1 className="mr-16 text-xl text-gray-500 dark:text-gray-200 font-bold">Calendar</h1>
-        <h2 className="ml-10 text-xl text-gray-500 dark:text-gray-200 font-bold mr-4">
+        <h1 className="mr-16 text-xl text-gray-500 dark:text-zinc-50 font-bold">CarloCalendar</h1>
+        <h2 className="ml-10 text-xl text-gray-500 dark:text-zinc-50 font-bold mr-4">
           {dayjs(new Date(year, monthIndex)).format("MMMM YYYY")}
         </h2>
         <button
           onClick={handleReset}
-          className="border rounded py-2 px-4 mr-5 ml-5 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+          className="border rounded py-2 px-4 mr-5 ml-5 bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50"
         >
           Today
         </button>
       </div>
       <button
         onClick={toggleViewMode}
-        className="border rounded py-2 px-4 mr-5 ml-1 flex items-center bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+        className="border rounded py-2 px-4 mr-5 ml-1 flex items-center bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50"
       >
         {viewMode === "month" ? (
           <span className="material-icons">view_day</span>

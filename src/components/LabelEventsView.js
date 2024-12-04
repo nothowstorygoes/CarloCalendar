@@ -58,24 +58,24 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
     <div className="fixed inset-0 flex justify-center items-center z-40 pointer-events-none bg-black bg-opacity-50 dark:bg-gray-800 dark:bg-opacity-75">
       <div
         ref={modalRef}
-        className="bg-white dark:bg-gray-900 w-[calc(100%-16rem)] h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative ml-64 mt-16 pointer-events-auto z-50"
+        className="bg-white dark:bg-zinc-900 w-[calc(100%-16rem)] h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative ml-64 mt-16 pointer-events-auto z-50"
       >
         <hr className="border-gray-200 dark:border-gray-700" />
         <div className="p-4 overflow-auto relative">
           <div className="flex items-center justify-between mb-6 w-full">
-            <h2 className="text-lg font-bold text-left mb-6 ml-6 mt-5 text-gray-600 dark:text-gray-200">
+            <h2 className="text-lg font-bold text-left mb-6 ml-6 mt-5 text-gray-600 dark:text-zinc-50">
               Events for{" "}
               <span style={{ color: label.color }}>{label.name}</span>
             </h2>
             <button
               onClick={() => setShowLabelEventsModal(false)}
-              className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-200 rounded-full p-2 w-10 h-10 flex items-center justify-center mr-10"
+              className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-600 dark:text-zinc-50 rounded-full p-2 w-10 h-10 flex items-center justify-center mr-10"
             >
-              <span className="material-icons dark:text-gray-200">close</span>
+              <span className="material-icons dark:text-zinc-50">close</span>
             </button>
           </div>
           {orderedEvents.length === 0 && (
-            <p className="text-gray-500 dark:text-gray-200 text-sm items-center flex justify-center">
+            <p className="text-gray-500 dark:text-zinc-50 text-sm items-center flex justify-center">
               There are no events for this label.
             </p>
           )}

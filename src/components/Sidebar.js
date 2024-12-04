@@ -5,10 +5,10 @@ import Labels from "./Labels";
 
 export default function Sidebar() {
   return (
-    <aside className="p-5 w-64 z-40 bg-white dark:bg-gray-900">
+    <aside className="p-5 w-64 z-40 bg-white dark:bg-zinc-800">
       <CreateEventButton />
       <SmallCalendar />
-      <hr className="mt-6 border-gray-200 dark:border-gray-700"></hr>
+      <hr className="mt-6 border-gray-200 dark:border-zinc-700"></hr>
       <Labels />
     </aside>
   );

@@ -73,13 +73,15 @@ function App() {
         <LabelEventsModal label={selectedLabel} setShowLabelEventsModal={setShowLabelEventsModal} />
       )}
 
-      <div className="h-screen flex flex-col">
+      <div className="h-screen flex flex-col bg-white dark:bg-zinc-800 overflow-hidden">
         <CalendarHeader />
         <button
           onClick={toggleDarkMode}
-          className="fixed top-4 right-24 bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200 p-2 rounded z-50"
+          className="fixed top-4 right-28 text-gray-800 dark:text-zinc-50 p-1 flex justify-center rounded z-50"
         >
-          Toggle Dark Mode
+          <span className="material-icons">
+            {darkMode ? "light_mode" : "dark_mode"}
+          </span>
         </button>
         <div className="flex flex-1">
           <Sidebar />

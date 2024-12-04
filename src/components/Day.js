@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import React, { useContext, useEffect, useState } from "react";
 import GlobalContext from "../context/GlobalContext";
 
-export default function Day({ day, rowIdx, currentMonthIdx, year }) {
+export default function Day({ day, rowIdx, currentMonthIdx, year, roundedClass }) {
   const [dayEvents, setDayEvents] = useState([]);
   const {
     setDaySelected,
@@ -48,7 +48,7 @@ export default function Day({ day, rowIdx, currentMonthIdx, year }) {
 
   return (
     <div
-      className={`transition-shadow duration-300 ease-in-out hover:shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col ${getDayClass()}`}
+      className={`transition-shadow duration-300 ease-in-out hover:shadow-2xl border border-gray-200 dark:border-zinc-700 flex flex-col ${getDayClass()} ${roundedClass}`}
       onClick={() => {
         setDaySelected(day);
         setViewMode("day");
@@ -56,7 +56,7 @@ export default function Day({ day, rowIdx, currentMonthIdx, year }) {
     >
       <header className="flex flex-col items-center">
         {rowIdx === 0 && (
-          <p className="text-sm mt-1 text-gray-500 dark:text-gray-200">
+          <p className="text-sm mt-1 text-gray-500 dark:text-zinc-50">
             {day.format("ddd").toUpperCase()}
           </p>
         )}

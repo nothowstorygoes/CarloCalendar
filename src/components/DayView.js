@@ -133,32 +133,31 @@ export default function DayInfoModal() {
   }, [dayEvents]);
 
   return (
-    <div className="h-full w-full fixed left-0 top-0 flex justify-center items-center bg-white dark:bg-gray-900">
+    <div className="h-[calc(100%-1.5rem)] w-[calc(100%-1.5rem)] left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-900 rounded-3xl">
       <div
         ref={modalRef}
-        className="bg-white dark:bg-gray-900 w-[calc(100%-16rem)] h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative ml-64 mt-16"
+        className="bg-white dark:bg-zinc-900 w-[calc(100%-16rem)] h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative mt-8"
       >
-        <hr className="border-gray-200 dark:border-gray-700" />
-        <div className="p-4 overflow-auto relative">
+        <div className="p-4 overflow-auto relative w-full">
           <div className="flex items-center justify-between mb-16 w-2/3 mx-auto space-x-1">
             <button
               onClick={handlePrevDay}
-              className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-200 rounded-full p-2 w-10 h-10 flex items-center justify-center transition-all duration-300"
+              className="bg-gray-200 dark:bg-zinc-700 hover:bg-gray-300 dark:hover:bg-zinc-600 text-gray-600 dark:text-zinc-50 rounded-full p-2 w-10 h-10 flex items-center justify-center transition-all duration-300"
             >
-              <span className="material-icons dark:text-gray-200">chevron_left</span>
+              <span className="material-icons dark:text-zinc-50">chevron_left</span>
             </button>
-            <h2 className="text-lg font-bold text-center text-gray-600 dark:text-gray-200">
+            <h2 className="text-lg font-bold text-center text-gray-600 dark:text-zinc-50">
               {daySelected.format("dddd, MMMM D, YYYY")}
             </h2>
             <button
               onClick={handleNextDay}
-              className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-200 rounded-full p-2 w-10 h-10 flex items-center justify-center transition-all duration-300"
+              className="bg-gray-200 dark:bg-zinc-700 hover:bg-gray-300 dark:hover:bg-zinc-600 text-gray-600 dark:text-zinc-50 rounded-full p-2 w-10 h-10 flex items-center justify-center transition-all duration-300"
             >
-              <span className="material-icons dark:text-gray-200">chevron_right</span>
+              <span className="material-icons dark:text-zinc-50">chevron_right</span>
             </button>
           </div>
           {dayEvents.length === 0 && (
-            <p className="text-gray-500 dark:text-gray-200 text-sm items-center flex justify-center">
+            <p className="text-gray-500 dark:text-zinc-50 text-sm items-center flex justify-center">
               There are no upcoming events today.
             </p>
           )}
@@ -172,7 +171,7 @@ export default function DayInfoModal() {
               getLabelColor={getLabelColor}
             />
           ))}
-          <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-gray-500 dark:via-gray-400 to-transparent"></div>
+          
           {eventsWithTime.map((evt) => (
             <EventItem
               key={evt.id}

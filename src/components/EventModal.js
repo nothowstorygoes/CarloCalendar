@@ -56,9 +56,9 @@ export default function EventModal() {
 
   return (
     <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50 z-50 dark:bg-gray-800 dark:bg-opacity-75">
-      <form className="bg-white dark:bg-gray-900 rounded-lg shadow-2xl w-1/3 z-50">
+      <form className="bg-white dark:bg-zinc-900 rounded-lg shadow-2xl w-1/3 z-50">
         <header className="bg-gray-100 dark:bg-gray-800 px-4 py-2 flex justify-between items-center rounded-t-lg">
-          <span className="material-icons-outlined text-gray-400 dark:text-gray-200">
+          <span className="material-icons-outlined text-gray-400 dark:text-zinc-50">
             drag_handle
           </span>
           <div>
@@ -68,14 +68,14 @@ export default function EventModal() {
                   dispatchCalEvent({ type: "delete", payload: selectedEvent });
                   setShowEventModal(false);
                 }}
-                className="material-icons-outlined text-gray-400 dark:text-gray-200 cursor-pointer mt-1"
+                className="material-icons-outlined text-gray-400 dark:text-zinc-50 cursor-pointer mt-1"
               >
                 delete
               </span>
             )}
             <button
               onClick={() => setShowEventModal(false)}
-              className="material-icons-outlined text-gray-400 dark:text-gray-200 mt-1 ml-4"
+              className="material-icons-outlined text-gray-400 dark:text-zinc-50 mt-1 ml-4"
             >
               close
             </button>
@@ -84,7 +84,7 @@ export default function EventModal() {
         <div className="p-6">
           <div className="flex flex-col gap-y-4">
             <div className="flex items-center">
-              <span className="material-icons-outlined text-gray-400 dark:text-gray-200">
+              <span className="material-icons-outlined text-gray-400 dark:text-zinc-50">
                 edit
               </span>
               <input
@@ -93,7 +93,7 @@ export default function EventModal() {
                 placeholder="Add title"
                 value={title}
                 required
-                className="ml-6 pt-3 border-0 text-gray-600 dark:text-gray-200 text-xl font-semibold pb-2 w-60 border-b-2 border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-gray-700 rounded"
+                className="ml-6 pt-3 border-0 text-gray-600 dark:text-zinc-50 text-xl font-semibold pb-2 w-60 border-b-2 border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-gray-700 rounded"
                 onChange={(e) => setTitle(e.target.value)}
               />
             </div>
@@ -103,12 +103,12 @@ export default function EventModal() {
               value={description}
               required
               rows="4"
-              className="ml-12 pt-3 border-0 text-gray-600 dark:text-gray-200 pb-2 w-96 border-b-2 border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-blue-500 bg-gray-100 dark:bg-gray-700 rounded"
+              className="ml-12 pt-3 border-0 text-gray-600 dark:text-zinc-50 pb-2 w-96 border-b-2 border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-blue-500 bg-gray-100 dark:bg-gray-700 rounded"
               onChange={(e) => setDescription(e.target.value)}
             />  
             <div className="flex items-center flex-row mt-5">
               <div className="flex items-center">
-                <span className="material-icons text-gray-400 dark:text-gray-200">
+                <span className="material-icons text-gray-400 dark:text-zinc-50">
                   event
                 </span>
               </div>
@@ -150,7 +150,7 @@ export default function EventModal() {
               </div>
             </div>
             <div className="flex flex-row items-center justify-between mt-4">
-              <span className="material-icons text-gray-400 dark:text-gray-200">
+              <span className="material-icons text-gray-400 dark:text-zinc-50">
                 bookmark_border
               </span>
               <div className="flex flex-wrap gap-2 mr-6">
