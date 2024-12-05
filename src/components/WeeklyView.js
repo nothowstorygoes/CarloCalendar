@@ -50,10 +50,10 @@ export default function WeeklyView() {
   };
 
   return (
-    <div className="h-[calc(100%-1.5rem)] w-[calc(100%-1.5rem)] rounded-3xl left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-900">
+    <div className="h-[calc(100%-1.5rem)] w-[calc(100%-1.5rem)] rounded-3xl left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-950">
       <div
         ref={modalRef}
-        className="bg-white dark:bg-zinc-900 w-[calc(100%-16rem)] h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative mt-8"
+        className="bg-white dark:bg-zinc-950 w-[calc(100%-16rem)] h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative mt-8"
       >
         <div className="p-4 overflow-auto relative">
           <div className="flex items-center justify-between mb-6 w-2/3 mx-auto space-x-1">

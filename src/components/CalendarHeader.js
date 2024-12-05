@@ -35,7 +35,7 @@ export default function CalendarHeader() {
   }
 
   return (
-    <header className="px-4 py-2 flex items-center justify-between z-40 bg-white dark:bg-zinc-800">
+    <header className="px-4 py-2 flex items-center justify-between z-40 bg-white dark:bg-zinc-900">
       <div className="flex items-center ml-1">
         <img src={logo} alt="calendar" className="mr-2 w-12 h-12" />
         <h1 className="mr-16 text-xl text-gray-500 dark:text-zinc-50 font-bold">CarloCalendar</h1>

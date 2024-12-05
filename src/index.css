@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Add transitions for background, border, and text colors */
+* {
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+  }
