@@ -89,7 +89,7 @@ export default function CalendarHeader() {
         </button>
         <button
           onClick={() => handleViewModeChange("week")}
-          className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50 ${
+          className={`border rounded py-2 px-4 mr-5 ml-1 flex items-center bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50 ${
             viewMode === "week" ? "font-bold" : ""
           }`}
         >
