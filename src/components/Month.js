@@ -16,7 +16,7 @@ export default function Month() {
   }, [filteredEvents]);
 
   return (
-    <div className="mb-5 mr-5 flex-1 grid grid-cols-7 grid-rows-5 bg-white dark:bg-zinc-950 rounded-3xl">
+    <div className="mb-5 mr-5 flex-1 grid grid-cols-7 grid-rows-6 bg-white dark:bg-zinc-950 rounded-3xl">
       {currentMonth.map((row, i) => (
         <React.Fragment key={i}>
           {row.map((day, idx) => {

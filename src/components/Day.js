@@ -23,7 +23,7 @@ export default function Day({ day, rowIdx, currentMonthIdx, year, roundedClass }
 
   function getCurrentDayClass() {
     return day.format("DD-MM-YY") === dayjs().format("DD-MM-YY")
-      ? "bg-blue-600 text-white rounded-full w-7"
+      ? "bg-blue-600 text-white rounded-full w-6 h-4 flex items-center justify-center"
       : "";
   }
 
@@ -57,12 +57,12 @@ export default function Day({ day, rowIdx, currentMonthIdx, year, roundedClass }
     >
       <header className="flex flex-col items-center">
         {rowIdx === 0 && (
-          <p className="text-sm mt-1 text-gray-500 dark:text-zinc-50">
+          <p className="text-xs mt-1 text-gray-500 dark:text-zinc-50">
             {day.format("ddd").toUpperCase()}
           </p>
         )}
         <p
-          className={`dark:text-white text-sm p-1 my-1 text-center ${getCurrentDayClass()}`}
+          className={`dark:text-white text-xs p-1 my-1 text-center ${getCurrentDayClass()}`}
         >
           {day.format("DD")}
         </p>
@@ -75,7 +75,7 @@ export default function Day({ day, rowIdx, currentMonthIdx, year, roundedClass }
               e.stopPropagation(); // Prevent triggering the modal when clicking on an event
               setSelectedEvent(evt);
             }}
-            className="p-1 mr-3 ml-3 text-sm rounded mb-1 truncate text-center"
+            className="p-1 mx-1 text-xs rounded mb-1 truncate text-center"
             style={{ backgroundColor: evt.checked ? "rgba(128, 128, 128, 0.8)" : `${getLabelColor(evt.label)}80` , color: evt.checked ? "black" : `${getLabelColor(evt.label)}` }}
           >
             {evt.title}
