@@ -40,6 +40,8 @@ export default function LabelEditor({ selectedLabel, setShowLabelEditor }) {
     setShowLabelEditor(false);
   };
 
+  const usedCodes = labels.map(label => label.code);
+
   return (
     <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50 z-40 dark:bg-zinc-800 dark:bg-opacity-75">
       <form className="bg-white dark:bg-zinc-950 rounded-lg shadow-2xl w-1/3 z-50" onSubmit={handleSubmit}>
@@ -55,7 +57,7 @@ export default function LabelEditor({ selectedLabel, setShowLabelEditor }) {
           </button>
         </header>
         <div className="p-3">
-          <div className="flex flex-col gap-y-4">
+          <div className="flex flex-col gap-y-6">
             <div className="flex items-center">
               <span className="material-icons-outlined text-gray-400 dark:text-zinc-200">
                 label
@@ -66,24 +68,31 @@ export default function LabelEditor({ selectedLabel, setShowLabelEditor }) {
                 placeholder={t('label_name')}
                 value={name}
                 required
-                className="ml-2 pt-3 border-0 text-gray-600 dark:text-zinc-200 text-xl font-semibold pb-2 w-60 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-zinc-700 rounded"
+                className="ml-4 pt-3 border-0 text-gray-600 dark:text-zinc-200 text-xl font-semibold pb-2 w-40 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-zinc-700 rounded"
                 onChange={(e) => setName(e.target.value)}
               />
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center relative">
               <span className="material-icons-outlined text-gray-400 dark:text-zinc-200">
                 code
               </span>
-              <input
-                type="text"
-                name="code"
-                placeholder={t('label_code')}
+              <select
                 value={code}
-                required
-                maxLength={3}
-                className="ml-2 pt-3 border-0 text-gray-600 dark:text-zinc-200 text-xl font-semibold pb-2 w-20 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-zinc-700 rounded"
                 onChange={(e) => setCode(e.target.value)}
-              />
+                className="ml-4 border p-2 rounded w-40 bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-zinc-50 custom-scrollbar"
+              >
+                <option value="" disabled>{t("select_priority")}</option>
+                {Array.from({ length: 20 }, (_, i) => i + 1).map((code) => (
+                  <option
+                    key={code}
+                    value={code}
+                    disabled={usedCodes.includes(code.toString())}
+                    className={usedCodes.includes(code.toString()) ? "text-gray-600 dark:text-zinc-50" : ""}
+                  >
+                    {code}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="flex items-center">
               <span className="material-icons-outlined text-gray-400 dark:text-zinc-200">
@@ -94,7 +103,7 @@ export default function LabelEditor({ selectedLabel, setShowLabelEditor }) {
                 name="color"
                 value={color}
                 required
-                className="ml-2 pt-3 border-0 text-gray-600 dark:text-zinc-200 text-xl font-semibold pb-2 w-20 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-zinc-700 rounded"
+                className="ml-4 pt-3 border-0 text-gray-600 dark:text-zinc-200 text-xl font-semibold pb-2 w-20 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-zinc-700 rounded"
                 onChange={(e) => setColor(e.target.value)}
               />
             </div>
@@ -109,6 +118,21 @@ export default function LabelEditor({ selectedLabel, setShowLabelEditor }) {
           </button>
         </footer>
       </form>
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 12px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: var(--scrollbar-track-bg);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #888;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #555;
+        }
+      `}</style>
     </div>
   );
 }

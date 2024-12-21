@@ -1,9 +1,10 @@
 import React, { useContext } from "react";
 import GlobalContext from "../context/GlobalContext";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 
 export default function Labels() {
-  const { labels, updateLabel, setViewMode, setSelectedLabel } = useContext(GlobalContext);
+  const { labels, updateLabel, setViewMode, setSelectedLabel } =
+    useContext(GlobalContext);
   const { t } = useTranslation();
 
   const handleLabelClick = (label) => {
@@ -17,16 +18,29 @@ export default function Labels() {
 
   const sortedLabels = [...labels].sort((a, b) => a.code.localeCompare(b.code));
 
-
   return (
     <React.Fragment>
-      <div className="flex items-center mt-10">
+      <div
+        className="flex items-center mt-10"
+        style={{
+          "--scrollbar-track-bg": document.documentElement.classList.contains(
+            "dark"
+          )
+            ? "#3f3f46"
+            : "#e5e7eb",
+        }}
+      >
         <p className="text-gray-500 font-bold dark:text-white">{t("labels")}</p>
-        <span className="material-icons text-gray-500 ml-28 cursor-pointer" onClick={handleSettingsClick}>
+        <span
+          className="material-icons text-gray-500 ml-28 cursor-pointer"
+          onClick={handleSettingsClick}
+        >
           settings
         </span>
       </div>
-      <div className="mt-4 h-72 overflow-y-auto custom-scrollbar"> {/* Set a fixed height and enable vertical scrolling */}
+      <div className="mt-4 h-72 overflow-y-auto custom-scrollbar">
+        {" "}
+        {/* Set a fixed height and enable vertical scrolling */}
         {sortedLabels.map(({ name, code, color, checked }, idx) => (
           <div
             key={idx}
@@ -40,10 +54,10 @@ export default function Labels() {
       </div>
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
+          width: 12px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-          background: #f1f1f1;
+          background: var(--scrollbar-track-bg);
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
           background: #888;

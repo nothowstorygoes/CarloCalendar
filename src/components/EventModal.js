@@ -82,6 +82,9 @@ const handleSubmit = async (e) => {
     setSelectedEvent(null); // Reset selectedEvent state
     resetForm(); // Reset the form when closing the modal
   };
+  
+  const sortedLabels = [...labels].sort((a, b) => a.code - b.code);
+
 
   return (
     <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50 z-40 dark:bg-zinc-800 dark:bg-opacity-75">
@@ -198,7 +201,7 @@ const handleSubmit = async (e) => {
                 bookmark_border
               </span>
               <div className="flex flex-wrap gap-2">
-                {labels.map((lbl, i) => (
+                {sortedLabels.map((lbl, i) => (
                   <div
                     key={i}
                     onClick={() => !isChecked && setSelectedLabel(lbl.name)}
