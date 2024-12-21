@@ -77,6 +77,16 @@ export default function CalendarHeader() {
         </span>
       </button>
       <div className="flex items-center">
+
+
+        <button
+          onClick={() => handleViewModeChange("day")}
+          className={`border rounded py-2 px-4 mr-5 ml-1 flex items-center bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50 ${
+            viewMode === "day" ? "font-bold" : ""
+          }`}
+        >
+          {t("day")}
+        </button>
         <button
           onClick={() => handleViewModeChange("week")}
           className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50 ${
@@ -92,14 +102,6 @@ export default function CalendarHeader() {
           }`}
         >
           {t("month")}
-        </button>
-        <button
-          onClick={() => handleViewModeChange("day")}
-          className={`border rounded py-2 px-4 mr-5 ml-1 flex items-center bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50 ${
-            viewMode === "day" ? "font-bold" : ""
-          }`}
-        >
-          {t("day")}
         </button>
       </div>
     </header>
