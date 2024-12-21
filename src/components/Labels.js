@@ -26,15 +26,15 @@ export default function Labels() {
           settings
         </span>
       </div>
-      <div className="grid grid-cols-2 gap-4 mt-4">
+      <div className="mt-4">
         {sortedLabels.map(({ name, code, color, checked }, idx) => (
           <div
             key={idx}
-            className="flex items-center justify-center p-2 rounded cursor-pointer text-white font-bold"
+            className="flex items-center justify-center p-2 rounded cursor-pointer text-white font-bold mb-5"
             style={{ backgroundColor: color }}
             onClick={() => handleLabelClick({ name, code, color })}
           >
-            {code}
+            {name}
           </div>
         ))}
       </div>
