@@ -93,12 +93,14 @@ export default function LabelManager() {
             <input
               type="text"
               placeholder={t("add_label")}
+              required
               value={newLabelName}
               onChange={(e) => setNewLabelName(e.target.value)}
               className="border p-2 rounded mr-2 w-64 bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-zinc-50"
             />
             <select
               value={newLabelCode}
+              required
               onChange={(e) => setNewLabelCode(e.target.value)}
               className="border p-2 rounded mr-2 w-64 bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-zinc-50 custom-scrollbar"
             >
