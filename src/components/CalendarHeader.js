@@ -38,16 +38,25 @@ export default function CalendarHeader() {
   }
 
   useEffect(() => {
-    if (darkMode) {
+    const savedDarkMode = localStorage.getItem("darkMode") === "true";
+    setDarkMode(savedDarkMode);
+    if (savedDarkMode) {
       document.documentElement.classList.add("dark");
     } else {
       document.documentElement.classList.remove("dark");
     }
-  }, [darkMode]);
+  }, []);
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-  };
+  function handleDarkModeToggle() {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    localStorage.setItem("darkMode", newDarkMode);
+    if (newDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }
 
   return (
     <header className="px-4 py-2 flex items-center justify-between bg-white dark:bg-zinc-900">
@@ -69,7 +78,7 @@ export default function CalendarHeader() {
         </button>
       </div>
       <button
-        onClick={toggleDarkMode}
+        onClick={handleDarkModeToggle}
         className="top-4 ml-96 pt-3 text-gray-800 dark:text-zinc-50 p-1 rounded"
       >
         <span className="material-icons">

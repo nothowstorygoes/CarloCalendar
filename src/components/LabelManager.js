@@ -3,35 +3,41 @@ import GlobalContext from "../context/GlobalContext";
 import { useTranslation } from "react-i18next";
 import { auth, db } from "../firebase";
 import { addDoc, collection, doc, deleteDoc } from "firebase/firestore";
+import LabelEditor from "./LabelEditor";
 
 export default function LabelManager() {
   const { labels, setLabels, setViewMode } = useContext(GlobalContext);
   const [newLabelName, setNewLabelName] = useState("");
   const [newLabelCode, setNewLabelCode] = useState("");
   const [newLabelColor, setNewLabelColor] = useState("#808080"); // Default to gray
+  const [showLabelEditor, setShowLabelEditor] = useState(false);
+  const [selectedLabel, setSelectedLabel] = useState(null);
   const { t } = useTranslation();
 
   const handleCreateLabel = async () => {
     console.log("Label Name:", newLabelName);
     console.log("Label Code:", newLabelCode);
     console.log("Label Color:", newLabelColor);
-      const newLabel = {
-        name: newLabelName,
-        code: newLabelCode,
-        color: newLabelColor,
-      };
+    const newLabel = {
+      name: newLabelName,
+      code: newLabelCode,
+      color: newLabelColor,
+    };
 
-      try {
-        console.log("Creating label:", newLabel);
-        const labelRef = await addDoc(collection(db, `users/${auth.currentUser.uid}/labels`), newLabel);
-        console.log("Label created with ID:", labelRef.id);
-        setLabels([...labels, { id: labelRef.id, ...newLabel }]);
-        setNewLabelName("");
-        setNewLabelCode("");
-        setNewLabelColor("#808080"); // Reset to default gray
-      } catch (error) {
-        console.error("Error creating label:", error);
-      }
+    try {
+      console.log("Creating label:", newLabel);
+      const labelRef = await addDoc(
+        collection(db, `users/${auth.currentUser.uid}/labels`),
+        newLabel
+      );
+      console.log("Label created with ID:", labelRef.id);
+      setLabels([...labels, { id: labelRef.id, ...newLabel }]);
+      setNewLabelName("");
+      setNewLabelCode("");
+      setNewLabelColor("#808080"); // Reset to default gray
+    } catch (error) {
+      console.error("Error creating label:", error);
+    }
   };
 
   const deleteLabel = async (labelId) => {
@@ -50,8 +56,12 @@ export default function LabelManager() {
     }
   };
 
-  const sortedLabels = [...labels].sort((a, b) => a.code.localeCompare(b.code));
+  const handleEditLabel = (label) => {
+    setSelectedLabel(label);
+    setShowLabelEditor(true);
+  };
 
+  const sortedLabels = [...labels].sort((a, b) => a.code.localeCompare(b.code));
 
   return (
     <div
@@ -106,16 +116,32 @@ export default function LabelManager() {
                 className="flex items-center justify-between mb-2 p-4 rounded"
                 style={{ backgroundColor: `${color}80` }} // Semi-transparent background
               >
-                <span className="font-bold" style={{ color: '#ffff' }}>{name} ({code})</span>
+                <span className="font-bold" style={{ color: "#ffff" }}>
+                  {name} ({code})
+                </span>
+                <div>
+                <span
+                  className="material-icons text-white ml-2 cursor-pointer mr-5"
+                  onClick={() => handleEditLabel({ id, name, code, color })}
+                >
+                  edit
+                </span>
                 <button
                   onClick={() => deleteLabel(id)}
                   className="material-icons-outlined cursor-pointer"
-                  style={{ color: '#ffff' }} // Set contrast color
+                  style={{ color: "#ffff" }} // Set contrast color
                 >
                   delete
                 </button>
+                </div>
               </div>
             ))}
+            {showLabelEditor && (
+              <LabelEditor
+                selectedLabel={selectedLabel}
+                setShowLabelEditor={setShowLabelEditor}
+              />
+            )}
           </div>
         </div>
       </div>
