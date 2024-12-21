@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import "dayjs/locale/it"; // Import Italian locale
 import React, { useContext, useEffect, useState } from "react";
 import GlobalContext from "../context/GlobalContext";
 

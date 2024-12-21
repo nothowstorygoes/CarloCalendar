@@ -1,6 +1,7 @@
 import React, { useContext, useRef, useMemo } from "react";
 import dayjs from "dayjs";
 import GlobalContext from "../context/GlobalContext";
+import { useTranslation } from 'react-i18next';
 
 const EventItem = ({ evt, handleEventClick, handleCheckboxChange, handleDeleteEvent, getLabelColor }) => (
   <div className="flex justify-center items-center">
@@ -21,7 +22,7 @@ const EventItem = ({ evt, handleEventClick, handleCheckboxChange, handleDeleteEv
           <div>
             <span className="text-black-600 font-bold w-68">{evt.title}</span>
             <p
-              className="text-sm w-96"
+              className="text-sm w-96 dark:text-white"
               style={{
                 color: evt.checked ? "black" : `${getLabelColor(evt.label)}`,
                 textOverflow: "ellipsis",
@@ -75,6 +76,7 @@ export default function DayInfoModal() {
     labels,
   } = useContext(GlobalContext);
   const modalRef = useRef(null);
+  const { t } = useTranslation();
 
   const dayEvents = useMemo(() => filteredEvents.filter(
     (evt) => dayjs(evt.day).format("DD-MM-YY") === daySelected.format("DD-MM-YY")
@@ -132,6 +134,10 @@ export default function DayInfoModal() {
     return [withTime, withoutTime];
   }, [dayEvents]);
 
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
   return (
     <div className="h-[calc(100%-1.5rem)] w-[calc(100%-1.5rem)] left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-950 rounded-3xl">
       <div
@@ -147,7 +153,7 @@ export default function DayInfoModal() {
               <span className="material-icons dark:text-zinc-50">chevron_left</span>
             </button>
             <h2 className="text-lg font-bold text-center text-gray-600 dark:text-zinc-50">
-              {daySelected.format("dddd, MMMM D, YYYY")}
+              {capitalizeFirstLetter(daySelected.format("dddd, MMMM D, YYYY"))}
             </h2>
             <button
               onClick={handleNextDay}
@@ -158,7 +164,7 @@ export default function DayInfoModal() {
           </div>
           {dayEvents.length === 0 && (
             <p className="text-gray-500 dark:text-zinc-50 text-sm items-center flex justify-center">
-              There are no upcoming events today.
+               {t('no_events')}
             </p>
           )}
           {eventsWithoutTime.map((evt) => (

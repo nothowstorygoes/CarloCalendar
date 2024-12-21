@@ -1,6 +1,7 @@
 import React, { useContext, useRef } from "react";
 import dayjs from "dayjs";
 import GlobalContext from "../context/GlobalContext";
+import { useTranslation } from "react-i18next";
 
 export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
   const {
@@ -10,7 +11,7 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
     dispatchCalEvent,
   } = useContext(GlobalContext);
   const modalRef = useRef(null);
-
+  const { t } = useTranslation();
   const labelEvents = filteredEvents.filter((evt) => evt.label === label.name);
 
   const handleEventClick = (event) => {
@@ -55,31 +56,24 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
   ];
 
   return (
-    <div className="fixed inset-0 flex justify-center items-center z-40 pointer-events-none bg-black bg-opacity-50 dark:bg-gray-800 dark:bg-opacity-75">
+    <div className="h-[calc(100%-1.5rem)] w-[calc(100%-1.5rem)] rounded-3xl left-0 top-0 flex justify-start items-center bg-white dark:bg-zinc-950">
       <div
         ref={modalRef}
-        className="bg-white dark:bg-zinc-900 w-[calc(100%-16rem)] h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative ml-64 mt-16 pointer-events-auto z-50"
+        className="bg-white dark:bg-zinc-950 w-[calc(100%-16rem)] h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative pointer-events-auto z-50"
       >
-        <hr className="border-gray-200 dark:border-gray-700" />
         <div className="p-4 overflow-auto relative">
           <div className="flex items-center justify-between mb-6 w-full">
-            <h2 className="text-lg font-bold text-left mb-6 ml-6 mt-5 text-gray-600 dark:text-zinc-50">
-              Events for{" "}
+            <h2 className="text-lg font-bold text-left mb-6 ml-6 text-gray-600 dark:text-zinc-50">
+              {t("events_for")}{" "}
               <span style={{ color: label.color }}>{label.name}</span>
             </h2>
-            <button
-              onClick={() => setShowLabelEventsModal(false)}
-              className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-600 dark:text-zinc-50 rounded-full p-2 w-10 h-10 flex items-center justify-center mr-10"
-            >
-              <span className="material-icons dark:text-zinc-50">close</span>
-            </button>
           </div>
           {orderedEvents.length === 0 && (
             <p className="text-gray-500 dark:text-zinc-50 text-sm items-center flex justify-center">
-              There are no events for this label.
+              {t("no_events_label")}
             </p>
           )}
-          <div className="grid grid-cols-4 gap-4 ml-6">
+          <div className="grid grid-cols-4 gap-4 ml-6 overflow-auto">
             {orderedEvents.map((evt) => (
               <div
                 key={evt.id}
@@ -121,7 +115,7 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
                     </p>
                   </div>
                   <div className="flex flex-col items-center justify-center gap-6 mr-6">
-                    {evt.time && (
+                    {!evt.time && (
                       <>
                         <input
                           type="checkbox"

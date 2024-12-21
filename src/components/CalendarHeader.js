@@ -1,6 +1,9 @@
 import React, { useContext } from "react";
 import dayjs from "dayjs";
+import "dayjs/locale/it"; // Import Italian locale
 import GlobalContext from "../context/GlobalContext";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import logo from "../assets/logo.png";
 
 export default function CalendarHeader() {
@@ -15,6 +18,8 @@ export default function CalendarHeader() {
     setShowLabelEventsModal,
     toggleLabelManager,
   } = useContext(GlobalContext);
+  const { t } = useTranslation();
+  const [darkMode, setDarkMode] = useState(false);
 
   function handleReset() {
     setMonthIndex(dayjs().month());
@@ -22,45 +27,81 @@ export default function CalendarHeader() {
     setDaySelected(dayjs());
   }
 
-  function toggleViewMode() {
-    if (viewMode === "month") {
-      setViewMode("day");
-    } else if (viewMode === "day") {
-      setViewMode("week");
-    } else {
-      setViewMode("month");
-    }
+  function handleViewModeChange(mode) {
+    setViewMode(mode);
     setShowLabelEventsModal(false); // Hide LabelEventsView
     toggleLabelManager(false); // Hide LabelManager
   }
 
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [darkMode]);
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
+
   return (
-    <header className="px-4 py-2 flex items-center justify-between z-40 bg-white dark:bg-zinc-900">
+    <header className="px-4 py-2 flex items-center justify-between bg-white dark:bg-zinc-900">
       <div className="flex items-center ml-1">
         <img src={logo} alt="calendar" className="mr-2 w-12 h-12" />
-        <h1 className="mr-16 text-xl text-gray-500 dark:text-zinc-50 font-bold">CarloCalendar</h1>
+        <h1 className="mr-16 text-xl text-gray-500 dark:text-zinc-50 font-bold">
+          CarloCalendar
+        </h1>
         <h2 className="ml-10 text-xl text-gray-500 dark:text-zinc-50 font-bold mr-4">
-          {dayjs(new Date(year, monthIndex)).format("MMMM YYYY")}
+          {capitalizeFirstLetter(
+            dayjs(new Date(year, monthIndex)).format("MMMM YYYY")
+          )}
         </h2>
         <button
           onClick={handleReset}
           className="border rounded py-2 px-4 mr-5 ml-5 bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50"
         >
-          Today
+          {t("today")}
         </button>
       </div>
       <button
-        onClick={toggleViewMode}
-        className="border rounded py-2 px-4 mr-5 ml-1 flex items-center bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50"
+        onClick={toggleDarkMode}
+        className="top-4 ml-96 pt-3 text-gray-800 dark:text-zinc-50 p-1 rounded"
       >
-        {viewMode === "month" ? (
-          <span className="material-icons">view_day</span>
-        ) : viewMode === "day" ? (
-          <span className="material-icons">view_week</span>
-        ) : (
-          <span className="material-icons">calendar_view_month</span>
-        )}
+        <span className="material-icons">
+          {darkMode ? "light_mode" : "dark_mode"}
+        </span>
       </button>
+      <div className="flex items-center">
+        <button
+          onClick={() => handleViewModeChange("week")}
+          className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50 ${
+            viewMode === "week" ? "font-bold" : ""
+          }`}
+        >
+          {t("week")}
+        </button>
+        <button
+          onClick={() => handleViewModeChange("month")}
+          className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50 ${
+            viewMode === "month" ? "font-bold" : ""
+          }`}
+        >
+          {t("month")}
+        </button>
+        <button
+          onClick={() => handleViewModeChange("day")}
+          className={`border rounded py-2 px-4 mr-5 ml-1 flex items-center bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50 ${
+            viewMode === "day" ? "font-bold" : ""
+          }`}
+        >
+          {t("day")}
+        </button>
+      </div>
     </header>
   );
 }

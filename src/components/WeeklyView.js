@@ -1,6 +1,7 @@
 import React, { useContext, useRef, useEffect, useState } from "react";
 import dayjs from "dayjs";
 import GlobalContext from "../context/GlobalContext";
+import { useTranslation } from "react-i18next";
 
 export default function WeeklyView() {
   const {
@@ -15,7 +16,7 @@ export default function WeeklyView() {
   } = useContext(GlobalContext);
   const modalRef = useRef(null);
   const [currentWeek, setCurrentWeek] = useState([]);
-
+  const { t } = useTranslation();
   useEffect(() => {
     const startOfWeek = daySelected.startOf("week").add(1, "day"); // Start from Monday
     const week = Array.from({ length: 7 }, (_, i) => startOfWeek.add(i, "day"));
@@ -49,6 +50,10 @@ export default function WeeklyView() {
     return label ? label.color : "gray";
   };
 
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
   return (
     <div className="h-[calc(100%-1.5rem)] w-[calc(100%-1.5rem)] rounded-3xl left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-950">
       <div
@@ -64,7 +69,7 @@ export default function WeeklyView() {
               <span className="material-icons dark:text-zinc-50">chevron_left</span>
             </button>
             <h2 className="text-lg font-bold text-center mb-6 text-gray-600 dark:text-zinc-50">
-              {daySelected.startOf("week").add(1, "day").format("MMMM D")} -{" "}
+              {capitalizeFirstLetter(daySelected.startOf("week").add(1, "day").format("MMMM D"))} -{" "}
               {daySelected.endOf("week").add(1, "day").format("MMMM D, YYYY")}
             </h2>
             <button
@@ -89,7 +94,7 @@ export default function WeeklyView() {
                       dayjs(evt.day).format("DD-MM-YY") === day.format("DD-MM-YY")
                   ).length === 0 ? (
                     <p className="text-gray-500 dark:text-zinc-50 text-sm">
-                      There are no upcoming events for today.
+                      {t("no_events")}
                     </p>
                   ) : (
                     filteredEvents
@@ -168,7 +173,7 @@ export default function WeeklyView() {
                       dayjs(evt.day).format("DD-MM-YY") === day.format("DD-MM-YY")
                   ).length === 0 ? (
                     <p className="text-gray-500 dark:text-zinc-50 text-sm">
-                      There are no upcoming events for today.
+                      {t("no_events")}
                     </p>
                   ) : (
                     filteredEvents

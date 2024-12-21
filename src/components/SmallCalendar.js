@@ -1,25 +1,22 @@
 import dayjs from "dayjs";
+import "dayjs/locale/it"; // Import Italian locale
 import React, { useContext, useEffect, useState } from "react";
 import GlobalContext from "../context/GlobalContext";
 import { getMonth } from "../util";
+import { useTranslation } from 'react-i18next';
 
 export default function SmallCalendar() {
-  const {
-    monthIndex,
-    setMonthIndex,
-    year,
-    setYear,
-    setSmallCalendarMonth,
-    setDaySelected,
-    setViewMode,
-    daySelected,
-  } = useContext(GlobalContext);
-
+  const { t } = useTranslation();
+  const { monthIndex, setMonthIndex, year, setYear, setSmallCalendarMonth, setDaySelected, setViewMode, daySelected } = useContext(GlobalContext);
   const [currentMonth, setCurrentMonth] = useState(getMonth(monthIndex, year));
 
   useEffect(() => {
     setCurrentMonth(getMonth(monthIndex, year));
   }, [monthIndex, year]);
+
+  useEffect(() => {
+    dayjs.locale('it'); // Set dayjs locale to Italian
+  }, []);
 
   function handlePrevMonth() {
     if (monthIndex === 0) {
@@ -55,11 +52,15 @@ export default function SmallCalendar() {
     }
   }
 
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
   return (
     <div className="mt-9">
       <header className="flex justify-between">
         <p className="text-gray-500 dark:text-zinc-50 font-bold">
-          {dayjs(new Date(year, monthIndex)).format("MMMM YYYY")}
+          {capitalizeFirstLetter(dayjs(new Date(year, monthIndex)).format("MMMM YYYY"))}
         </p>
         <div>
           <button onClick={handlePrevMonth}>
@@ -77,7 +78,7 @@ export default function SmallCalendar() {
       <div className="grid grid-cols-7 grid-rows-6">
         {currentMonth[0].map((day, i) => (
           <span key={i} className="text-sm py-1 text-center text-gray-500 dark:text-zinc-50">
-            {day.format("dd").charAt(0)}
+            {capitalizeFirstLetter(day.format("dd").charAt(0))}
           </span>
         ))}
         {currentMonth.map((row, i) => (

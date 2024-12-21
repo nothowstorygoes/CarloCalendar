@@ -1,26 +1,52 @@
 import React, { useContext, useState } from "react";
 import GlobalContext from "../context/GlobalContext";
+import { useTranslation } from "react-i18next";
+import { auth, db } from "../firebase";
+import { addDoc, collection, doc, deleteDoc } from "firebase/firestore";
 
 export default function LabelManager() {
-  const { labels, deleteLabel, createLabel, toggleLabelManager } = useContext(GlobalContext);
+  const { labels, setLabels, setViewMode } = useContext(GlobalContext);
   const [newLabelName, setNewLabelName] = useState("");
+  const [newLabelCode, setNewLabelCode] = useState("");
   const [newLabelColor, setNewLabelColor] = useState("#808080"); // Default to gray
+  const { t } = useTranslation();
 
-  const handleCreateLabel = () => {
-    if (newLabelName.trim() !== "") {
-      createLabel({ name: newLabelName, color: newLabelColor, checked: true });
-      setNewLabelName("");
-      setNewLabelColor("#808080"); // Reset to default gray
-    }
+  const handleCreateLabel = async () => {
+    console.log("Label Name:", newLabelName);
+    console.log("Label Code:", newLabelCode);
+    console.log("Label Color:", newLabelColor);
+      const newLabel = {
+        name: newLabelName,
+        code: newLabelCode,
+        color: newLabelColor,
+      };
+
+      try {
+        console.log("Creating label:", newLabel);
+        const labelRef = await addDoc(collection(db, `users/${auth.currentUser.uid}/labels`), newLabel);
+        console.log("Label created with ID:", labelRef.id);
+        setLabels([...labels, { id: labelRef.id, ...newLabel }]);
+        setNewLabelName("");
+        setNewLabelCode("");
+        setNewLabelColor("#808080"); // Reset to default gray
+      } catch (error) {
+        console.error("Error creating label:", error);
+      }
   };
 
-  const handleDeleteLabel = (labelName) => {
-    deleteLabel(labelName);
+  const deleteLabel = async (labelId) => {
+    try {
+      const labelRef = doc(db, `users/${auth.currentUser.uid}/labels`, labelId);
+      await deleteDoc(labelRef);
+      setLabels(labels.filter((lbl) => lbl.id !== labelId));
+    } catch (error) {
+      console.error("Error deleting label:", error);
+    }
   };
 
   const handleClickOutside = (event) => {
     if (event.target.id === "label-manager-overlay") {
-      toggleLabelManager(false);
+      setViewMode("month");
     }
   };
 
@@ -31,22 +57,31 @@ export default function LabelManager() {
       onClick={handleClickOutside}
     >
       <div className="bg-white dark:bg-zinc-950 w-[calc(100%-16rem)] h-[calc(100%-5.5rem)] max-w-none max-h-none overflow-hidden relative ml-64 mt-16 rounded-3xl mr-5 mb-8">
-          <button
-            onClick={() => toggleLabelManager()}
-            className="material-icons-outlined text-gray-400 dark:text-zinc-50 ml-14 mt-8 flex flex-end"
-          >
-            close
-          </button>
-        
+        <button
+          onClick={() => setViewMode("month")}
+          className="material-icons-outlined text-gray-400 dark:text-zinc-50 ml-14 mt-8 flex flex-end"
+        >
+          close
+        </button>
         <div className="p-4 overflow-auto relative">
-          <h2 className="text-lg font-bold mb-4 flex justify-center tracking-widest text-gray-600 dark:text-zinc-50">Manage Labels</h2>
+          <h2 className="text-lg font-bold mb-4 flex justify-center tracking-widest text-gray-600 dark:text-zinc-50">
+            {t("manage_labels")}
+          </h2>
           <div className="mb-8 flex justify-center">
             <input
               type="text"
-              placeholder="Label name"
+              placeholder={t("add_label")}
               value={newLabelName}
               onChange={(e) => setNewLabelName(e.target.value)}
               className="border p-2 rounded mr-2 w-64 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-zinc-50"
+            />
+            <input
+              type="text"
+              placeholder={t("add_code")}
+              value={newLabelCode}
+              onChange={(e) => setNewLabelCode(e.target.value)}
+              className="border p-2 rounded mr-2 w-20 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-zinc-50"
+              maxLength={3}
             />
             <input
               type="color"
@@ -58,19 +93,19 @@ export default function LabelManager() {
               onClick={handleCreateLabel}
               className="bg-blue-500 text-white p-2 rounded ml-2 w-24"
             >
-              Create
+              {t("create")}
             </button>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            {labels.map(({ name, color }, idx) => (
+            {labels.map(({ id, name, code, color }, idx) => (
               <div
                 key={idx}
                 className="flex items-center justify-between mb-2 p-4 rounded"
                 style={{ backgroundColor: `${color}80` }} // Semi-transparent background
               >
-                <span className="font-bold" style={{ color: '#ffff' }}>{name}</span>
+                <span className="font-bold" style={{ color: '#ffff' }}>{name} ({code})</span>
                 <button
-                  onClick={() => handleDeleteLabel(name)}
+                  onClick={() => deleteLabel(id)}
                   className="material-icons-outlined cursor-pointer"
                   style={{ color: '#ffff' }} // Set contrast color
                 >

@@ -1,9 +1,13 @@
-import React, { useState, useEffect, useReducer, useMemo } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import GlobalContext from "./GlobalContext";
 import dayjs from "dayjs";
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { auth, db } from "../firebase";
 
 function savedEventsReducer(state, { type, payload }) {
   switch (type) {
+    case "set":
+      return payload;
     case "push":
       return [...state, payload];
     case "update":
@@ -11,94 +15,82 @@ function savedEventsReducer(state, { type, payload }) {
     case "delete":
       return state.filter((evt) => evt.id !== payload.id);
     default:
-      throw new Error();
+      throw new Error(`Unhandled action type: ${type}`);
   }
 }
 
 function initEvents() {
-  const storageEvents = localStorage.getItem("savedEvents");
-  const parsedEvents = storageEvents ? JSON.parse(storageEvents) : [];
-  return parsedEvents;
+  return [];
 }
 
 export default function ContextWrapper(props) {
   const [monthIndex, setMonthIndex] = useState(dayjs().month());
   const [year, setYear] = useState(dayjs().year());
-  const [smallCalendarMonth, setSmallCalendarMonth] = useState(null);
   const [daySelected, setDaySelected] = useState(dayjs());
   const [showEventModal, setShowEventModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [labelManager, toggleLabelManager] = useState(false);
-  const [labels, setLabels] = useState([]); // Initialize as an empty array
+  const [labels, setLabels] = useState([]);
+  const [filteredEvents, setFilteredEvents] = useState([]);
   const [viewMode, setViewMode] = useState("month");
+  const [labelManager, toggleLabelManager] = useState(false);
   const [showLabelEventsModal, setShowLabelEventsModal] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState(null);
-  const [savedEvents, dispatchCalEvent] = useReducer(
-    savedEventsReducer,
-    [],
-    initEvents
-  );
+  const [smallCalendarMonth, setSmallCalendarMonth] = useState(dayjs().month());
 
-  const filteredEvents = useMemo(() => {
-    return savedEvents.filter((evt) =>
-      labels
-        .filter((lbl) => lbl.checked)
-        .map((lbl) => lbl.name)
-        .includes(evt.label)
+  const [savedEvents, dispatchCalEvent] = useReducer(savedEventsReducer, [], initEvents);
+
+  useEffect(() => {
+    const fetchLabels = async () => {
+      if (auth.currentUser) {
+        const labelsRef = collection(db, `users/${auth.currentUser.uid}/labels`);
+        const labelsSnapshot = await getDocs(labelsRef);
+        const labelsData = labelsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setLabels(labelsData);
+      }
+    };
+
+    fetchLabels();
+  }, [auth.currentUser]);
+
+  useEffect(() => {
+    setFilteredEvents(
+      savedEvents.filter((evt) =>
+        labels
+          .filter((lbl) => lbl.checked)
+          .map((lbl) => lbl.name)
+          .includes(evt.label)
+      )
     );
   }, [savedEvents, labels]);
 
-  useEffect(() => {
-    localStorage.setItem("savedEvents", JSON.stringify(savedEvents));
-  }, [savedEvents]);
-
-  useEffect(() => {
-    const storageLabels = localStorage.getItem("labels");
-    if (storageLabels) {
-      setLabels(JSON.parse(storageLabels));
+  const createLabel = async (newLabel) => {
+    try {
+      const labelRef = await addDoc(collection(db, `users/${auth.currentUser.uid}/labels`), newLabel);
+      setLabels([...labels, { id: labelRef.id, ...newLabel }]);
+    } catch (error) {
+      console.error("Error creating label: ", error);
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    localStorage.setItem("labels", JSON.stringify(labels));
-  }, [labels]);
-
-  useEffect(() => {
-    setLabels((prevLabels) => {
-      return [...new Set(savedEvents.map((evt) => evt.label))].map((label) => {
-        const currentLabel = prevLabels.find((lbl) => lbl.name === label);
-        return {
-          name: label,
-          color: currentLabel ? currentLabel.color : "gray",
-          checked: currentLabel ? currentLabel.checked : true,
-        };
-      });
-    });
-  }, [savedEvents]);
-
-  useEffect(() => {
-    if (smallCalendarMonth !== null) {
-      setMonthIndex(smallCalendarMonth);
+  const updateLabel = async (updatedLabel) => {
+    try {
+      const labelRef = doc(db, `users/${auth.currentUser.uid}/labels`, updatedLabel.id);
+      await updateDoc(labelRef, updatedLabel);
+      setLabels(labels.map((lbl) => (lbl.id === updatedLabel.id ? updatedLabel : lbl)));
+    } catch (error) {
+      console.error("Error updating label: ", error);
     }
-  }, [smallCalendarMonth]);
+  };
 
-  useEffect(() => {
-    if (!showEventModal) {
-      setSelectedEvent(null);
+  const deleteLabel = async (labelId) => {
+    try {
+      const labelRef = doc(db, `users/${auth.currentUser.uid}/labels`, labelId);
+      await deleteDoc(labelRef);
+      setLabels(labels.filter((lbl) => lbl.id !== labelId));
+    } catch (error) {
+      console.error("Error deleting label: ", error);
     }
-  }, [showEventModal]);
-
-  function updateLabel(updatedLabel) {
-    setLabels(labels.map((lbl) => (lbl.name === updatedLabel.name ? updatedLabel : lbl)));
-  }
-
-  function deleteLabel(labelName) {
-    setLabels(labels.filter((lbl) => lbl.name !== labelName));
-  }
-
-  function createLabel(newLabel) {
-    setLabels([...labels, newLabel]);
-  }
+  };
 
   return (
     <GlobalContext.Provider
@@ -107,8 +99,6 @@ export default function ContextWrapper(props) {
         setMonthIndex,
         year,
         setYear,
-        smallCalendarMonth,
-        setSmallCalendarMonth,
         daySelected,
         setDaySelected,
         showEventModal,
@@ -116,13 +106,13 @@ export default function ContextWrapper(props) {
         dispatchCalEvent,
         selectedEvent,
         setSelectedEvent,
-        savedEvents,
-        setLabels,
         labels,
+        setLabels,
+        createLabel,
         updateLabel,
         deleteLabel,
-        createLabel,
         filteredEvents,
+        setFilteredEvents,
         viewMode,
         setViewMode,
         labelManager,
@@ -131,6 +121,8 @@ export default function ContextWrapper(props) {
         setShowLabelEventsModal,
         selectedLabel,
         setSelectedLabel,
+        smallCalendarMonth,
+        setSmallCalendarMonth,
       }}
     >
       {props.children}
