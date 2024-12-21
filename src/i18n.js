@@ -38,6 +38,7 @@ const resources = {
       "label_manager": "Label Manager",
       "spinner": "Loading...",
       "add_code": "Add Code",
+      "select_priority": "Select Priority",
     }
   },
   it: {
@@ -62,6 +63,7 @@ const resources = {
       "view_month": "Visualizza Mese",
       "settings": "Impostazioni",
       "chevron_left": "Precedente",
+      "select_priority": "Seleziona Priorità",
       "chevron_right": "Successivo",
       "close": "Chiudi",
       "edit": "Modifica",
