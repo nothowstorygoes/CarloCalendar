@@ -142,7 +142,7 @@ export default function LabelManager() {
                 className="flex items-center justify-between mb-2 p-4 rounded"
                 style={{ backgroundColor: `${color}80` }} // Semi-transparent background
               >
-                <span className="font-bold" style={{ color: "#ffff" }}>
+                <span className="font-bold" style={{ color: "#000" }}>
                   {name} ({code})
                 </span>
                 <div>
