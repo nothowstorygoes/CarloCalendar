@@ -2,6 +2,8 @@ import React, { useContext, useRef, useEffect, useState } from "react";
 import dayjs from "dayjs";
 import GlobalContext from "../context/GlobalContext";
 import { useTranslation } from "react-i18next";
+import "dayjs/locale/it"; // Import Italian locale
+
 
 export default function WeeklyView() {
   const {
@@ -51,7 +53,7 @@ export default function WeeklyView() {
   };
 
   function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+    return string.replace(/\b\w/g, char => char.toUpperCase());
   }
 
   return (
@@ -69,8 +71,8 @@ export default function WeeklyView() {
               <span className="material-icons dark:text-zinc-50">chevron_left</span>
             </button>
             <h2 className="text-lg font-bold text-center mb-6 text-gray-600 dark:text-zinc-50">
-              {capitalizeFirstLetter(daySelected.startOf("week").add(1, "day").format("MMMM D"))} -{" "}
-              {daySelected.endOf("week").add(1, "day").format("MMMM D, YYYY")}
+              {capitalizeFirstLetter(daySelected.locale("it").startOf("week").add(1, "day").format("MMMM D"))} -{" "}
+              {capitalizeFirstLetter(daySelected.locale("it").endOf("week").add(1, "day").format("MMMM D, YYYY"))}
             </h2>
             <button
               onClick={handleNextWeek}
@@ -87,7 +89,7 @@ export default function WeeklyView() {
                     className="text-lg font-bold mb-2 cursor-pointer text-gray-600 dark:text-zinc-50"
                     onClick={() => handleDateClick(day)}
                   >
-                    {day.format("dddd, MMMM D")}
+                    {capitalizeFirstLetter(day.locale("it").format("dddd, MMMM D"))}
                   </h3>
                   {filteredEvents.filter(
                     (evt) =>
@@ -166,7 +168,7 @@ export default function WeeklyView() {
                     className="text-lg font-bold mb-2 cursor-pointer text-gray-600 dark:text-zinc-50"
                     onClick={() => handleDateClick(day)}
                   >
-                    {day.format("dddd, MMMM D")}
+                    {capitalizeFirstLetter(day.locale("it").format("dddd, MMMM D"))}
                   </h3>
                   {filteredEvents.filter(
                     (evt) =>

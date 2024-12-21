@@ -1,5 +1,6 @@
 import React, { useContext, useRef, useMemo } from "react";
 import dayjs from "dayjs";
+import "dayjs/locale/it"; // Import Italian locale
 import GlobalContext from "../context/GlobalContext";
 import { useTranslation } from 'react-i18next';
 
@@ -135,7 +136,7 @@ export default function DayInfoModal() {
   }, [dayEvents]);
 
   function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+    return string.replace(/\b\w/g, char => char.toUpperCase());
   }
 
   return (
@@ -153,7 +154,7 @@ export default function DayInfoModal() {
               <span className="material-icons dark:text-zinc-50">chevron_left</span>
             </button>
             <h2 className="text-lg font-bold text-center text-gray-600 dark:text-zinc-50">
-              {capitalizeFirstLetter(daySelected.format("dddd, MMMM D, YYYY"))}
+              {capitalizeFirstLetter(daySelected.locale("it").format("dddd, MMMM D, YYYY"))}
             </h2>
             <button
               onClick={handleNextDay}

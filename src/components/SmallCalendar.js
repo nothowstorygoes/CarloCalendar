@@ -60,7 +60,7 @@ export default function SmallCalendar() {
     <div className="mt-9">
       <header className="flex justify-between">
         <p className="text-gray-500 dark:text-zinc-50 font-bold">
-          {capitalizeFirstLetter(dayjs(new Date(year, monthIndex)).format("MMMM YYYY"))}
+          {capitalizeFirstLetter(dayjs(new Date(year, monthIndex)).locale("it").format("MMMM YYYY"))}
         </p>
         <div>
           <button onClick={handlePrevMonth}>
