@@ -81,7 +81,7 @@ export default function CalendarHeader() {
           onClick={() => handleViewModeChange("day")}
           className={`border rounded py-2 px-4 mr-5 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
             viewMode === "day"
-              ? "bg-gray-400 dark:bg-zinc-900"
+              ? "bg-blue-500 dark:bg-blue-700"
               : "bg-gray-200 dark:bg-zinc-700"
           }`}
         >
@@ -91,7 +91,7 @@ export default function CalendarHeader() {
           onClick={() => handleViewModeChange("week")}
           className={`border rounded py-2 px-4 mr-5 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
             viewMode === "week"
-              ? "bg-gray-400 dark:bg-zinc-900"
+              ? "bg-blue-500 dark:bg-blue-700"
               : "bg-gray-200 dark:bg-zinc-700"
           }`}
         >
@@ -101,7 +101,7 @@ export default function CalendarHeader() {
           onClick={() => handleViewModeChange("month")}
           className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
             viewMode === "month"
-              ? "bg-gray-400 dark:bg-zinc-900"
+              ? "bg-blue-500 dark:bg-blue-700"
               : "bg-gray-200 dark:bg-zinc-700"
           }`}
         >
