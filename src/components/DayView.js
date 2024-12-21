@@ -10,8 +10,7 @@ const EventItem = ({ evt, handleEventClick, handleCheckboxChange, handleDeleteEv
       key={evt.id}
       className="flex justify-between w-5/6 items-center mb-2 p-2 rounded cursor-pointer transition-all duration-300"
       style={{
-        backgroundColor: evt.checked ? "rgba(128, 128, 128, 0.8)" : `${getLabelColor(evt.label)}80`,
-        color: evt.checked ? "black" : "inherit",
+        backgroundColor: evt.checked ? "rgba(128, 128, 128, 0.8)" : `${getLabelColor(evt.label)}`,
       }}
     >
       <div className="flex items-center" onClick={() => handleEventClick(evt)}>
@@ -23,7 +22,7 @@ const EventItem = ({ evt, handleEventClick, handleCheckboxChange, handleDeleteEv
           <div>
             <span className="text-black-600 font-bold w-68">{evt.title}</span>
             <p
-              className="text-sm w-96 dark:text-white"
+              className="text-sm w-96 dark:text-black"
               style={{
                 color: evt.checked ? "black" : `${getLabelColor(evt.label)}`,
                 textOverflow: "ellipsis",
@@ -34,13 +33,13 @@ const EventItem = ({ evt, handleEventClick, handleCheckboxChange, handleDeleteEv
           </div>
         </div>
         {evt.time && (
-          <p className="text-sm" style={{ color: evt.checked ? "black" : `${getLabelColor(evt.label)}` }}>
+          <p className="text-sm text-black">
             {" "}at {evt.time.hours}:{evt.time.minutes}
           </p>
         )}
       </div>
       <div className="flex flex-row items-center">
-        <p className="text-sm mr-3" style={{ color: evt.checked ? "black" : `${getLabelColor(evt.label)}` }}>
+        <p className="text-sm mr-3 text-black">
           {evt.label}
         </p>
         {!evt.time && (
@@ -56,8 +55,7 @@ const EventItem = ({ evt, handleEventClick, handleCheckboxChange, handleDeleteEv
             e.stopPropagation();
             handleDeleteEvent(evt.id);
           }}
-          className="material-icons cursor-pointer"
-          style={{ color: evt.checked ? "black" : `${getLabelColor(evt.label)}` }}
+          className="material-icons cursor-pointer text-black"
         >
           delete
         </button>
