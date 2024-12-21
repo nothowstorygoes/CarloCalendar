@@ -20,7 +20,7 @@ export default function WeeklyView() {
   const { t } = useTranslation();
 
   useEffect(() => {
-    const startOfWeek = daySelected.startOf("week").add(1, "day"); // Start from Monday
+    const startOfWeek = daySelected.startOf("week"); // Start from Monday
     const week = Array.from({ length: 7 }, (_, i) => startOfWeek.add(i, "day"));
     setCurrentWeek(week);
   }, [daySelected]);
@@ -71,8 +71,8 @@ export default function WeeklyView() {
               <span className="material-icons dark:text-zinc-50">chevron_left</span>
             </button>
             <h2 className="text-lg font-bold text-center mb-6 text-gray-600 dark:text-zinc-50">
-              {capitalizeFirstLetter(daySelected.locale("it").startOf("week").add(1, "day").format("MMMM D"))} -{" "}
-              {capitalizeFirstLetter(daySelected.locale("it").endOf("week").add(1, "day").format("MMMM D, YYYY"))}
+              {capitalizeFirstLetter(daySelected.locale("it").startOf("week").format("MMMM D"))} -{" "}
+              {capitalizeFirstLetter(daySelected.locale("it").endOf("week").format("MMMM D, YYYY"))}
             </h2>
             <button
               onClick={handleNextWeek}
@@ -81,166 +81,51 @@ export default function WeeklyView() {
               <span className="material-icons dark:text-zinc-50">chevron_right</span>
             </button>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              {currentWeek.slice(0, 3).map((day, idx) => (
-                <div key={idx} className="p-4 h-48">
-                  <h3
-                    className="text-lg font-bold mb-2 cursor-pointer text-gray-600 dark:text-zinc-50"
-                    onClick={() => handleDateClick(day)}
-                  >
-                    {capitalizeFirstLetter(day.locale("it").format("dddd, MMMM D"))}
-                  </h3>
-                  {filteredEvents.filter(
-                    (evt) =>
-                      dayjs(evt.day).format("DD-MM-YY") === day.format("DD-MM-YY")
-                  ).length === 0 ? (
-                    <p className="text-gray-500 dark:text-zinc-50 text-sm">
-                      {t("no_events")}
-                    </p>
-                  ) : (
-                    filteredEvents
-                      .filter(
-                        (evt) =>
-                          dayjs(evt.day).format("DD-MM-YY") === day.format("DD-MM-YY")
-                      )
-                      .slice(0, 2)
-                      .map((evt) => (
-                        <div
-                          key={evt.id}
-                          className="flex justify-between items-center mb-2 p-2 rounded cursor-pointer"
-                          style={{ backgroundColor: evt.checked ? "rgba(128, 128, 128, 0.8)" : `${getLabelColor(evt.label)}80` }}
-                          onClick={() => handleEventClick(evt)}
-                        >
-                          <div className="flex items-center">
-                            <span
-                              className="w-2 h-2 rounded-full mr-4"
-                              style={{ backgroundColor: evt.checked ? "black" : getLabelColor(evt.label) }}
-                            ></span>
-                            <div className="w-76">
-                              <span className="font-bold w-80" style={{ color: evt.checked ? "black" : getLabelColor(evt.label) }}>
-                                {evt.title}
-                              </span>
-                              <p className="text-sm w-80" style={{ color: evt.checked ? "black" : getLabelColor(evt.label) }}>
-                                {evt.description}
-                              </p>
-                            </div>
-                            {evt.time && (<p className="text-sm" style={{color: evt.checked ? "black" : `${getLabelColor(evt.label)}`}}> at {evt.time.hours}:{evt.time.minutes}</p>)}
-                            </div>
-                          <div className="flex flex-row items-center">
-                            <p className="text-sm mr-3" style={{ color: evt.checked ? "black" : getLabelColor(evt.label) }}>
-                              {evt.label}
-                            </p>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation(); // Prevent triggering the modal when clicking on the delete button
-                                handleDeleteEvent(evt.id);
-                              }}
-                              className="material-icons cursor-pointer" style={{ color: evt.checked ? "black" : getLabelColor(evt.label) }}
-                            >
-                              delete
-                            </button>
+          <div className="grid grid-cols-7 gap-6 h-full">
+            {currentWeek.map((day, idx) => (
+              <div key={idx} className="p-4 h-full flex flex-col">
+                <h3
+                  className="text-lg font-bold mb-2 cursor-pointer text-gray-600 dark:text-zinc-50"
+                  onClick={() => handleDateClick(day)}
+                >
+                  {capitalizeFirstLetter(day.locale("it").format("dddd, MMMM D"))}
+                </h3>
+                {filteredEvents.filter(
+                  (evt) =>
+                    dayjs(evt.day).format("DD-MM-YY") === day.format("DD-MM-YY")
+                ).length === 0 ? (
+                  <p className="text-gray-500 dark:text-zinc-50 text-sm">
+                    {t("no_events")}
+                  </p>
+                ) : (
+                  filteredEvents
+                    .filter(
+                      (evt) =>
+                        dayjs(evt.day).format("DD-MM-YY") === day.format("DD-MM-YY")
+                    )
+                    .map((evt) => (
+                      <div
+                        key={evt.id}
+                        className="flex justify-between items-center mb-2 p-2 rounded cursor-pointer"
+                        style={{ backgroundColor: evt.checked ? "rgba(128, 128, 128, 0.8)" : `${getLabelColor(evt.label)}80` }}
+                        onClick={() => handleEventClick(evt)}
+                      >
+                        <div className="flex items-center">
+                          <span
+                            className="w-2 h-2 rounded-full mr-2"
+                            style={{ backgroundColor: evt.checked ? "black" : getLabelColor(evt.label) }}
+                          ></span>
+                          <div className="w-76">
+                            <span className="font-bold w-80 truncate text-black">
+                              {evt.title}
+                            </span>
                           </div>
                         </div>
-                      ))
-                  )}
-                  {filteredEvents.filter(
-                    (evt) =>
-                      dayjs(evt.day).format("DD-MM-YY") === day.format("DD-MM-YY")
-                  ).length > 2 && (
-                    <p className="text-gray-500 dark:text-zinc-50 text-sm">
-                      +
-                      {filteredEvents.filter(
-                        (evt) =>
-                          dayjs(evt.day).format("DD-MM-YY") === day.format("DD-MM-YY")
-                      ).length - 2}{" "}
-                      more
-                    </p>
-                  )}
-                  <hr className="mt-4 border-gray-200 dark:border-gray-700" />
-                </div>
-              ))}
-            </div>
-            <div className="rounded-lg">
-              {currentWeek.slice(3).map((day, idx) => (
-                <div key={idx} className={`p-4 ${idx < 2 ? 'h-48' : 'h-24'}`}>
-                  <h3
-                    className="text-lg font-bold mb-2 cursor-pointer text-gray-600 dark:text-zinc-50"
-                    onClick={() => handleDateClick(day)}
-                  >
-                    {capitalizeFirstLetter(day.locale("it").format("dddd, MMMM D"))}
-                  </h3>
-                  {filteredEvents.filter(
-                    (evt) =>
-                      dayjs(evt.day).format("DD-MM-YY") === day.format("DD-MM-YY")
-                  ).length === 0 ? (
-                    <p className="text-gray-500 dark:text-zinc-50 text-sm">
-                      {t("no_events")}
-                    </p>
-                  ) : (
-                    filteredEvents
-                      .filter(
-                        (evt) =>
-                          dayjs(evt.day).format("DD-MM-YY") === day.format("DD-MM-YY")
-                      )
-                      .slice(0, 2)
-                      .map((evt) => (
-                        <div
-                          key={evt.id}
-                          className="flex justify-between items-center mb-2 p-2 rounded cursor-pointer"
-                          style={{ backgroundColor: evt.checked ? "rgba(128, 128, 128, 0.8)" : `${getLabelColor(evt.label)}80` }}
-                          onClick={() => handleEventClick(evt)}
-                        >
-                          <div className="flex items-center">
-                            <span
-                              className="w-2 h-2 rounded-full mr-4"
-                              style={{ backgroundColor: evt.checked ? "black" : getLabelColor(evt.label) }}
-                            ></span>
-                            <div className="w-76">
-                              <span className="font-bold w-76" style={{ color: evt.checked ? "black" : getLabelColor(evt.label) }}>
-                                {evt.title}
-                              </span>
-                              <p className="text-sm w-80" style={{ color: evt.checked ? "black" : getLabelColor(evt.label) }}>
-                                {evt.description}
-                              </p>
-                            </div>
-                            {evt.time && (<p className="text-sm" style={{color: evt.checked ? "black" : `${getLabelColor(evt.label)}`}}> at {evt.time.hours}:{evt.time.minutes}</p>)}
-
-                          </div>
-                          <div className="flex flex-row items-center">
-                            <p className="text-sm mr-3" style={{ color: evt.checked ? "black" : getLabelColor(evt.label) }}>
-                              {evt.label}
-                            </p>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation(); // Prevent triggering the modal when clicking on the delete button
-                                handleDeleteEvent(evt.id);
-                              }}
-                              className="material-icons cursor-pointer" style={{ color: evt.checked ? "black" : getLabelColor(evt.label) }}
-                            >
-                              delete
-                            </button>
-                          </div>
-                        </div>
-                      ))
-                  )}
-                  {filteredEvents.filter(
-                    (evt) =>
-                      dayjs(evt.day).format("DD-MM-YY") === day.format("DD-MM-YY")
-                  ).length > 2 && (
-                    <p className="text-gray-500 dark:text-zinc-50 text-sm">
-                      +
-                      {filteredEvents.filter(
-                        (evt) =>
-                          dayjs(evt.day).format("DD-MM-YY") === day.format("DD-MM-YY")
-                      ).length - 2}{" "}
-                      more
-                    </p>
-                  )}
-                  <hr className="mt-4 border-gray-200 dark:border-gray-700" />
-                </div>
-              ))}
-            </div>
+                      </div>
+                    ))
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </div>

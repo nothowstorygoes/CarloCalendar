@@ -76,6 +76,7 @@ export default function DayInfoModal() {
   } = useContext(GlobalContext);
   const modalRef = useRef(null);
   const { t } = useTranslation();
+  const today = dayjs();
 
   const dayEvents = useMemo(() => filteredEvents.filter(
     (evt) => dayjs(evt.day).format("DD-MM-YY") === daySelected.format("DD-MM-YY")
@@ -136,6 +137,8 @@ export default function DayInfoModal() {
   function capitalizeFirstLetter(string) {
     return string.replace(/\b\w/g, char => char.toUpperCase());
   }
+
+  
 
   return (
     <div className="h-[calc(100%-1.5rem)] w-[calc(100%-1.5rem)] left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-950 rounded-3xl">
