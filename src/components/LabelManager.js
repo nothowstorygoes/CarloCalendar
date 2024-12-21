@@ -71,7 +71,7 @@ export default function LabelManager() {
     >
       <div className="bg-white dark:bg-zinc-950 w-[calc(100%-16rem)] h-[calc(100%-5.5rem)] max-w-none max-h-none overflow-hidden relative ml-64 mt-16 rounded-3xl mr-5 mb-8">
         <button
-          onClick={() => setViewMode("month")}
+          onClick={() => setViewMode("day")}
           className="material-icons-outlined text-gray-400 dark:text-zinc-50 ml-14 mt-8 flex flex-end"
         >
           close
