@@ -34,7 +34,7 @@ const EventItem = ({ evt, handleEventClick, handleCheckboxChange, handleDeleteEv
         </div>
         {evt.time && (
           <p className="text-sm text-black">
-            {" "}at {evt.time.hours}:{evt.time.minutes}
+            {" "}alle {evt.time.hours}:{evt.time.minutes}
           </p>
         )}
       </div>
