@@ -66,7 +66,7 @@ export default function LabelEditor({ selectedLabel, setShowLabelEditor }) {
                 placeholder={t('label_name')}
                 value={name}
                 required
-                className="ml-6 pt-3 border-0 text-gray-600 dark:text-zinc-200 text-xl font-semibold pb-2 w-60 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-zinc-700 rounded"
+                className="ml-2 pt-3 border-0 text-gray-600 dark:text-zinc-200 text-xl font-semibold pb-2 w-60 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-zinc-700 rounded"
                 onChange={(e) => setName(e.target.value)}
               />
             </div>
@@ -81,7 +81,7 @@ export default function LabelEditor({ selectedLabel, setShowLabelEditor }) {
                 value={code}
                 required
                 maxLength={3}
-                className="ml-6 pt-3 border-0 text-gray-600 dark:text-zinc-200 text-xl font-semibold pb-2 w-20 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-zinc-700 rounded"
+                className="ml-2 pt-3 border-0 text-gray-600 dark:text-zinc-200 text-xl font-semibold pb-2 w-20 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-zinc-700 rounded"
                 onChange={(e) => setCode(e.target.value)}
               />
             </div>
@@ -94,7 +94,7 @@ export default function LabelEditor({ selectedLabel, setShowLabelEditor }) {
                 name="color"
                 value={color}
                 required
-                className="ml-6 pt-3 border-0 text-gray-600 dark:text-zinc-200 text-xl font-semibold pb-2 w-20 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-zinc-700 rounded"
+                className="ml-2 pt-3 border-0 text-gray-600 dark:text-zinc-200 text-xl font-semibold pb-2 w-20 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-zinc-700 rounded"
                 onChange={(e) => setColor(e.target.value)}
               />
             </div>
