@@ -200,14 +200,15 @@ const handleSubmit = async (e) => {
               <span className="material-icons text-gray-400 dark:text-zinc-200">
                 bookmark_border
               </span>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 justify-end w-full">
                 {sortedLabels.map((lbl, i) => (
                   <div
                     key={i}
                     onClick={() => !isChecked && setSelectedLabel(lbl.name)}
                     className="flex items-center justify-center cursor-pointer rounded"
                     style={{
-                      backgroundColor: selectedLabel === lbl.name ? lbl.color : `${lbl.color}80`,
+                      backgroundColor: lbl.color,
+                      border: selectedLabel === lbl.name ? "solid 2px white" : "solid 2px transparent",
                       padding: "0.5rem 1rem",
                     }}
                   >

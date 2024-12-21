@@ -29,7 +29,7 @@ export default function Day({ day, rowIdx, currentMonthIdx, year, roundedClass }
 
   function getDayClass() {
     if (day.month() !== currentMonthIdx) {
-      return "text-gray-400"; // Grey out days from past month
+      return "text-gray-400"; // Grey out days not in the current month
     } else {
       return "";
     }

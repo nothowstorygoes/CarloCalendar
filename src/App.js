@@ -7,10 +7,12 @@ import Sidebar from "./components/Sidebar";
 import Month from "./components/Month";
 import DayInfoModal from "./components/DayView";
 import WeeklyView from "./components/WeeklyView";
+import WorkWeekView from "./components/WorkWeekView"; // Import WorkWeekView
 import EventModal from "./components/EventModal";
 import LabelManager from "./components/LabelManager";
 import LabelEventsView from "./components/LabelEventsView";
 import GlobalContext from "./context/GlobalContext";
+import YearView from "./components/YearView";
 import { getMonth } from "./util";
 import dayjs from "dayjs";
 import { auth, db } from "./firebase"; // Ensure you have configured Firebase
@@ -116,6 +118,16 @@ function App() {
                     {viewMode === "week" && (
                       <div className="w-[calc(100%-16rem)] h-full">
                         <WeeklyView />
+                      </div>
+                    )}
+                    {viewMode === "workweek" && (
+                      <div className="w-[calc(100%-16rem)] h-full">
+                        <WorkWeekView />
+                      </div>
+                    )}
+                    {viewMode === "year" && (
+                      <div className="w-[calc(100%-16rem)] h-full">
+                        <YearView />
                       </div>
                     )}
                     {viewMode === "label" && selectedLabel && (

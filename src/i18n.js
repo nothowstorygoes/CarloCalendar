@@ -39,6 +39,8 @@ const resources = {
       "spinner": "Loading...",
       "add_code": "Add Code",
       "select_priority": "Select Priority",
+      "workweek": "Work Week",
+      "year": "Year",
     }
   },
   it: {
@@ -77,6 +79,8 @@ const resources = {
       "label_manager": "Gestore Etichette",
       "spinner": "Caricamento...",
         "add_code": "Priorità",
+        "workweek": "Settimana Lavorativa",
+        "year": "Anno",
     }
   }
 };

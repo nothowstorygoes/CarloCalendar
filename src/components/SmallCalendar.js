@@ -18,21 +18,21 @@ export default function SmallCalendar() {
     dayjs.locale('it'); // Set dayjs locale to Italian
   }, []);
 
-  function handlePrevMonth() {
-    if (monthIndex === 0) {
-      setMonthIndex(11);
-      setYear(year - 1);
-    } else {
-      setMonthIndex(monthIndex - 1);
-    }
-  }
-
   function handleNextMonth() {
     if (monthIndex === 11) {
       setMonthIndex(0);
       setYear(year + 1);
     } else {
       setMonthIndex(monthIndex + 1);
+    }
+  }
+
+  function handlePrevMonth() {
+    if (monthIndex === 0) {
+      setMonthIndex(11);
+      setYear(year - 1);
+    } else {
+      setMonthIndex(monthIndex - 1);
     }
   }
 
@@ -57,27 +57,19 @@ export default function SmallCalendar() {
   }
 
   return (
-    <div className="mt-9">
+    <div className="mt-12">
       <header className="flex justify-between">
-        <p className="text-gray-500 dark:text-zinc-50 font-bold">
+        <p className="text-gray-500 dark:text-zinc-50 font-bold text-sm mb-4">
           {capitalizeFirstLetter(dayjs(new Date(year, monthIndex)).locale("it").format("MMMM YYYY"))}
         </p>
         <div>
-          <button onClick={handlePrevMonth}>
-            <span className="material-icons-outlined cursor-pointer text-gray-600 dark:text-zinc-50 mx-2">
-              chevron_left
-            </span>
-          </button>
-          <button onClick={handleNextMonth}>
-            <span className="material-icons-outlined cursor-pointer text-gray-600 dark:text-zinc-50 mx-2">
-              chevron_right
-            </span>
-          </button>
+          <button onClick={handlePrevMonth} className="material-icons text-gray-500 dark:text-zinc-50">chevron_left</button>
+          <button onClick={handleNextMonth} className="material-icons text-gray-500 dark:text-zinc-50">chevron_right</button>
         </div>
       </header>
-      <div className="grid grid-cols-7 grid-rows-6">
+      <div className="grid grid-cols-7 grid-rows-6 text-sm">
         {currentMonth[0].map((day, i) => (
-          <span key={i} className="text-sm py-1 text-center text-gray-500 dark:text-zinc-50">
+          <span key={i} className="text-center text-gray-500 dark:text-zinc-50">
             {capitalizeFirstLetter(day.format("dd").charAt(0))}
           </span>
         ))}
@@ -93,7 +85,9 @@ export default function SmallCalendar() {
                 }}
                 className={`py-1 w-full ${getDayClass(day)}`}
               >
-                <span className="text-sm text-gray-600 dark:text-zinc-50">{day.format("D")}</span>
+                <span className={`text-sm ${day.month() !== monthIndex ? 'text-gray-400' : 'text-gray-600 dark:text-zinc-50'}`}>
+                  {day.format("D")}
+                </span>
               </button>
             ))}
           </React.Fragment>

@@ -44,11 +44,11 @@ export default function Labels() {
         {sortedLabels.map(({ name, code, color, checked }, idx) => (
           <div
             key={idx}
-            className="flex items-center justify-start p-1 rounded cursor-pointer text-black font-bold mb-2 text-sm w-40"
+            className="flex items-center justify-between p-1 rounded cursor-pointer text-black font-bold mb-2 text-sm w-40"
             style={{ backgroundColor: color }}
             onClick={() => handleLabelClick({ name, code, color })}
           >
-            {name}
+            <p>{name}</p><p>{code}</p>
           </div>
         ))}
       </div>

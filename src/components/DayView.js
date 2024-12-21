@@ -90,6 +90,16 @@ export default function DayInfoModal() {
       return (labelA?.code || 0) - (labelB?.code || 0);
     });
 
+    // Sort events by time in ascending order if time is specified
+    events.sort((a, b) => {
+      if (a.time && b.time) {
+        const timeA = dayjs().hour(a.time.hours).minute(a.time.minutes);
+        const timeB = dayjs().hour(b.time.hours).minute(b.time.minutes);
+        return timeA - timeB;
+      }
+      return 0;
+    });
+
     // Sort events again to place every event with checked = true at the end
     events.sort((a, b) => a.checked - b.checked);
 
@@ -137,7 +147,7 @@ export default function DayInfoModal() {
   const isToday = daySelected.isSame(dayjs(), 'day');
 
   return (
-    <div className="h-[calc(100%-1.5rem)] w-[calc(100%-1.5rem)] left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-950 rounded-3xl">
+    <div className="h-[calc(100%-6rem)] w-[calc(100%-1.5rem)] left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-950 rounded-3xl">
       <div
         ref={modalRef}
         className="bg-white dark:bg-zinc-950 w-[calc(100%-16rem)] h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative mt-8"
