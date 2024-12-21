@@ -78,9 +78,23 @@ export default function DayInfoModal() {
   const { t } = useTranslation();
   const today = dayjs();
 
-  const dayEvents = useMemo(() => filteredEvents.filter(
-    (evt) => dayjs(evt.day).format("DD-MM-YY") === daySelected.format("DD-MM-YY")
-  ), [filteredEvents, daySelected]);
+  const dayEvents = useMemo(() => {
+    const events = filteredEvents.filter(
+      (evt) => dayjs(evt.day).format("DD-MM-YY") === daySelected.format("DD-MM-YY")
+    );
+
+    // Sort events based on the code property of the label associated with the event
+    events.sort((a, b) => {
+      const labelA = labels.find((lbl) => lbl.name === a.label);
+      const labelB = labels.find((lbl) => lbl.name === b.label);
+      return (labelA?.code || 0) - (labelB?.code || 0);
+    });
+
+    // Sort events again to place every event with checked = true at the end
+    events.sort((a, b) => a.checked - b.checked);
+
+    return events;
+  }, [filteredEvents, daySelected, labels]);
 
   const handleDeleteEvent = (eventId) => {
     dispatchCalEvent({ type: "delete", payload: { id: eventId } });
@@ -116,31 +130,11 @@ export default function DayInfoModal() {
     return label ? label.color : "gray";
   };
 
-  const [eventsWithTime, eventsWithoutTime] = useMemo(() => {
-    const withTime = [];
-    const withoutTime = [];
-    dayEvents.forEach((evt) => {
-      if (evt.time) {
-        withTime.push(evt);
-      } else {
-        withoutTime.push(evt);
-      }
-    });
-    withTime.sort((a, b) => {
-      const aTime = dayjs(a.day).hour(a.time.hours).minute(a.time.minutes);
-      const bTime = dayjs(b.day).hour(b.time.hours).minute(b.time.minutes);
-      return aTime - bTime;
-    });
-    return [withTime, withoutTime];
-  }, [dayEvents]);
-
   function capitalizeFirstLetter(string) {
     return string.replace(/\b\w/g, char => char.toUpperCase());
   }
 
   const isToday = daySelected.isSame(dayjs(), 'day');
-
-  
 
   return (
     <div className="h-[calc(100%-1.5rem)] w-[calc(100%-1.5rem)] left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-950 rounded-3xl">
@@ -171,18 +165,7 @@ export default function DayInfoModal() {
                {t('no_events')}
             </p>
           )}
-          {eventsWithoutTime.map((evt) => (
-            <EventItem
-              key={evt.id}
-              evt={evt}
-              handleEventClick={handleEventClick}
-              handleCheckboxChange={handleCheckboxChange}
-              handleDeleteEvent={handleDeleteEvent}
-              getLabelColor={getLabelColor}
-            />
-          ))}
-          
-          {eventsWithTime.map((evt) => (
+          {dayEvents.map((evt) => (
             <EventItem
               key={evt.id}
               evt={evt}
