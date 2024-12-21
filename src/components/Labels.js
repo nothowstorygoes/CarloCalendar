@@ -26,11 +26,11 @@ export default function Labels() {
           settings
         </span>
       </div>
-      <div className="mt-4 overflow-auto">
+      <div className="mt-4 h-72 overflow-y-auto custom-scrollbar"> {/* Set a fixed height and enable vertical scrolling */}
         {sortedLabels.map(({ name, code, color, checked }, idx) => (
           <div
             key={idx}
-            className="flex items-center justify-center p-2 rounded cursor-pointer text-white font-bold mb-5"
+            className="flex items-center justify-start p-1 rounded cursor-pointer text-white font-bold mb-2 text-sm w-40"
             style={{ backgroundColor: color }}
             onClick={() => handleLabelClick({ name, code, color })}
           >
@@ -38,6 +38,21 @@ export default function Labels() {
           </div>
         ))}
       </div>
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #888;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #555;
+        }
+      `}</style>
     </React.Fragment>
   );
 }
