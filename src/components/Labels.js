@@ -16,7 +16,7 @@ export default function Labels() {
     setViewMode("labelManager");
   };
 
-  const sortedLabels = [...labels].sort((a, b) => a.code.localeCompare(b.code));
+  const sortedLabels = [...labels].sort((a, b) => a.code - b.code);
 
   return (
     <React.Fragment>
