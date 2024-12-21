@@ -2,6 +2,8 @@ import React, { useContext, useRef } from "react";
 import dayjs from "dayjs";
 import GlobalContext from "../context/GlobalContext";
 import { useTranslation } from "react-i18next";
+import { doc, updateDoc } from "firebase/firestore";
+import { auth, db} from "../firebase";
 
 export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
   const {
@@ -19,16 +21,18 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
     setShowEventModal(true);
   };
 
-  const handleCheckboxChange = (event, evt) => {
+  const handleCheckboxChange = async (event, evt) => {
     event.stopPropagation(); // Prevent triggering the modal when clicking on the checkbox
-    const updatedEvent = { ...evt, checked: true };
+    const updatedEvent = { ...evt, checked: !evt.checked };
     dispatchCalEvent({ type: "update", payload: updatedEvent });
-    localStorage.setItem(
-      "savedEvents",
-      JSON.stringify(
-        filteredEvents.map((e) => (e.id === evt.id ? updatedEvent : e))
-      )
-    );
+  
+    try {
+      console.log("Updating event:", updatedEvent);
+      const eventRef = doc(db, `users/${auth.currentUser.uid}/events`, String(evt.id)); // Ensure evt.id is a string
+      await updateDoc(eventRef, updatedEvent);
+    } catch (error) {
+      console.error("Error updating document: ", error);
+    }
   };
 
   const eventsWithTime = labelEvents
@@ -55,11 +59,15 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
     ...checkedEvents,
   ];
 
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
   return (
     <div className="h-[calc(100%-1.5rem)] w-[calc(100%-1.5rem)] rounded-3xl left-0 top-0 flex justify-start items-center bg-white dark:bg-zinc-950">
       <div
         ref={modalRef}
-        className="bg-white dark:bg-zinc-950 w-[calc(100%-16rem)] h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative pointer-events-auto z-50"
+        className="bg-white dark:bg-zinc-950 w-[calc(100%-16rem)] h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative pointer-events-auto"
       >
         <div className="p-4 overflow-auto relative">
           <div className="flex items-center justify-between mb-6 w-full">
@@ -110,8 +118,8 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
                       className="text-sm mt-6"
                       style={{ color: evt.checked ? "black" : label.color }}
                     >
-                      {dayjs(evt.day).format("MMMM D, YYYY")}{" "}
-                      {evt.time && `, at ${evt.time.hours}:${evt.time.minutes}`}
+                      {capitalizeFirstLetter(dayjs(evt.day).format("MMMM D, YYYY"))}{" "}{" "}
+                      {evt.time && `, alle ${evt.time.hours}:${evt.time.minutes}`}
                     </p>
                   </div>
                   <div className="flex flex-col items-center justify-center gap-6 mr-6">

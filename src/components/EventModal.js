@@ -4,11 +4,14 @@ import GlobalContext from "../context/GlobalContext";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { db, auth } from "../firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, doc, updateDoc, setDoc } from "firebase/firestore";
+import { registerLocale } from "react-datepicker";
+import enGB from "date-fns/locale/en-GB";
+registerLocale("en-GB", enGB);
 
 export default function EventModal() {
   const { t } = useTranslation();
-  const { setShowEventModal, daySelected, dispatchCalEvent, selectedEvent, labels } = useContext(GlobalContext);
+  const { setShowEventModal, daySelected, dispatchCalEvent, selectedEvent, setSelectedEvent, labels } = useContext(GlobalContext);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedLabel, setSelectedLabel] = useState(labels[0]?.name || "");
@@ -16,44 +19,72 @@ export default function EventModal() {
   const [date, setDate] = useState(daySelected.toDate());
   const [hours, setHours] = useState("");
   const [minutes, setMinutes] = useState("");
+  const [isChecked, setIsChecked] = useState(false);
 
   useEffect(() => {
     if (selectedEvent) {
       setTitle(selectedEvent.title);
-      setDescription(selectedEvent.description);
+      setDescription(selectedEvent.description || ""); // Ensure description can be empty
       setSelectedLabel(selectedEvent.label);
       setDate(daySelected.toDate());
+      setIsChecked(selectedEvent.checked);
       if (selectedEvent.time) {
         setSpecificTime(true);
         setHours(selectedEvent.time.hours);
         setMinutes(selectedEvent.time.minutes);
       }
+    } else {
+      resetForm();
     }
   }, [selectedEvent]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const calendarEvent = {
-      title,
-      description,
-      label: selectedLabel,
-      day: date.getTime(),
-      id: selectedEvent ? selectedEvent.id : Date.now(),
-      checked: false,
-      time: specificTime ? { hours, minutes } : null,
-      userId: auth.currentUser.uid,
-    };
-    try {
-      await addDoc(collection(db, `users/${auth.currentUser.uid}/events`), calendarEvent);
-      dispatchCalEvent({ type: selectedEvent ? "update" : "push", payload: calendarEvent });
-      setShowEventModal(false);
-    } catch (error) {
-      console.error("Error adding document: ", error);
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setSelectedLabel(labels[0]?.name || "");
+    setSpecificTime(false);
+    setDate(daySelected.toDate());
+    setHours("");
+    setMinutes("");
+    setIsChecked(false);
+  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  const calendarEvent = {
+    title: title,
+    description: description || "", // Ensure description can be empty
+    label: selectedLabel,
+    day: date.getTime(),
+    id: selectedEvent ? selectedEvent.id : Date.now().toString(),
+    checked: isChecked,
+    time: specificTime ? { hours, minutes } : null,
+    userId: auth.currentUser.uid,
+  };
+  try {
+    const eventRef = doc(db, `users/${auth.currentUser.uid}/events`, calendarEvent.id);
+    await setDoc(eventRef, calendarEvent);
+    if (selectedEvent) {
+      dispatchCalEvent({ type: "update", payload: calendarEvent });
+    } else {
+      dispatchCalEvent({ type: "push", payload: calendarEvent });
     }
+    setShowEventModal(false);
+    setSelectedEvent(null); // Reset selectedEvent state
+    resetForm(); // Reset the form after closing the modal
+  } catch (error) {
+    console.error("Error saving document: ", error);
+    resetForm(); // Reset the form after closing the modal
+  }
+};
+
+  const handleClose = () => {
+    setShowEventModal(false);
+    setSelectedEvent(null); // Reset selectedEvent state
+    resetForm(); // Reset the form when closing the modal
   };
 
   return (
-    <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50 z-55 dark:bg-zinc-800 dark:bg-opacity-75">
+    <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50 z-40 dark:bg-zinc-800 dark:bg-opacity-75">
       <form className="bg-white dark:bg-zinc-950 rounded-lg shadow-2xl w-1/3 z-50" onSubmit={handleSubmit}>
         <header className="bg-gray-100 dark:bg-zinc-900 px-4 py-2 flex justify-between items-center rounded-t-lg">
           <span className="material-icons-outlined text-gray-400 dark:text-zinc-200">
@@ -64,7 +95,7 @@ export default function EventModal() {
               <span
                 onClick={() => {
                   dispatchCalEvent({ type: "delete", payload: selectedEvent });
-                  setShowEventModal(false);
+                  handleClose();
                 }}
                 className="material-icons-outlined text-gray-400 dark:text-zinc-200 cursor-pointer"
               >
@@ -72,7 +103,7 @@ export default function EventModal() {
               </span>
             )}
             <button
-              onClick={() => setShowEventModal(false)}
+              onClick={handleClose}
               className="material-icons-outlined text-gray-400 dark:text-zinc-200"
             >
               close
@@ -90,6 +121,7 @@ export default function EventModal() {
                 name="title"
                 placeholder={t('add_title')}
                 value={title}
+                disabled={isChecked}
                 required
                 className="ml-6 pt-3 border-0 text-gray-600 dark:text-zinc-200 text-xl font-semibold pb-2 w-60 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-zinc-700 rounded"
                 onChange={(e) => setTitle(e.target.value)}
@@ -99,8 +131,8 @@ export default function EventModal() {
               name="description"
               placeholder={t('add_description')}
               value={description}
-              required
               rows="4"
+              disabled={isChecked}
               className="ml-12 pt-3 border-0 text-gray-600 dark:text-zinc-200 pb-2 w-96 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 bg-gray-100 dark:bg-zinc-700 rounded"
               onChange={(e) => setDescription(e.target.value)}
             />
@@ -116,6 +148,9 @@ export default function EventModal() {
                   onChange={(date) => setDate(date)}
                   dateFormat="dd/MM/yyyy"
                   className="w-32 p-2 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
+                  disabled={isChecked}
+                  locale="en-GB"
+
                 />
               </div>
             </div>
@@ -124,7 +159,6 @@ export default function EventModal() {
                 <span className="material-icons text-gray-400 dark:text-zinc-200">
                   access_time
                 </span>
-                
                 <label className="ml-6 text-gray-600 dark:text-zinc-200">{t('access_time')}</label>
               </div>
               <div className="flex items-center gap-x-2 ml-2">
@@ -137,7 +171,7 @@ export default function EventModal() {
                   className={`w-16 p-2 border rounded ${specificTime ? "border-black dark:border-zinc-200" : "border-gray-300 bg-gray-100 dark:border-zinc-700 dark:bg-zinc-700"}`}
                   min="0"
                   max="23"
-                  disabled={!specificTime}
+                  disabled={!specificTime || isChecked}
                 />
                 <input
                   type="number"
@@ -148,15 +182,16 @@ export default function EventModal() {
                   className={`w-16 p-2 border rounded ${specificTime ? "border-black dark:border-zinc-200" : "border-gray-300 bg-gray-100 dark:border-zinc-700 dark:bg-zinc-700"}`}
                   min="0"
                   max="59"
-                  disabled={!specificTime}
+                  disabled={!specificTime || isChecked}
                 />
               </div>
               <input
-                  type="checkbox"
-                  checked={specificTime}
-                  onChange={() => setSpecificTime(!specificTime)}
-                  className="ml-6 rounded-full"
-                />
+                type="checkbox"
+                checked={specificTime}
+                onChange={() => setSpecificTime(!specificTime)}
+                className="ml-6 rounded-full"
+                disabled={isChecked}
+              />
             </div>
             <div className="flex flex-row items-center justify-between mt-4">
               <span className="material-icons text-gray-400 dark:text-zinc-200">
@@ -166,14 +201,14 @@ export default function EventModal() {
                 {labels.map((lbl, i) => (
                   <div
                     key={i}
-                    onClick={() => setSelectedLabel(lbl.name)}
+                    onClick={() => !isChecked && setSelectedLabel(lbl.name)}
                     className="flex items-center justify-center cursor-pointer rounded"
                     style={{
                       backgroundColor: selectedLabel === lbl.name ? lbl.color : `${lbl.color}80`,
                       padding: "0.5rem 1rem",
                     }}
                   >
-                    <span className="text-white">{lbl.name}</span>
+                    <span className="text-white">{lbl.code}</span>
                   </div>
                 ))}
               </div>
@@ -184,6 +219,7 @@ export default function EventModal() {
           <button
             type="submit"
             className="bg-blue-500 hover:bg-blue-600 px-6 py-2 rounded text-white"
+            disabled={isChecked}
           >
             {t('save')}
           </button>

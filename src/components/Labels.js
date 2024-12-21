@@ -15,6 +15,9 @@ export default function Labels() {
     setViewMode("labelManager");
   };
 
+  const sortedLabels = [...labels].sort((a, b) => a.code.localeCompare(b.code));
+
+
   return (
     <React.Fragment>
       <div className="flex items-center mt-10">
@@ -24,7 +27,7 @@ export default function Labels() {
         </span>
       </div>
       <div className="grid grid-cols-2 gap-4 mt-4">
-        {labels.map(({ name, code, color, checked }, idx) => (
+        {sortedLabels.map(({ name, code, color, checked }, idx) => (
           <div
             key={idx}
             className="flex items-center justify-center p-2 rounded cursor-pointer text-white font-bold"

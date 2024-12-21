@@ -33,11 +33,11 @@ export default function Login() {
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900">
       <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg w-96">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">{t('login')}</h2>
+        <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">Login</h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         <form onSubmit={handleEmailLogin}>
           <div className="mb-4">
-            <label className="block text-gray-700 dark:text-gray-200 mb-2">{t('email')}</label>
+            <label className="block text-gray-700 dark:text-gray-200 mb-2">Email</label>
             <input
               type="email"
               value={email}
@@ -47,7 +47,7 @@ export default function Login() {
             />
           </div>
           <div className="mb-6">
-            <label className="block text-gray-700 dark:text-gray-200 mb-2">{t('password')}</label>
+            <label className="block text-gray-700 dark:text-gray-200 mb-2">Password</label>
             <input
               type="password"
               value={password}

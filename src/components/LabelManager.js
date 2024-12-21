@@ -50,6 +50,9 @@ export default function LabelManager() {
     }
   };
 
+  const sortedLabels = [...labels].sort((a, b) => a.code.localeCompare(b.code));
+
+
   return (
     <div
       id="label-manager-overlay"
@@ -97,7 +100,7 @@ export default function LabelManager() {
             </button>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            {labels.map(({ id, name, code, color }, idx) => (
+            {sortedLabels.map(({ id, name, code, color }, idx) => (
               <div
                 key={idx}
                 className="flex items-center justify-between mb-2 p-4 rounded"

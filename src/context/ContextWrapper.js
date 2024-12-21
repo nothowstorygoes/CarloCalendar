@@ -7,6 +7,7 @@ import { auth, db } from "../firebase";
 function savedEventsReducer(state, { type, payload }) {
   switch (type) {
     case "set":
+      console.log("Reducer set action payload:", payload);
       return payload;
     case "push":
       return [...state, payload];
@@ -40,28 +41,17 @@ export default function ContextWrapper(props) {
   const [savedEvents, dispatchCalEvent] = useReducer(savedEventsReducer, [], initEvents);
 
   useEffect(() => {
-    const fetchLabels = async () => {
-      if (auth.currentUser) {
-        const labelsRef = collection(db, `users/${auth.currentUser.uid}/labels`);
-        const labelsSnapshot = await getDocs(labelsRef);
-        const labelsData = labelsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setLabels(labelsData);
-      }
-    };
-
-    fetchLabels();
-  }, [auth.currentUser]);
+    console.log("Saved events updated:", savedEvents);
+    const labelNames = labels.map((lbl) => lbl.name);
+    console.log("Label names:", labelNames);
+    const filtered = savedEvents.filter((evt) => labelNames.includes(evt.label));
+    console.log("Filtered events:", filtered);
+    setFilteredEvents(filtered);
+  }, [savedEvents, labels]);
 
   useEffect(() => {
-    setFilteredEvents(
-      savedEvents.filter((evt) =>
-        labels
-          .filter((lbl) => lbl.checked)
-          .map((lbl) => lbl.name)
-          .includes(evt.label)
-      )
-    );
-  }, [savedEvents, labels]);
+    console.log("Filtered events updated:", filteredEvents);
+  }, [filteredEvents]);
 
   const createLabel = async (newLabel) => {
     try {

@@ -16,7 +16,6 @@ import dayjs from "dayjs";
 import { auth, db } from "./firebase"; // Ensure you have configured Firebase
 import Login from "./components/login"; // Import the Login component
 import Spinner from "./assets/spinner"; // Import the Spinner component
-import { use } from "react";
 
 function App() {
   const [currentMonth, setCurrentMonth] = useState(getMonth());
@@ -40,21 +39,29 @@ function App() {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUser(user);
-        const eventsRef = collection(db, `users/${user.uid}/events`);
-        const eventsSnapshot = await getDocs(eventsRef);
-        const events = eventsSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        dispatchCalEvent({ type: "set", payload: events });
+        console.log("User authenticated:", user);
 
-        const labelsRef = collection(db, `users/${user.uid}/labels`);
-        const labelsSnapshot = await getDocs(labelsRef);
-        const labels = labelsSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setLabels(labels);
+        try {
+          const eventsRef = collection(db, `users/${user.uid}/events`);
+          const eventsSnapshot = await getDocs(eventsRef);
+          const events = eventsSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          console.log("Fetched events:", events);
+          dispatchCalEvent({ type: "set", payload: events });
+
+          const labelsRef = collection(db, `users/${user.uid}/labels`);
+          const labelsSnapshot = await getDocs(labelsRef);
+          const labels = labelsSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          console.log("Fetched labels:", labels);
+          setLabels(labels);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
       } else {
         setUser(null);
         setFilteredEvents([]);
@@ -62,6 +69,7 @@ function App() {
       }
       setLoading(false);
     });
+
     return () => unsubscribe();
   }, [setFilteredEvents, setLabels, dispatchCalEvent]);
 
