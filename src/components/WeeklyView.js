@@ -4,7 +4,6 @@ import GlobalContext from "../context/GlobalContext";
 import { useTranslation } from "react-i18next";
 import "dayjs/locale/it"; // Import Italian locale
 
-
 export default function WeeklyView() {
   const {
     daySelected,
@@ -19,6 +18,7 @@ export default function WeeklyView() {
   const modalRef = useRef(null);
   const [currentWeek, setCurrentWeek] = useState([]);
   const { t } = useTranslation();
+
   useEffect(() => {
     const startOfWeek = daySelected.startOf("week").add(1, "day"); // Start from Monday
     const week = Array.from({ length: 7 }, (_, i) => startOfWeek.add(i, "day"));
