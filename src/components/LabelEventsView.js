@@ -89,14 +89,13 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
                 style={{
                   backgroundColor: evt.checked
                     ? "rgba(128, 128, 128, 0.8)"
-                    : `${label.color}80`,
+                    : `${label.color}`,
                 }}
               >
                 <div className="flex justify-between w-full">
                   <div className="flex flex-col">
                     <span
-                      className="font-bold"
-                      style={{ color: evt.checked ? "black" : label.color }}
+                      className="font-bold text-black"
                     >
                       {evt.title}
                     </span>
@@ -115,8 +114,7 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
                       {evt.description}
                     </p>
                     <p
-                      className="text-sm mt-6"
-                      style={{ color: evt.checked ? "black" : label.color }}
+                      className="text-sm mt-6 text-black"
                     >
                       {capitalizeFirstLetter(dayjs(evt.day).format("MMMM D, YYYY"))}{" "}{" "}
                       {evt.time && `, alle ${evt.time.hours}:${evt.time.minutes}`}
@@ -134,8 +132,7 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
                       </>
                     )}
                     <span
-                      className="material-icons cursor-pointer"
-                      style={{ color: evt.checked ? "black" : label.color }}
+                      className="material-icons cursor-pointer text-black"
                       onClick={() => handleEventClick(evt)}
                     >
                       edit
