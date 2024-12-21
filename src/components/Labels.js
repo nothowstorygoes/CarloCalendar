@@ -26,7 +26,7 @@ export default function Labels() {
           settings
         </span>
       </div>
-      <div className="mt-4">
+      <div className="mt-4 overflow-auto">
         {sortedLabels.map(({ name, code, color, checked }, idx) => (
           <div
             key={idx}

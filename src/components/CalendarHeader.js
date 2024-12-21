@@ -77,28 +77,32 @@ export default function CalendarHeader() {
         </span>
       </button>
       <div className="flex items-center">
-
-
         <button
           onClick={() => handleViewModeChange("day")}
-          className={`border rounded py-2 px-4 mr-5 ml-1 flex items-center bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50 ${
-            viewMode === "day" ? "font-bold" : ""
+          className={`border rounded py-2 px-4 mr-5 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
+            viewMode === "day"
+              ? "bg-gray-400 dark:bg-zinc-900"
+              : "bg-gray-200 dark:bg-zinc-700"
           }`}
         >
           {t("day")}
         </button>
         <button
           onClick={() => handleViewModeChange("week")}
-          className={`border rounded py-2 px-4 mr-5 ml-1 flex items-center bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50 ${
-            viewMode === "week" ? "font-bold" : ""
+          className={`border rounded py-2 px-4 mr-5 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
+            viewMode === "week"
+              ? "bg-gray-400 dark:bg-zinc-900"
+              : "bg-gray-200 dark:bg-zinc-700"
           }`}
         >
           {t("week")}
         </button>
         <button
           onClick={() => handleViewModeChange("month")}
-          className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50 ${
-            viewMode === "month" ? "font-bold" : ""
+          className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
+            viewMode === "month"
+              ? "bg-gray-400 dark:bg-zinc-900"
+              : "bg-gray-200 dark:bg-zinc-700"
           }`}
         >
           {t("month")}
