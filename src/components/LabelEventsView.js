@@ -114,7 +114,7 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
                       {evt.description}
                     </p>
                     <p
-                      className="text-sm mt-6 text-black"
+                      className="text-sm mt-6 text-black font-bold"
                     >
                       {capitalizeFirstLetter(dayjs(evt.day).format("MMMM D, YYYY"))}{" "}{" "}
                       {evt.time && `, alle ${evt.time.hours}:${evt.time.minutes}`}
