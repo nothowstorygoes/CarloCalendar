@@ -138,6 +138,8 @@ export default function DayInfoModal() {
     return string.replace(/\b\w/g, char => char.toUpperCase());
   }
 
+  const isToday = daySelected.isSame(dayjs(), 'day');
+
   
 
   return (
@@ -154,7 +156,7 @@ export default function DayInfoModal() {
             >
               <span className="material-icons dark:text-zinc-50">chevron_left</span>
             </button>
-            <h2 className="text-lg font-bold text-center text-gray-600 dark:text-zinc-50">
+            <h2 className={`text-lg font-bold text-center text-gray-600 dark:text-zinc-50 ${isToday ? 'bg-blue-500 text-white p-6 rounded-3xl' : ''}`}>
               {capitalizeFirstLetter(daySelected.locale("it").format("dddd, MMMM D, YYYY"))}
             </h2>
             <button
