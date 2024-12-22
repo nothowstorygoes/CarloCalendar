@@ -55,7 +55,7 @@ export default function Day({ day, rowIdx, currentMonthIdx, year, roundedClass }
         setViewMode("day");
       }}
     >
-      <header className="flex flex-col items-center">
+      <header className="flex flex-col items-center cursor-pointer">
         {rowIdx === 0 && (
           <p className="text-xs mt-1 text-gray-500 dark:text-zinc-50">
             {day.format("ddd").toUpperCase()}
