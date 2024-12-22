@@ -104,7 +104,7 @@ export default function CalendarHeader() {
           {darkMode ? "light_mode" : "dark_mode"}
         </span>
       </button>
-      <div className="flex items-center">
+      <div className="flex items-center mr-5">
         <button
           onClick={() => handleViewModeChange("day")}
           className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
