@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { auth, db } from "../firebase";
 import { addDoc, collection, doc, deleteDoc } from "firebase/firestore";
 import LabelEditor from "./LabelEditor";
+import ConfirmationModal from "./ConfirmationModal";
 
 export default function LabelManager() {
   const { labels, setLabels, setViewMode } = useContext(GlobalContext);
@@ -12,6 +13,7 @@ export default function LabelManager() {
   const [newLabelColor, setNewLabelColor] = useState("#808080"); // Default to gray
   const [showLabelEditor, setShowLabelEditor] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState(null);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const { t } = useTranslation();
   const modalRef = useRef(null);
 
@@ -38,14 +40,9 @@ export default function LabelManager() {
     }
   };
 
-  const deleteLabel = async (labelId) => {
-    try {
-      const labelRef = doc(db, `users/${auth.currentUser.uid}/labels`, labelId);
-      await deleteDoc(labelRef);
-      setLabels(labels.filter((lbl) => lbl.id !== labelId));
-    } catch (error) {
-      console.error("Error deleting label:", error);
-    }
+  const deleteLabel = (label) => {
+    setSelectedLabel(label);
+    setShowConfirmationModal(true);
   };
 
   const handleClickOutside = (event) => {
@@ -153,7 +150,7 @@ export default function LabelManager() {
                     edit
                   </span>
                   <button
-                    onClick={() => deleteLabel(id)}
+                    onClick={() => deleteLabel({ id, name, code, color })}
                     className="material-icons-outlined cursor-pointer"
                     style={{ color: "#000" }} // Set contrast color
                   >
@@ -171,6 +168,14 @@ export default function LabelManager() {
           </div>
         </div>
       </div>
+      {showConfirmationModal && (
+        <ConfirmationModal
+          label={selectedLabel}
+          setShowConfirmationModal={setShowConfirmationModal}
+          setLabels={setLabels}
+          labels={labels}
+        />
+      )}
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 12px;
