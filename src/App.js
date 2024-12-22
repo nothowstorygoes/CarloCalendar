@@ -82,14 +82,21 @@ function App() {
   useEffect(() => {
     const currentDate = dayjs();
     filteredEvents.forEach((evt) => {
-      if (!evt.time && dayjs(evt.day).isBefore(currentDate, "day") && !evt.checked) {
+      if (evt.time && dayjs(evt.day).isBefore(currentDate, "day") && !evt.checked) {
         const updatedEvent = { ...evt, checked: true };
+        dispatchCalEvent({ type: "update", payload: updatedEvent });
+        const eventRef = doc(db, `users/${user.uid}/events`, evt.id);
+        updateDoc(eventRef, updatedEvent);
+      }
+      if (!evt.time && dayjs(evt.day).isBefore(currentDate, "day") && !evt.checked) {
+        const updatedEvent = { ...evt, day: currentDate.valueOf() };
         dispatchCalEvent({ type: "update", payload: updatedEvent });
         const eventRef = doc(db, `users/${user.uid}/events`, evt.id);
         updateDoc(eventRef, updatedEvent);
       }
     });
   }, [filteredEvents, dispatchCalEvent, user]);
+
 
   if (loading) {
     return <Spinner />;
