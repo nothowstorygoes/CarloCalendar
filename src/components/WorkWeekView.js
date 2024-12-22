@@ -58,6 +58,8 @@ export default function WorkWeekView() {
 
   const isToday = daySelected.isSame(dayjs(), "day");
 
+  const MAX_EVENTS = 5; // Set the maximum number of events to display
+
   return (
     <div className="h-[calc(100%-6rem)] w-[calc(100%-1.5rem)] rounded-3xl left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-950">
       <div
@@ -89,54 +91,54 @@ export default function WorkWeekView() {
             </button>
           </div>
           <div className="grid grid-cols-5 gap-8 h-full">
-            {currentWeek.map((day, idx) => (
-              <div key={idx} className="p-4 h-full flex flex-col items-center">
-                <h3
-                  className={`text-lg font-bold mb-2 cursor-pointer text-gray-600 dark:text-zinc-50 ${
-                    day.isSame(dayjs(), "day")
-                      ? "bg-blue-500 text-white p-6 rounded-3xl"
-                      : ""
-                  }`}
-                  onClick={() => handleDateClick(day)}
-                >
-                  {capitalizeFirstLetter(day.locale("it").format("dddd, MMMM D"))}
-                </h3>
-                {filteredEvents.filter(
-                  (evt) =>
-                    dayjs(evt.day).format("DD-MM-YY") === day.format("DD-MM-YY")
-                ).length === 0 ? (
-                  <p className="text-gray-500 dark:text-zinc-50 text-sm">
-                    {t("no_events")}
-                  </p>
-                ) : (
-                  filteredEvents
-                    .filter(
-                      (evt) =>
-                        dayjs(evt.day).format("DD-MM-YY") === day.format("DD-MM-YY")
-                    )
-                    .map((evt) => (
-                      <div
-                        key={evt.id}
-                        className="flex justify-between items-center mb-2 p-2 rounded cursor-pointer w-full"
-                        style={{
-                          backgroundColor: evt.checked
-                            ? "rgba(128, 128, 128, 0.8)"
-                            : `${getLabelColor(evt.label)}`,
-                        }}
-                        onClick={() => handleEventClick(evt)}
-                      >
-                        <div className="flex items-center w-full">
-                          <div className="w-full">
-                            <span className="font-bold truncate text-black">
-                              {evt.title}
-                            </span>
-                          </div>
+            {currentWeek.map((day, idx) => {
+              const events = filteredEvents.filter(
+                (evt) =>
+                  dayjs(evt.day).format("DD-MM-YY") === day.format("DD-MM-YY")
+              );
+              const displayEvents = events.slice(0, MAX_EVENTS);
+              const remainingEvents = events.length - MAX_EVENTS;
+
+              return (
+                <div key={idx} className="p-4 h-full flex flex-col items-center">
+                  <h3
+                    className={`text-lg font-bold mb-2 cursor-pointer text-gray-600 dark:text-zinc-50 ${
+                      day.isSame(dayjs(), "day")
+                        ? "bg-blue-500 text-white p-6 rounded-3xl"
+                        : ""
+                    }`}
+                    onClick={() => handleDateClick(day)}
+                  >
+                    {capitalizeFirstLetter(day.locale("it").format("dddd, MMMM D"))}
+                  </h3>
+                  {displayEvents.map((evt) => (
+                    <div
+                      key={evt.id}
+                      className="flex justify-between items-center mb-2 p-2 rounded cursor-pointer w-full"
+                      style={{
+                        backgroundColor: evt.checked
+                          ? "rgba(128, 128, 128, 0.8)"
+                          : `${getLabelColor(evt.label)}`,
+                      }}
+                      onClick={() => handleEventClick(evt)}
+                    >
+                      <div className="flex items-center w-full">
+                        <div className="w-full">
+                          <span className="font-bold truncate text-black">
+                            {evt.title}
+                          </span>
                         </div>
                       </div>
-                    ))
-                )}
-              </div>
-            ))}
+                    </div>
+                  ))}
+                  {remainingEvents > 0 && (
+                    <p className="text-sm text-gray-500 dark:text-zinc-50">
+                      + {remainingEvents}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
