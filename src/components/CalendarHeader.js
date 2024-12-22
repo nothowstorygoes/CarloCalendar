@@ -66,6 +66,15 @@ export default function CalendarHeader() {
     setYear(year + 1);
   };
 
+  const handlePrevMonth = () => {
+    setMonthIndex(monthIndex - 1);
+  };
+
+  const handleNextMonth = () => {
+    setMonthIndex(monthIndex + 1);
+  };
+
+
   return (
     <header className="px-4 py-2 flex items-center justify-between bg-white dark:bg-zinc-900">
       <div className="flex items-center ml-1">
@@ -73,11 +82,12 @@ export default function CalendarHeader() {
         <h1 className="mr-16 text-xl text-gray-500 dark:text-zinc-50 font-bold">
           CarloCalendar
         </h1>
+        {viewMode=="month" ? "" :
         <h2 className="ml-10 text-xl text-gray-500 dark:text-zinc-50 font-bold mr-4">
           {capitalizeFirstLetter(
             dayjs(new Date(year, monthIndex)).format("MMMM YYYY")
           )}
-        </h2>
+        </h2>}
         <button
           onClick={handleReset}
           className="border rounded py-2 px-4 ml-5 bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50"
@@ -157,6 +167,27 @@ export default function CalendarHeader() {
             </span>
             <button
               onClick={handleNextYear}
+              className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-600 dark:text-zinc-50 rounded-full p-2 w-10 h-10 flex items-center justify-center"
+            >
+              <span className="material-icons dark:text-zinc-50">chevron_right</span>
+            </button>
+          </div>
+        )}
+        {viewMode === "month" && (
+          <div className="flex items-center mr-5">
+            <button
+              onClick={handlePrevMonth}
+              className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-600 dark:text-zinc-50 rounded-full p-2 w-10 h-10 flex items-center justify-center"
+            >
+              <span className="material-icons dark:text-zinc-50">chevron_left</span>
+            </button>
+            <span className="text-xl text-gray-500 dark:text-zinc-50 font-bold mx-4">
+            {capitalizeFirstLetter(
+            dayjs(new Date(year, monthIndex)).format("MMMM YYYY")
+          )}
+            </span>
+            <button
+              onClick={handleNextMonth}
               className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-600 dark:text-zinc-50 rounded-full p-2 w-10 h-10 flex items-center justify-center"
             >
               <span className="material-icons dark:text-zinc-50">chevron_right</span>
