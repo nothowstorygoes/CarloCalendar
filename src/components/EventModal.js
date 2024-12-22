@@ -224,15 +224,12 @@ export default function EventModal() {
               />
             </div>
             <div className="flex flex-row items-center justify-between mt-4">
-              <span className="material-icons text-gray-400 dark:text-zinc-200">
-                bookmark_border
-              </span>
-              <div className="grid grid-cols-3 gap-x-10 gap-y-5 mr-12">
+              <div className="grid grid-cols-3 gap-x-12 gap-y-5 mr-12">
                 {sortedLabels.map((lbl, i) => (
                   <div
                     key={i}
                     onClick={() => !isChecked && setSelectedLabel(lbl.name)}
-                    className="flex items-center justify-center cursor-pointer rounded w-36 h-12"
+                    className="flex items-center justify-center cursor-pointer rounded w-40 h-12"
                     style={{
                       backgroundColor: lbl.color,
                       border:
