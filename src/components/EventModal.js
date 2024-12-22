@@ -227,7 +227,7 @@ export default function EventModal() {
               <span className="material-icons text-gray-400 dark:text-zinc-200">
                 bookmark_border
               </span>
-              <div className="grid grid-cols-4 gap-2 w-46 mr-4">
+              <div className="grid grid-cols-4 gap-2 w-46 mr-10">
                 {sortedLabels.map((lbl, i) => (
                   <div
                     key={i}
