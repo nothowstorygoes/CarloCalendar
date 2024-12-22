@@ -229,14 +229,11 @@ export default function EventModal() {
                   <div
                     key={i}
                     onClick={() => !isChecked && setSelectedLabel(lbl.name)}
-                    className="flex items-center justify-center cursor-pointer rounded w-40 h-12"
+                    className="flex items-center justify-center cursor-pointer rounded w-40"
                     style={{
-                      backgroundColor: lbl.color,
-                      border:
-                        selectedLabel === lbl.name
-                          ? "solid 2px white"
-                          : "solid 2px transparent",
-                      padding: "0.5rem 2rem", // Double the width
+                      backgroundColor: selectedLabel === lbl.name ? `${lbl.color}80` : lbl.color,
+                      border: selectedLabel === lbl.name ? `2px solid white` : "2px solid transparent",
+                      padding: "0.5rem 0", // Double the width
                     }}
                   >
                     <span className="text-black font-bold text-sm">{lbl.name}</span>
