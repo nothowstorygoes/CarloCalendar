@@ -36,7 +36,11 @@ export default function EventModal() {
       setIsChecked(selectedEvent.checked);
       if (selectedEvent.time) {
         setSpecificTime(true);
-        setTime(`${selectedEvent.time.hours}:${selectedEvent.time.minutes.toString().padStart(2, "0")}`);
+        setTime(
+          `${selectedEvent.time.hours}:${selectedEvent.time.minutes
+            .toString()
+            .padStart(2, "0")}`
+        );
       }
     } else {
       resetForm();
@@ -49,7 +53,11 @@ export default function EventModal() {
     setSelectedLabel(labels[0]?.name || "");
     setSpecificTime(false);
     setDate(daySelected.toDate());
-    setTime(`${new Date().getHours()}:${Math.floor(new Date().getMinutes() / 15) * 15}`);
+    setTime(
+      `${new Date().getHours()}:${
+        Math.floor(new Date().getMinutes() / 15) * 15
+      }`
+    );
     setIsChecked(false);
   };
 
@@ -99,7 +107,9 @@ export default function EventModal() {
     const options = [];
     for (let hour = 0; hour < 24; hour++) {
       for (let minute = 0; minute < 60; minute += 15) {
-        const timeString = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
+        const timeString = `${hour.toString().padStart(2, "0")}:${minute
+          .toString()
+          .padStart(2, "0")}`;
         options.push(
           <option key={timeString} value={timeString}>
             {timeString}
@@ -172,7 +182,7 @@ export default function EventModal() {
                   event
                 </span>
               </div>
-              <div className="flex items-center gap-x-2 ml-6">
+              <div className="flex items-center gap-x-2 ml-6 justify-between">
                 <DatePicker
                   selected={date}
                   onChange={(date) => setDate(date)}
@@ -181,36 +191,35 @@ export default function EventModal() {
                   disabled={isChecked}
                   locale="en-GB"
                 />
-              </div>
-            </div>
-            <div className="flex items-center flex-row mt-5">
-              <div className="flex items-center">
-                <span className="material-icons text-gray-400 dark:text-zinc-200">
-                  access_time
-                </span>
-                <label className="ml-6 text-gray-600 dark:text-zinc-200">
-                  {t("access_time")}
-                </label>
-              </div>
-              <div className="flex items-center gap-x-2 ml-4">
-                <select
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                  className={`custom-scrollbar w-32 p-2 border rounded ${
-                    specificTime
-                      ? "border-black dark:border-zinc-200"
-                      : "border-gray-300 bg-gray-100 dark:border-zinc-700 dark:bg-zinc-700"
-                  }`}
-                  disabled={!specificTime || isChecked}
-                >
-                  {generateTimeOptions()}
-                </select>
+                <div className="flex items-center flex-row ml-10">
+                  <span className="material-icons text-gray-400 dark:text-zinc-200">
+                    access_time
+                  </span>
+                  <label className="ml-2 text-gray-600 dark:text-zinc-200">
+                    {t("access_time")}
+                  </label>
+
+                  <div className="flex items-center gap-x-2 ml-2">
+                    <select
+                      value={time}
+                      onChange={(e) => setTime(e.target.value)}
+                      className={`custom-scrollbar w-32 p-2 border rounded ${
+                        specificTime
+                          ? "border-black dark:border-zinc-200"
+                          : "border-gray-300 bg-gray-100 dark:border-zinc-700 dark:bg-zinc-700"
+                      }`}
+                      disabled={!specificTime || isChecked}
+                    >
+                      {generateTimeOptions()}
+                    </select>
+                  </div>
+                </div>
               </div>
               <input
                 type="checkbox"
                 checked={specificTime}
                 onChange={() => setSpecificTime(!specificTime)}
-                className="ml-6 rounded-full"
+                className="ml-2 rounded-full"
                 disabled={isChecked}
               />
             </div>
@@ -218,7 +227,7 @@ export default function EventModal() {
               <span className="material-icons text-gray-400 dark:text-zinc-200">
                 bookmark_border
               </span>
-              <div className="flex flex-wrap gap-2 justify-end w-full">
+              <div className="grid grid-cols-3 gap-2 w-46">
                 {sortedLabels.map((lbl, i) => (
                   <div
                     key={i}
@@ -230,7 +239,7 @@ export default function EventModal() {
                         selectedLabel === lbl.name
                           ? "solid 2px white"
                           : "solid 2px transparent",
-                      padding: "0.5rem 1rem",
+                      padding: "0.5rem 2rem", // Double the width
                     }}
                   >
                     <span className="text-white">{lbl.code}</span>
