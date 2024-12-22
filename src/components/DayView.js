@@ -2,22 +2,35 @@ import React, { useContext, useRef, useMemo } from "react";
 import dayjs from "dayjs";
 import "dayjs/locale/it"; // Import Italian locale
 import GlobalContext from "../context/GlobalContext";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 
-const EventItem = ({ evt, handleEventClick, handleCheckboxChange, handleDeleteEvent, getLabelColor }) => (
+const EventItem = ({
+  evt,
+  handleEventClick,
+  handleCheckboxChange,
+  handleDeleteEvent,
+  getLabelColor,
+}) => (
   <div className="flex justify-center items-center">
     <div
       key={evt.id}
       className="flex justify-between w-5/6 items-center mb-2 p-2 rounded cursor-pointer transition-all duration-300"
       style={{
-        backgroundColor: evt.time && evt.checked ? `${getLabelColor(evt.label)}80` : !evt.time && evt.checked ? "rgba(128, 128, 128, 0.8)" : getLabelColor(evt.label),
+        backgroundColor:
+          evt.time && evt.checked
+            ? `${getLabelColor(evt.label)}80`
+            : !evt.time && evt.checked
+            ? "rgba(128, 128, 128, 0.8)"
+            : getLabelColor(evt.label),
       }}
     >
       <div className="flex items-center" onClick={() => handleEventClick(evt)}>
         <div className="flex justify-between items-center">
           <span
             className="w-2 h-2 rounded-full mr-4"
-            style={{ backgroundColor: evt.checked ? "black" : getLabelColor(evt.label) }}
+            style={{
+              backgroundColor: evt.checked ? "black" : getLabelColor(evt.label),
+            }}
           ></span>
           <div>
             <span className="text-black-600 font-bold w-68">{evt.title}</span>
@@ -34,14 +47,13 @@ const EventItem = ({ evt, handleEventClick, handleCheckboxChange, handleDeleteEv
         </div>
         {evt.time && (
           <p className="text-sm text-black">
-            {" "}alle {evt.time.hours}:{evt.time.minutes}
+            {" "}
+            alle {evt.time.hours}:{evt.time.minutes}
           </p>
         )}
       </div>
       <div className="flex flex-row items-center">
-        <p className="text-sm mr-3 text-black">
-          {evt.label}
-        </p>
+        <p className="text-sm mr-3 text-black">{evt.label}</p>
         {!evt.time && (
           <input
             type="checkbox"
@@ -80,7 +92,8 @@ export default function DayInfoModal() {
 
   const dayEvents = useMemo(() => {
     const events = filteredEvents.filter(
-      (evt) => dayjs(evt.day).format("DD-MM-YY") === daySelected.format("DD-MM-YY")
+      (evt) =>
+        dayjs(evt.day).format("DD-MM-YY") === daySelected.format("DD-MM-YY")
     );
 
     // Sort events based on the code property of the label associated with the event
@@ -141,10 +154,10 @@ export default function DayInfoModal() {
   };
 
   function capitalizeFirstLetter(string) {
-    return string.replace(/\b\w/g, char => char.toUpperCase());
+    return string.replace(/\b\w/g, (char) => char.toUpperCase());
   }
 
-  const isToday = daySelected.isSame(dayjs(), 'day');
+  const isToday = daySelected.isSame(dayjs(), "day");
 
   return (
     <div className="h-[calc(100%-6rem)] w-[calc(100%-1.5rem)] left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-950 rounded-3xl">
@@ -158,34 +171,60 @@ export default function DayInfoModal() {
               onClick={handlePrevDay}
               className="bg-gray-200 dark:bg-zinc-700 hover:bg-gray-300 dark:hover:bg-zinc-600 text-gray-600 dark:text-zinc-50 rounded-full p-2 w-10 h-10 flex items-center justify-center transition-all duration-300"
             >
-              <span className="material-icons dark:text-zinc-50">chevron_left</span>
+              <span className="material-icons dark:text-zinc-50">
+                chevron_left
+              </span>
             </button>
-            <h2 className={`text-lg font-bold text-center text-gray-600 dark:text-zinc-50 ${isToday ? 'bg-blue-500 text-white p-6 rounded-3xl' : ''}`}>
-              {capitalizeFirstLetter(daySelected.locale("it").format("dddd, MMMM D, YYYY"))}
+            <h2
+              className={`text-lg font-bold text-center text-gray-600 dark:text-zinc-50 ${
+                isToday ? "bg-blue-500 text-white p-6 rounded-3xl" : ""
+              }`}
+            >
+              {capitalizeFirstLetter(
+                daySelected.locale("it").format("dddd, MMMM D, YYYY")
+              )}
             </h2>
             <button
               onClick={handleNextDay}
               className="bg-gray-200 dark:bg-zinc-700 hover:bg-gray-300 dark:hover:bg-zinc-600 text-gray-600 dark:text-zinc-50 rounded-full p-2 w-10 h-10 flex items-center justify-center transition-all duration-300"
             >
-              <span className="material-icons dark:text-zinc-50">chevron_right</span>
+              <span className="material-icons dark:text-zinc-50">
+                chevron_right
+              </span>
             </button>
           </div>
           {dayEvents.length === 0 && (
             <p className="text-gray-500 dark:text-zinc-50 text-sm items-center flex justify-center">
-               {t('no_events')}
+              {t("no_events")}
             </p>
           )}
-          <div className="overflow-auto">
-          {dayEvents.map((evt) => (
-            <EventItem
-              key={evt.id}
-              evt={evt}
-              handleEventClick={handleEventClick}
-              handleCheckboxChange={handleCheckboxChange}
-              handleDeleteEvent={handleDeleteEvent}
-              getLabelColor={getLabelColor}
-            />
-          ))}
+          <div className="overflow-scroll h-96 overflow-x-hidden custom-scrollbar">
+            {" "}
+            {dayEvents.map((evt) => (
+              <EventItem
+                key={evt.id}
+                evt={evt}
+                handleEventClick={handleEventClick}
+                handleCheckboxChange={handleCheckboxChange}
+                handleDeleteEvent={handleDeleteEvent}
+                getLabelColor={getLabelColor}
+              />
+            ))}
+             <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 12px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: var(--scrollbar-track-bg);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #888;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #555;
+        }
+      `}</style>
           </div>
         </div>
       </div>
