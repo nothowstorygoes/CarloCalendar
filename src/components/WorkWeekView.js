@@ -23,7 +23,9 @@ export default function WorkWeekView() {
   useEffect(() => {
     const weeks = getWeeks(daySelected.month(), daySelected.year());
     const startOfWeek = daySelected.startOf("week"); // Start from Monday
-    const week = weeks.find(week => week.some(day => day.isSame(daySelected, "day")));
+    const week = weeks.find((week) =>
+      week.some((day) => day.isSame(daySelected, "day"))
+    );
     const workWeek = week.slice(0, 5); // Only Monday to Friday
     setCurrentWeek(workWeek);
   }, [daySelected]);
@@ -59,6 +61,10 @@ export default function WorkWeekView() {
     return string.replace(/\b\w/g, (char) => char.toUpperCase());
   }
 
+  function truncateTitle(title) {
+    return title.length > 4 ? title.slice(0, 5) + "..." : title;
+  }
+
   const isToday = daySelected.isSame(dayjs(), "day");
 
   const MAX_EVENTS = 5; // Set the maximum number of events to display
@@ -78,13 +84,11 @@ export default function WorkWeekView() {
               <span className="material-icons dark:text-zinc-50">chevron_left</span>
             </button>
             <h2 className="text-lg font-bold text-center mb-6 text-gray-600 dark:text-zinc-50">
-            {currentWeek.length > 0 && capitalizeFirstLetter(
-                currentWeek[0]?.locale("it").format("MMMM D")
-              )}{" "}
+              {currentWeek.length > 0 &&
+                capitalizeFirstLetter(currentWeek[0]?.locale("it").format("MMMM D"))}{" "}
               -{" "}
-              {currentWeek.length > 0 && capitalizeFirstLetter(
-                currentWeek[4]?.locale("it").format("MMMM D, YYYY")
-              )}
+              {currentWeek.length > 0 &&
+                capitalizeFirstLetter(currentWeek[4]?.locale("it").format("MMMM D, YYYY"))}
             </h2>
             <button
               onClick={handleNextWeek}
@@ -128,7 +132,7 @@ export default function WorkWeekView() {
                       <div className="flex items-center w-full">
                         <div className="w-full">
                           <span className="font-bold truncate text-black">
-                            {evt.title}
+                            {truncateTitle(evt.title)}
                           </span>
                         </div>
                       </div>

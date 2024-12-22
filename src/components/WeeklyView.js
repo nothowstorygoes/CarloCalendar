@@ -23,7 +23,9 @@ export default function WeeklyView() {
   useEffect(() => {
     const weeks = getWeeks(daySelected.month(), daySelected.year());
     const startOfWeek = daySelected.startOf("week").add(1, "day"); // Start from Monday
-    const week = weeks.find(week => week.some(day => day.isSame(daySelected, "day")));
+    const week = weeks.find((week) =>
+      week.some((day) => day.isSame(daySelected, "day"))
+    );
     setCurrentWeek(week);
   }, [daySelected]);
 
@@ -58,6 +60,10 @@ export default function WeeklyView() {
     return string.replace(/\b\w/g, (char) => char.toUpperCase());
   }
 
+  function truncateTitle(title) {
+    return title.length > 4 ? title.slice(0, 5) + "..." : title;
+  }
+
   const isToday = daySelected.isSame(dayjs(), "day");
 
   const MAX_EVENTS = 5; // Set the maximum number of events to display
@@ -79,18 +85,12 @@ export default function WeeklyView() {
               </span>
             </button>
             <h2 className="text-lg font-bold text-center mb-6 text-gray-600 dark:text-zinc-50">
-            {capitalizeFirstLetter(
-                daySelected
-                  .locale("it")
-                  .startOf("week")
-                  .format("MMMM D")
+              {capitalizeFirstLetter(
+                daySelected.locale("it").startOf("week").format("MMMM D")
               )}{" "}
               -{" "}
               {capitalizeFirstLetter(
-                daySelected
-                  .locale("it")
-                  .endOf("week")
-                  .format("MMMM D, YYYY")
+                daySelected.locale("it").endOf("week").format("MMMM D, YYYY")
               )}
             </h2>
             <button
@@ -139,7 +139,7 @@ export default function WeeklyView() {
                       <div className="flex items-center w-full">
                         <div className="w-full">
                           <span className="font-bold truncate text-black">
-                            {evt.title}
+                            {truncateTitle(evt.title)}
                           </span>
                         </div>
                       </div>
