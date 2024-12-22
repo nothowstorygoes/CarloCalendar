@@ -1,7 +1,8 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext } from "react";
 import dayjs from "dayjs";
 import "dayjs/locale/it"; // Import Italian locale
 import GlobalContext from "../context/GlobalContext";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import logo from "../assets/logo.png";
 
@@ -19,7 +20,6 @@ export default function CalendarHeader() {
   } = useContext(GlobalContext);
   const { t } = useTranslation();
   const [darkMode, setDarkMode] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   function handleReset() {
     setMonthIndex(dayjs().month());
@@ -31,7 +31,6 @@ export default function CalendarHeader() {
     setViewMode(mode);
     setShowLabelEventsModal(false); // Hide LabelEventsView
     toggleLabelManager(false); // Hide LabelManager
-    setDropdownOpen(false); // Close dropdown menu
   }
 
   function capitalizeFirstLetter(string) {
@@ -59,21 +58,12 @@ export default function CalendarHeader() {
     }
   }
 
-  const getViewModeLabel = () => {
-    switch (viewMode) {
-      case "day":
-        return t("day");
-      case "week":
-        return t("week");
-      case "workweek":
-        return t("workweek");
-      case "month":
-        return t("month");
-      case "year":
-        return t("year");
-      default:
-        return t("view");
-    }
+  const handlePrevYear = () => {
+    setYear(year - 1);
+  };
+
+  const handleNextYear = () => {
+    setYear(year + 1);
   };
 
   return (
@@ -84,7 +74,9 @@ export default function CalendarHeader() {
           CarloCalendar
         </h1>
         <h2 className="ml-10 text-xl text-gray-500 dark:text-zinc-50 font-bold mr-4">
-          {capitalizeFirstLetter(dayjs(new Date(year, monthIndex)).format("MMMM YYYY"))}
+          {capitalizeFirstLetter(
+            dayjs(new Date(year, monthIndex)).format("MMMM YYYY")
+          )}
         </h2>
         <button
           onClick={handleReset}
@@ -93,69 +85,84 @@ export default function CalendarHeader() {
           {t("today")}
         </button>
       </div>
-      <div className="flex item-center justify-center">
       <button
         onClick={handleDarkModeToggle}
-        className="top-4 mr-4 pt-3 text-gray-800 dark:text-zinc-50 p-1 rounded"
+        className="top-4 ml-70 pt-3 text-gray-800 dark:text-zinc-50 p-1 rounded"
       >
         <span className="material-icons">
           {darkMode ? "light_mode" : "dark_mode"}
         </span>
       </button>
-      <div className="relative mr-12 mt-1">
+      <div className="flex items-center">
         <button
-          onClick={() => setDropdownOpen(!dropdownOpen)}
-          className="border rounded-3xl py-2 px-4 ml-5 bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50 flex items-center"
+          onClick={() => handleViewModeChange("day")}
+          className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
+            viewMode === "day"
+              ? "bg-blue-500 dark:bg-blue-700"
+              : "bg-gray-200 dark:bg-zinc-700"
+          }`}
         >
-          {getViewModeLabel()}
-          <span className="material-icons ml-2">arrow_drop_down</span>
+          {t("day")}
         </button>
-        {dropdownOpen && (
-          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg shadow-lg z-10">
+        <button
+          onClick={() => handleViewModeChange("week")}
+          className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
+            viewMode === "week"
+              ? "bg-blue-500 dark:bg-blue-700"
+              : "bg-gray-200 dark:bg-zinc-700"
+          }`}
+        >
+          {t("week")}
+        </button>
+        <button
+          onClick={() => handleViewModeChange("workweek")}
+          className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center justify-center text-gray-800 dark:text-zinc-50 ${            viewMode === "workweek"
+              ? "bg-blue-500 dark:bg-blue-700"
+              : "bg-gray-200 dark:bg-zinc-700"
+          }`}
+        >
+          {t("workweek")}
+        </button>
+        <button
+          onClick={() => handleViewModeChange("month")}
+          className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
+            viewMode === "month"
+              ? "bg-blue-500 dark:bg-blue-700"
+              : "bg-gray-200 dark:bg-zinc-700"
+          }`}
+        >
+          {t("month")}
+        </button>
+        <button
+          onClick={() => handleViewModeChange("year")}
+          className={`border rounded py-2 px-4 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
+            viewMode === "year"
+              ? "bg-blue-500 dark:bg-blue-700"
+              : "bg-gray-200 dark:bg-zinc-700"
+          }`}
+        >
+          {t("year")}
+        </button>
+      </div>
+      {viewMode === "year" && (
+          <div className="flex items-center mr-5">
             <button
-              onClick={() => handleViewModeChange("day")}
-              className={`block w-full text-left px-4 py-2 text-gray-800 dark:text-zinc-50 ${
-                viewMode === "day" ? "bg-blue-500 dark:bg-blue-700 text-white" : ""
-              }`}
+              onClick={handlePrevYear}
+              className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-600 dark:text-zinc-50 rounded-full p-2 w-10 h-10 flex items-center justify-center"
             >
-              {t("day")}
+              <span className="material-icons dark:text-zinc-50">chevron_left</span>
             </button>
+            <span className="text-xl text-gray-500 dark:text-zinc-50 font-bold mx-4">
+              {year}
+            </span>
             <button
-              onClick={() => handleViewModeChange("week")}
-              className={`block w-full text-left px-4 py-2 text-gray-800 dark:text-zinc-50 ${
-                viewMode === "week" ? "bg-blue-500 dark:bg-blue-700 text-white" : ""
-              }`}
+              onClick={handleNextYear}
+              className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-600 dark:text-zinc-50 rounded-full p-2 w-10 h-10 flex items-center justify-center"
             >
-              {t("week")}
-            </button>
-            <button
-              onClick={() => handleViewModeChange("workweek")}
-              className={`block w-full text-left px-4 py-2 text-gray-800 dark:text-zinc-50 ${
-                viewMode === "workweek" ? "bg-blue-500 dark:bg-blue-700 text-white" : ""
-              }`}
-            >
-              {t("workweek")}
-            </button>
-            <button
-              onClick={() => handleViewModeChange("month")}
-              className={`block w-full text-left px-4 py-2 text-gray-800 dark:text-zinc-50 ${
-                viewMode === "month" ? "bg-blue-500 dark:bg-blue-700 text-white" : ""
-              }`}
-            >
-              {t("month")}
-            </button>
-            <button
-              onClick={() => handleViewModeChange("year")}
-              className={`block w-full text-left px-4 py-2 text-gray-800 dark:text-zinc-50 ${
-                viewMode === "year" ? "bg-blue-500 dark:bg-blue-700 text-white" : ""
-              }`}
-            >
-              {t("year")}
+              <span className="material-icons dark:text-zinc-50">chevron_right</span>
             </button>
           </div>
         )}
-      </div>
-      </div>
     </header>
   );
 }

@@ -74,12 +74,12 @@ const resources = {
       "event": "Evento",
       "calendar": "Calendario",
       "day": "Giorno",
-      "week": "Settimana",
+      "week": "Week",
       "month": "Mese",
       "label_manager": "Gestore Etichette",
       "spinner": "Caricamento...",
         "add_code": "Priorità",
-        "workweek": "Settimana Lavorativa",
+        "workweek": "Work Week",
         "year": "Anno",
     }
   }
