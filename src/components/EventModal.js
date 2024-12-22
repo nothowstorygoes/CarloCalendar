@@ -227,12 +227,12 @@ export default function EventModal() {
               <span className="material-icons text-gray-400 dark:text-zinc-200">
                 bookmark_border
               </span>
-              <div className="grid grid-cols-4 gap-2 w-54 mr-12">
+              <div className="grid grid-cols-3 gap-2 mr-12">
                 {sortedLabels.map((lbl, i) => (
                   <div
                     key={i}
                     onClick={() => !isChecked && setSelectedLabel(lbl.name)}
-                    className="flex items-center justify-center cursor-pointer rounded"
+                    className="flex items-center justify-center cursor-pointer rounded w-44 h-12"
                     style={{
                       backgroundColor: lbl.color,
                       border:
@@ -242,7 +242,7 @@ export default function EventModal() {
                       padding: "0.5rem 2rem", // Double the width
                     }}
                   >
-                    <span className="text-black">{lbl.name}</span>
+                    <span className="text-black font-bold">{lbl.name}</span>
                   </div>
                 ))}
               </div>
