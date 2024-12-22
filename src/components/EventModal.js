@@ -224,7 +224,7 @@ export default function EventModal() {
               />
             </div>
             <div className="flex flex-row items-center justify-between mt-4 ml-2 mr-2">
-              <div className="grid grid-cols-3 gap-x-12 gap-y-5 mr-12">
+              <div className="grid grid-cols-3 gap-x-16 gap-y-5 mr-12">
                 {sortedLabels.map((lbl, i) => (
                   <div
                     key={i}
