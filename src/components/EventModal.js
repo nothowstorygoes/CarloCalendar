@@ -24,8 +24,7 @@ export default function EventModal() {
   const [selectedLabel, setSelectedLabel] = useState(labels[0]?.name || "");
   const [specificTime, setSpecificTime] = useState(false);
   const [date, setDate] = useState(daySelected.toDate());
-  const [hours, setHours] = useState("");
-  const [minutes, setMinutes] = useState("");
+  const [time, setTime] = useState("");
   const [isChecked, setIsChecked] = useState(false);
 
   useEffect(() => {
@@ -37,8 +36,7 @@ export default function EventModal() {
       setIsChecked(selectedEvent.checked);
       if (selectedEvent.time) {
         setSpecificTime(true);
-        setHours(selectedEvent.time.hours);
-        setMinutes(selectedEvent.time.minutes);
+        setTime(`${selectedEvent.time.hours}:${selectedEvent.time.minutes.toString().padStart(2, "0")}`);
       }
     } else {
       resetForm();
@@ -51,13 +49,13 @@ export default function EventModal() {
     setSelectedLabel(labels[0]?.name || "");
     setSpecificTime(false);
     setDate(daySelected.toDate());
-    setHours(new Date().getHours());
-    setMinutes(Math.floor(new Date().getMinutes() / 15) * 15);
+    setTime(`${new Date().getHours()}:${Math.floor(new Date().getMinutes() / 15) * 15}`);
     setIsChecked(false);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const [hours, minutes] = time.split(":").map(Number);
     const calendarEvent = {
       title: title,
       description: description || "", // Ensure description can be empty
@@ -97,8 +95,20 @@ export default function EventModal() {
 
   const sortedLabels = [...labels].sort((a, b) => a.code - b.code);
 
-  const hoursOptions = Array.from({ length: 24 }, (_, i) => i);
-  const minutesOptions = Array.from({ length: 4 }, (_, i) => i * 15);
+  const generateTimeOptions = () => {
+    const options = [];
+    for (let hour = 0; hour < 24; hour++) {
+      for (let minute = 0; minute < 60; minute += 15) {
+        const timeString = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
+        options.push(
+          <option key={timeString} value={timeString}>
+            {timeString}
+          </option>
+        );
+      }
+    }
+    return options;
+  };
 
   return (
     <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50 z-40 dark:bg-zinc-800 dark:bg-opacity-75">
@@ -182,58 +192,18 @@ export default function EventModal() {
                   {t("access_time")}
                 </label>
               </div>
-              <div className="flex items-center gap-x-2 ml-2">
+              <div className="flex items-center gap-x-2 ml-4">
                 <select
-                  value={hours}
-                  onChange={(e) => setHours(parseInt(e.target.value))}
-                  className={`custom-scrollbar w-16 p-2 border rounded ${
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className={`custom-scrollbar w-32 p-2 border rounded ${
                     specificTime
                       ? "border-black dark:border-zinc-200"
                       : "border-gray-300 bg-gray-100 dark:border-zinc-700 dark:bg-zinc-700"
                   }`}
                   disabled={!specificTime || isChecked}
                 >
-                  {hoursOptions.map((hour) => (
-                    <option key={hour} value={hour}>
-                      {hour.toString().padStart(2, "0")}
-                    </option>
-                  ))}
-                  <style jsx>{`
-                    select.custom-scrollbar {
-                      max-height: 100px; /* Adjust this value as needed */
-                      overflow-y: auto;
-                    }
-                    .custom-scrollbar::-webkit-scrollbar {
-                      width: 12px;
-                    }
-                    .custom-scrollbar::-webkit-scrollbar-track {
-                      background: var(--scrollbar-track-bg);
-                    }
-                    .custom-scrollbar::-webkit-scrollbar-thumb {
-                      background: #888;
-                      border-radius: 4px;
-                    }
-                    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                      background: #555;
-                    }
-                  `}</style>
-                </select>
-                <select
-                  value={minutes}
-                  onChange={(e) => setMinutes(parseInt(e.target.value))}
-                  className={`w-16 p-2 border rounded ${
-                    specificTime
-                      ? "border-black dark:border-zinc-200"
-                      : "border-gray-300 bg-gray-100 dark:border-zinc-700 dark:bg-zinc-700"
-                  }`}
-                  disabled={!specificTime || isChecked}
-                  style={{ maxHeight: "100px", overflowY: "auto" }} // Set max height and enable scrolling
-                >
-                  {minutesOptions.map((minute) => (
-                    <option key={minute} value={minute}>
-                      {minute.toString().padStart(2, "0")}
-                    </option>
-                  ))}
+                  {generateTimeOptions()}
                 </select>
               </div>
               <input
