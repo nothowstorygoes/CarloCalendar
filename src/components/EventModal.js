@@ -223,7 +223,7 @@ export default function EventModal() {
                 disabled={isChecked}
               />
             </div>
-            <div className="flex flex-row items-center justify-between mt-4">
+            <div className="flex flex-row items-center justify-between mt-4 ml-2 mr-2">
               <div className="grid grid-cols-3 gap-x-12 gap-y-5 mr-12">
                 {sortedLabels.map((lbl, i) => (
                   <div
@@ -239,7 +239,7 @@ export default function EventModal() {
                       padding: "0.5rem 2rem", // Double the width
                     }}
                   >
-                    <span className="text-black font-bold">{lbl.name}</span>
+                    <span className="text-black font-bold text-sm">{lbl.name}</span>
                   </div>
                 ))}
               </div>
