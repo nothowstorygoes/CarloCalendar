@@ -74,11 +74,11 @@ export default function WorkWeekView() {
             </button>
             <h2 className="text-lg font-bold text-center mb-6 text-gray-600 dark:text-zinc-50">
               {capitalizeFirstLetter(
-                daySelected.locale("it").startOf("week").add(1, "day").format("MMMM D")
+                daySelected.startOf("week").add(1, "day").locale("it").format("MMMM D")
               )}{" "}
               -{" "}
               {capitalizeFirstLetter(
-                daySelected.locale("it").startOf("week").add(5, "day").format("MMMM D, YYYY")
+                daySelected.startOf("week").add(5, "day").locale("it").format("MMMM D, YYYY")
               )}
             </h2>
             <button
