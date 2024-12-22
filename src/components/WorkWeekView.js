@@ -20,7 +20,7 @@ export default function WorkWeekView() {
   const { t } = useTranslation();
 
   useEffect(() => {
-    const startOfWeek = daySelected.startOf("week").add(1, "day"); // Start from Monday
+    const startOfWeek = daySelected.startOf("week") // Start from Monday
     const week = Array.from({ length: 5 }, (_, i) => startOfWeek.add(i, "day")); // Only Monday to Friday
     setCurrentWeek(week);
   }, [daySelected]);
@@ -76,11 +76,11 @@ export default function WorkWeekView() {
             </button>
             <h2 className="text-lg font-bold text-center mb-6 text-gray-600 dark:text-zinc-50">
               {capitalizeFirstLetter(
-                daySelected.startOf("week").add(1, "day").locale("it").format("MMMM D")
+                daySelected.startOf("week").locale("it").format("MMMM D")
               )}{" "}
               -{" "}
               {capitalizeFirstLetter(
-                daySelected.startOf("week").add(5, "day").locale("it").format("MMMM D, YYYY")
+                daySelected.startOf("week").add(4, "day").locale("it").format("MMMM D, YYYY")
               )}
             </h2>
             <button

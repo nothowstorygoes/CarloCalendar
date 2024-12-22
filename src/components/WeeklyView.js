@@ -79,11 +79,10 @@ export default function WeeklyView() {
               </span>
             </button>
             <h2 className="text-lg font-bold text-center mb-6 text-gray-600 dark:text-zinc-50">
-              {capitalizeFirstLetter(
+            {capitalizeFirstLetter(
                 daySelected
                   .locale("it")
                   .startOf("week")
-                  .add(1, "day")
                   .format("MMMM D")
               )}{" "}
               -{" "}
@@ -91,7 +90,6 @@ export default function WeeklyView() {
                 daySelected
                   .locale("it")
                   .endOf("week")
-                  .add(1, "day")
                   .format("MMMM D, YYYY")
               )}
             </h2>
