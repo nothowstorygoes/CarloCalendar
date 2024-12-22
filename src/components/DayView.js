@@ -152,7 +152,7 @@ export default function DayInfoModal() {
         ref={modalRef}
         className="bg-white dark:bg-zinc-950 w-[calc(100%-16rem)] h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative mt-8"
       >
-        <div className="p-4 overflow-auto relative w-full">
+        <div className="p-4 relative w-full">
           <div className="flex items-center justify-between mb-16 w-2/3 mx-auto space-x-1">
             <button
               onClick={handlePrevDay}
@@ -175,6 +175,7 @@ export default function DayInfoModal() {
                {t('no_events')}
             </p>
           )}
+          <div className="overflow-auto">
           {dayEvents.map((evt) => (
             <EventItem
               key={evt.id}
@@ -185,6 +186,7 @@ export default function DayInfoModal() {
               getLabelColor={getLabelColor}
             />
           ))}
+          </div>
         </div>
       </div>
     </div>
