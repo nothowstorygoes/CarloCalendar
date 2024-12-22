@@ -157,6 +157,8 @@ export default function DayInfoModal() {
     return string.replace(/\b\w/g, (char) => char.toUpperCase());
   }
 
+
+
   const isToday = daySelected.isSame(dayjs(), "day");
 
   return (

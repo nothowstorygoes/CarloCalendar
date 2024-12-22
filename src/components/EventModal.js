@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import GlobalContext from "../context/GlobalContext";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -11,7 +11,14 @@ registerLocale("en-GB", enGB);
 
 export default function EventModal() {
   const { t } = useTranslation();
-  const { setShowEventModal, daySelected, dispatchCalEvent, selectedEvent, setSelectedEvent, labels } = useContext(GlobalContext);
+  const {
+    setShowEventModal,
+    daySelected,
+    dispatchCalEvent,
+    selectedEvent,
+    setSelectedEvent,
+    labels,
+  } = useContext(GlobalContext);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedLabel, setSelectedLabel] = useState(labels[0]?.name || "");
@@ -44,51 +51,61 @@ export default function EventModal() {
     setSelectedLabel(labels[0]?.name || "");
     setSpecificTime(false);
     setDate(daySelected.toDate());
-    setHours("");
-    setMinutes("");
+    setHours(new Date().getHours());
+    setMinutes(Math.floor(new Date().getMinutes() / 15) * 15);
     setIsChecked(false);
   };
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  const calendarEvent = {
-    title: title,
-    description: description || "", // Ensure description can be empty
-    label: selectedLabel,
-    day: date.getTime(),
-    id: selectedEvent ? selectedEvent.id : Date.now().toString(),
-    checked: isChecked,
-    time: specificTime ? { hours, minutes } : null,
-    userId: auth.currentUser.uid,
-  };
-  try {
-    const eventRef = doc(db, `users/${auth.currentUser.uid}/events`, calendarEvent.id);
-    await setDoc(eventRef, calendarEvent);
-    if (selectedEvent) {
-      dispatchCalEvent({ type: "update", payload: calendarEvent });
-    } else {
-      dispatchCalEvent({ type: "push", payload: calendarEvent });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const calendarEvent = {
+      title: title,
+      description: description || "", // Ensure description can be empty
+      label: selectedLabel,
+      day: date.getTime(),
+      id: selectedEvent ? selectedEvent.id : Date.now().toString(),
+      checked: isChecked,
+      time: specificTime ? { hours, minutes } : null,
+      userId: auth.currentUser.uid,
+    };
+    try {
+      const eventRef = doc(
+        db,
+        `users/${auth.currentUser.uid}/events`,
+        calendarEvent.id
+      );
+      await setDoc(eventRef, calendarEvent);
+      if (selectedEvent) {
+        dispatchCalEvent({ type: "update", payload: calendarEvent });
+      } else {
+        dispatchCalEvent({ type: "push", payload: calendarEvent });
+      }
+      setShowEventModal(false);
+      setSelectedEvent(null); // Reset selectedEvent state
+      resetForm(); // Reset the form after closing the modal
+    } catch (error) {
+      console.error("Error saving document: ", error);
+      resetForm(); // Reset the form after closing the modal
     }
-    setShowEventModal(false);
-    setSelectedEvent(null); // Reset selectedEvent state
-    resetForm(); // Reset the form after closing the modal
-  } catch (error) {
-    console.error("Error saving document: ", error);
-    resetForm(); // Reset the form after closing the modal
-  }
-};
+  };
 
   const handleClose = () => {
     setShowEventModal(false);
     setSelectedEvent(null); // Reset selectedEvent state
     resetForm(); // Reset the form when closing the modal
   };
-  
+
   const sortedLabels = [...labels].sort((a, b) => a.code - b.code);
 
+  const hoursOptions = Array.from({ length: 24 }, (_, i) => i);
+  const minutesOptions = Array.from({ length: 4 }, (_, i) => i * 15);
 
   return (
     <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50 z-40 dark:bg-zinc-800 dark:bg-opacity-75">
-      <form className="bg-white dark:bg-zinc-950 rounded-lg shadow-2xl w-1/3 z-50" onSubmit={handleSubmit}>
+      <form
+        className="bg-white dark:bg-zinc-950 rounded-lg shadow-2xl w-1/3 z-50"
+        onSubmit={handleSubmit}
+      >
         <header className="bg-gray-100 dark:bg-zinc-900 px-4 py-2 flex justify-between items-center rounded-t-lg">
           <span className="material-icons-outlined text-gray-400 dark:text-zinc-200">
             drag_handle
@@ -122,7 +139,7 @@ const handleSubmit = async (e) => {
               <input
                 type="text"
                 name="title"
-                placeholder={t('add_title')}
+                placeholder={t("add_title")}
                 value={title}
                 disabled={isChecked}
                 required
@@ -132,7 +149,7 @@ const handleSubmit = async (e) => {
             </div>
             <textarea
               name="description"
-              placeholder={t('add_description')}
+              placeholder={t("add_description")}
               value={description}
               rows="4"
               disabled={isChecked}
@@ -153,7 +170,6 @@ const handleSubmit = async (e) => {
                   className="w-32 p-2 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
                   disabled={isChecked}
                   locale="en-GB"
-
                 />
               </div>
             </div>
@@ -162,31 +178,63 @@ const handleSubmit = async (e) => {
                 <span className="material-icons text-gray-400 dark:text-zinc-200">
                   access_time
                 </span>
-                <label className="ml-6 text-gray-600 dark:text-zinc-200">{t('access_time')}</label>
+                <label className="ml-6 text-gray-600 dark:text-zinc-200">
+                  {t("access_time")}
+                </label>
               </div>
               <div className="flex items-center gap-x-2 ml-2">
-                <input
-                  type="number"
-                  name="hours"
-                  placeholder="HH"
+                <select
                   value={hours}
-                  onChange={(e) => setHours(e.target.value)}
-                  className={`w-16 p-2 border rounded ${specificTime ? "border-black dark:border-zinc-200" : "border-gray-300 bg-gray-100 dark:border-zinc-700 dark:bg-zinc-700"}`}
-                  min="0"
-                  max="23"
+                  onChange={(e) => setHours(parseInt(e.target.value))}
+                  className={`custom-scrollbar w-16 p-2 border rounded ${
+                    specificTime
+                      ? "border-black dark:border-zinc-200"
+                      : "border-gray-300 bg-gray-100 dark:border-zinc-700 dark:bg-zinc-700"
+                  }`}
                   disabled={!specificTime || isChecked}
-                />
-                <input
-                  type="number"
-                  name="minutes"
-                  placeholder="MM"
+                >
+                  {hoursOptions.map((hour) => (
+                    <option key={hour} value={hour}>
+                      {hour.toString().padStart(2, "0")}
+                    </option>
+                  ))}
+                  <style jsx>{`
+                    select.custom-scrollbar {
+                      max-height: 100px; /* Adjust this value as needed */
+                      overflow-y: auto;
+                    }
+                    .custom-scrollbar::-webkit-scrollbar {
+                      width: 12px;
+                    }
+                    .custom-scrollbar::-webkit-scrollbar-track {
+                      background: var(--scrollbar-track-bg);
+                    }
+                    .custom-scrollbar::-webkit-scrollbar-thumb {
+                      background: #888;
+                      border-radius: 4px;
+                    }
+                    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                      background: #555;
+                    }
+                  `}</style>
+                </select>
+                <select
                   value={minutes}
-                  onChange={(e) => setMinutes(e.target.value)}
-                  className={`w-16 p-2 border rounded ${specificTime ? "border-black dark:border-zinc-200" : "border-gray-300 bg-gray-100 dark:border-zinc-700 dark:bg-zinc-700"}`}
-                  min="0"
-                  max="59"
+                  onChange={(e) => setMinutes(parseInt(e.target.value))}
+                  className={`w-16 p-2 border rounded ${
+                    specificTime
+                      ? "border-black dark:border-zinc-200"
+                      : "border-gray-300 bg-gray-100 dark:border-zinc-700 dark:bg-zinc-700"
+                  }`}
                   disabled={!specificTime || isChecked}
-                />
+                  style={{ maxHeight: "100px", overflowY: "auto" }} // Set max height and enable scrolling
+                >
+                  {minutesOptions.map((minute) => (
+                    <option key={minute} value={minute}>
+                      {minute.toString().padStart(2, "0")}
+                    </option>
+                  ))}
+                </select>
               </div>
               <input
                 type="checkbox"
@@ -208,7 +256,10 @@ const handleSubmit = async (e) => {
                     className="flex items-center justify-center cursor-pointer rounded"
                     style={{
                       backgroundColor: lbl.color,
-                      border: selectedLabel === lbl.name ? "solid 2px white" : "solid 2px transparent",
+                      border:
+                        selectedLabel === lbl.name
+                          ? "solid 2px white"
+                          : "solid 2px transparent",
                       padding: "0.5rem 1rem",
                     }}
                   >
@@ -225,7 +276,7 @@ const handleSubmit = async (e) => {
             className="bg-blue-500 hover:bg-blue-600 px-6 py-2 rounded text-white"
             disabled={isChecked}
           >
-            {t('save')}
+            {t("save")}
           </button>
         </footer>
       </form>
