@@ -95,9 +95,10 @@ export default function CalendarHeader() {
           {t("today")}
         </button>
       </div>
+      <div className="flex items-center jusitfy-center">
       <button
         onClick={handleDarkModeToggle}
-        className="top-4 ml-70 pt-3 text-gray-800 dark:text-zinc-50 p-1 rounded"
+        className="top-4 mr-5 pt-3 text-gray-800 dark:text-zinc-50 p-1 rounded"
       >
         <span className="material-icons">
           {darkMode ? "light_mode" : "dark_mode"}
@@ -194,6 +195,7 @@ export default function CalendarHeader() {
             </button>
           </div>
         )}
+      </div>
     </header>
   );
 }
