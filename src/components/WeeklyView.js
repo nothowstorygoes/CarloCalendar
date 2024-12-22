@@ -66,7 +66,7 @@ export default function WeeklyView() {
         ref={modalRef}
         className="bg-white dark:bg-zinc-950 w-[calc(100%-4rem)] h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative mt-8"
       >
-        <div className="p-4 overflow-auto relative">
+        <div className="p-4 overflow-auto relative overflow-x-hidden">
           <div className="flex items-center justify-between mb-6 w-2/3 mx-auto space-x-1">
             <button
               onClick={handlePrevWeek}
