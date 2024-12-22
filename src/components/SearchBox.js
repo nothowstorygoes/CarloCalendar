@@ -10,6 +10,7 @@ const SearchBox = ({ setShowSearchBox, handleEventClick }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const searchBoxRef = useRef(null);
+  const inputRef = useRef(null);
 
   const debounce = (func, delay) => {
     let timeoutId;
@@ -55,10 +56,17 @@ const SearchBox = ({ setShowSearchBox, handleEventClick }) => {
     };
   }, []);
 
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
   return (
     <div className="fixed top-0 left-0 w-full h-14 z-50 bg-white dark:bg-zinc-900 flex items-center justify-center">
       <div ref={searchBoxRef} className="relative w-full max-w-4xl mx-auto p-4">
         <input
+          ref={inputRef}
           type="text"
           value={searchTerm}
           onChange={handleSearchChange}
@@ -81,9 +89,9 @@ const SearchBox = ({ setShowSearchBox, handleEventClick }) => {
                   key={index}
                   className="text-gray-800 dark:text-zinc-50 cursor-pointer mb-2 mt-2 bg-gray-200 dark:bg-zinc-700 p-2 rounded-xl"
                   onClick={() => handleEventClick(event)}
-                > 
-                  <p className="font-bold">{event.title}</p>
-                  {dayjs(event.day).format("DD/MM/YYYY")} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {event.label}
+                >
+                  <p className="font-bold">{event.title}</p>{" "}
+                  {dayjs(event.day).format("DD/MM/YYYY")} <p>{event.label}</p>
                 </li>
               ))}
             </ul>
