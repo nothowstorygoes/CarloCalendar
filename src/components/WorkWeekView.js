@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import GlobalContext from "../context/GlobalContext";
 import { useTranslation } from "react-i18next";
 import "dayjs/locale/it"; // Import Italian locale
+import { getWeeks } from "../util";
 
 export default function WorkWeekView() {
   const {
@@ -20,9 +21,11 @@ export default function WorkWeekView() {
   const { t } = useTranslation();
 
   useEffect(() => {
-    const startOfWeek = daySelected.startOf("week") // Start from Monday
-    const week = Array.from({ length: 5 }, (_, i) => startOfWeek.add(i, "day")); // Only Monday to Friday
-    setCurrentWeek(week);
+    const weeks = getWeeks(daySelected.month(), daySelected.year());
+    const startOfWeek = daySelected.startOf("week"); // Start from Monday
+    const week = weeks.find(week => week.some(day => day.isSame(daySelected, "day")));
+    const workWeek = week.slice(0, 5); // Only Monday to Friday
+    setCurrentWeek(workWeek);
   }, [daySelected]);
 
   const handleDeleteEvent = (eventId) => {
@@ -75,12 +78,12 @@ export default function WorkWeekView() {
               <span className="material-icons dark:text-zinc-50">chevron_left</span>
             </button>
             <h2 className="text-lg font-bold text-center mb-6 text-gray-600 dark:text-zinc-50">
-              {capitalizeFirstLetter(
-                daySelected.startOf("week").locale("it").format("MMMM D")
+            {currentWeek.length > 0 && capitalizeFirstLetter(
+                currentWeek[0]?.locale("it").format("MMMM D")
               )}{" "}
               -{" "}
-              {capitalizeFirstLetter(
-                daySelected.startOf("week").add(4, "day").locale("it").format("MMMM D, YYYY")
+              {currentWeek.length > 0 && capitalizeFirstLetter(
+                currentWeek[4]?.locale("it").format("MMMM D, YYYY")
               )}
             </h2>
             <button
