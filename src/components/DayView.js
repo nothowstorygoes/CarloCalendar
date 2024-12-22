@@ -10,7 +10,7 @@ const EventItem = ({ evt, handleEventClick, handleCheckboxChange, handleDeleteEv
       key={evt.id}
       className="flex justify-between w-5/6 items-center mb-2 p-2 rounded cursor-pointer transition-all duration-300"
       style={{
-        backgroundColor: evt.checked ? "rgba(128, 128, 128, 0.8)" : `${getLabelColor(evt.label)}`,
+        backgroundColor: evt.time && evt.checked ? `${getLabelColor(evt.label)}80` : !evt.time && evt.checked ? "rgba(128, 128, 128, 0.8)" : getLabelColor(evt.label),
       }}
     >
       <div className="flex items-center" onClick={() => handleEventClick(evt)}>

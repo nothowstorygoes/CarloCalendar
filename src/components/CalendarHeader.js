@@ -93,15 +93,16 @@ export default function CalendarHeader() {
           {t("today")}
         </button>
       </div>
+      <div className="flex item-center justify-center">
       <button
         onClick={handleDarkModeToggle}
-        className="top-4 ml-70 pt-3 text-gray-800 dark:text-zinc-50 p-1 rounded"
+        className="top-4 mr-4 pt-3 text-gray-800 dark:text-zinc-50 p-1 rounded"
       >
         <span className="material-icons">
           {darkMode ? "light_mode" : "dark_mode"}
         </span>
       </button>
-      <div className="relative mr-12">
+      <div className="relative mr-12 mt-1">
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
           className="border rounded-3xl py-2 px-4 ml-5 bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50 flex items-center"
@@ -153,6 +154,7 @@ export default function CalendarHeader() {
             </button>
           </div>
         )}
+      </div>
       </div>
     </header>
   );
