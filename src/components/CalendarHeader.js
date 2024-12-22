@@ -26,9 +26,11 @@ export default function CalendarHeader() {
   const [showSearchBox, setShowSearchBox] = useState(false);
 
   function handleReset() {
-    setMonthIndex(dayjs().month());
-    setYear(dayjs().year());
-    setDaySelected(dayjs());
+    const today = dayjs();
+    const startOfWeek = today.startOf("week").add(1, "day"); // Start from Monday
+    setMonthIndex(today.month());
+    setYear(today.year());
+    setDaySelected(startOfWeek);
   }
 
   function handleViewModeChange(mode) {

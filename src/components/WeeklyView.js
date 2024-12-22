@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import GlobalContext from "../context/GlobalContext";
 import { useTranslation } from "react-i18next";
 import "dayjs/locale/it"; // Import Italian locale
+import { getWeeks } from "../util";
 
 export default function WeeklyView() {
   const {
@@ -20,8 +21,9 @@ export default function WeeklyView() {
   const { t } = useTranslation();
 
   useEffect(() => {
+    const weeks = getWeeks(daySelected.month(), daySelected.year());
     const startOfWeek = daySelected.startOf("week").add(1, "day"); // Start from Monday
-    const week = Array.from({ length: 7 }, (_, i) => startOfWeek.add(i, "day"));
+    const week = weeks.find(week => week.some(day => day.isSame(daySelected, "day")));
     setCurrentWeek(week);
   }, [daySelected]);
 

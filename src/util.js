@@ -13,3 +13,8 @@ export function getMonth(month = dayjs().month(), year = dayjs().year()) {
   });
   return daysMatrix;
 }
+
+export function getWeeks(month = dayjs().month(), year = dayjs().year()) {
+  const daysMatrix = getMonth(month, year);
+  return daysMatrix.map(week => week);
+}
