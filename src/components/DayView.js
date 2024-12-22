@@ -53,7 +53,7 @@ const EventItem = ({
         )}
       </div>
       <div className="flex flex-row items-center">
-        <p className="text-sm mr-3 text-black">{evt.label}</p>
+        <p className="text-sm mr-3 text-black font-bold">{evt.label}</p>
         {!evt.time && (
           <input
             type="checkbox"

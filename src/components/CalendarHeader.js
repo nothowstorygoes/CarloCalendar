@@ -1,10 +1,11 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import dayjs from "dayjs";
 import "dayjs/locale/it"; // Import Italian locale
 import GlobalContext from "../context/GlobalContext";
-import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import logo from "../assets/logo.png";
+import SearchBox from "./SearchBox";
+import { useEffect } from "react";
 
 export default function CalendarHeader() {
   const {
@@ -17,9 +18,12 @@ export default function CalendarHeader() {
     setDaySelected,
     setShowLabelEventsModal,
     toggleLabelManager,
+    setShowEventModal,
+    setSelectedEvent,
   } = useContext(GlobalContext);
   const { t } = useTranslation();
   const [darkMode, setDarkMode] = useState(false);
+  const [showSearchBox, setShowSearchBox] = useState(false);
 
   function handleReset() {
     setMonthIndex(dayjs().month());
@@ -74,6 +78,10 @@ export default function CalendarHeader() {
     setMonthIndex(monthIndex + 1);
   };
 
+  const handleEventClick = (event) => {
+    setSelectedEvent(event);
+    setShowEventModal(true);
+  };
 
   return (
     <header className="px-4 py-2 flex items-center justify-between bg-white dark:bg-zinc-900">
@@ -82,12 +90,12 @@ export default function CalendarHeader() {
         <h1 className="mr-16 text-xl text-gray-500 dark:text-zinc-50 font-bold">
           CarloCalendar
         </h1>
-        {viewMode=="month" ? "" :
-        <h2 className="ml-10 text-xl text-gray-500 dark:text-zinc-50 font-bold mr-4">
-          {capitalizeFirstLetter(
-            dayjs(new Date(year, monthIndex)).format("MMMM YYYY")
-          )}
-        </h2>}
+        {viewMode === "month" ? "" :
+          <h2 className="ml-10 text-xl text-gray-500 dark:text-zinc-50 font-bold mr-4">
+            {capitalizeFirstLetter(
+              dayjs(new Date(year, monthIndex)).format("MMMM YYYY")
+            )}
+          </h2>}
         <button
           onClick={handleReset}
           className="border rounded py-2 px-4 ml-5 bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50"
@@ -95,67 +103,80 @@ export default function CalendarHeader() {
           {t("today")}
         </button>
       </div>
-      <div className="flex items-center jusitfy-center">
-      <button
-        onClick={handleDarkModeToggle}
-        className="top-4 mr-5 pt-3 text-gray-800 dark:text-zinc-50 p-1 rounded"
-      >
-        <span className="material-icons">
-          {darkMode ? "light_mode" : "dark_mode"}
-        </span>
-      </button>
-      <div className="flex items-center mr-5">
+      <div className="flex items-center justify-center">
         <button
-          onClick={() => handleViewModeChange("day")}
-          className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
-            viewMode === "day"
-              ? "bg-blue-500 dark:bg-blue-700"
-              : "bg-gray-200 dark:bg-zinc-700"
-          }`}
+          onClick={() => setShowSearchBox(true)}
+          className="top-4 mr-5 pt-3 text-gray-800 dark:text-zinc-50 p-1 rounded"
         >
-          {t("day")}
+          <span className="material-icons">search</span>
         </button>
+        {showSearchBox && (
+          <SearchBox
+            setShowSearchBox={setShowSearchBox}
+            handleEventClick={handleEventClick}
+          />
+        )}
         <button
-          onClick={() => handleViewModeChange("week")}
-          className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
-            viewMode === "week"
-              ? "bg-blue-500 dark:bg-blue-700"
-              : "bg-gray-200 dark:bg-zinc-700"
-          }`}
+          onClick={handleDarkModeToggle}
+          className="top-4 mr-5 pt-3 text-gray-800 dark:text-zinc-50 p-1 rounded"
         >
-          {t("week")}
+          <span className="material-icons">
+            {darkMode ? "light_mode" : "dark_mode"}
+          </span>
         </button>
-        <button
-          onClick={() => handleViewModeChange("workweek")}
-          className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center justify-center text-gray-800 dark:text-zinc-50 ${            viewMode === "workweek"
-              ? "bg-blue-500 dark:bg-blue-700"
-              : "bg-gray-200 dark:bg-zinc-700"
-          }`}
-        >
-          {t("workweek")}
-        </button>
-        <button
-          onClick={() => handleViewModeChange("month")}
-          className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
-            viewMode === "month"
-              ? "bg-blue-500 dark:bg-blue-700"
-              : "bg-gray-200 dark:bg-zinc-700"
-          }`}
-        >
-          {t("month")}
-        </button>
-        <button
-          onClick={() => handleViewModeChange("year")}
-          className={`border rounded py-2 px-4 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
-            viewMode === "year"
-              ? "bg-blue-500 dark:bg-blue-700"
-              : "bg-gray-200 dark:bg-zinc-700"
-          }`}
-        >
-          {t("year")}
-        </button>
-      </div>
-      {viewMode === "year" && (
+        <div className="flex items-center mr-5">
+          <button
+            onClick={() => handleViewModeChange("day")}
+            className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
+              viewMode === "day"
+                ? "bg-blue-500 dark:bg-blue-700"
+                : "bg-gray-200 dark:bg-zinc-700"
+            }`}
+          >
+            {t("day")}
+          </button>
+          <button
+            onClick={() => handleViewModeChange("week")}
+            className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
+              viewMode === "week"
+                ? "bg-blue-500 dark:bg-blue-700"
+                : "bg-gray-200 dark:bg-zinc-700"
+            }`}
+          >
+            {t("week")}
+          </button>
+          <button
+            onClick={() => handleViewModeChange("workweek")}
+            className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center justify-center text-gray-800 dark:text-zinc-50 ${
+              viewMode === "workweek"
+                ? "bg-blue-500 dark:bg-blue-700"
+                : "bg-gray-200 dark:bg-zinc-700"
+            }`}
+          >
+            {t("workweek")}
+          </button>
+          <button
+            onClick={() => handleViewModeChange("month")}
+            className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
+              viewMode === "month"
+                ? "bg-blue-500 dark:bg-blue-700"
+                : "bg-gray-200 dark:bg-zinc-700"
+            }`}
+          >
+            {t("month")}
+          </button>
+          <button
+            onClick={() => handleViewModeChange("year")}
+            className={`border rounded py-2 px-4 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
+              viewMode === "year"
+                ? "bg-blue-500 dark:bg-blue-700"
+                : "bg-gray-200 dark:bg-zinc-700"
+            }`}
+          >
+            {t("year")}
+          </button>
+        </div>
+        {viewMode === "year" && (
           <div className="flex items-center mr-5">
             <button
               onClick={handlePrevYear}
@@ -183,9 +204,9 @@ export default function CalendarHeader() {
               <span className="material-icons dark:text-zinc-50">chevron_left</span>
             </button>
             <span className="text-xl text-gray-500 dark:text-zinc-50 font-bold mx-4">
-            {capitalizeFirstLetter(
-            dayjs(new Date(year, monthIndex)).format("MMMM YYYY")
-          )}
+              {capitalizeFirstLetter(
+                dayjs(new Date(year, monthIndex)).format("MMMM YYYY")
+              )}
             </span>
             <button
               onClick={handleNextMonth}

@@ -147,7 +147,7 @@ export default function LabelManager() {
                 </span>
                 <div>
                   <span
-                    className="material-icons text-white ml-2 cursor-pointer mr-5"
+                    className="material-icons text-black ml-2 cursor-pointer mr-5"
                     onClick={() => handleEditLabel({ id, name, code, color })}
                   >
                     edit
@@ -155,7 +155,7 @@ export default function LabelManager() {
                   <button
                     onClick={() => deleteLabel(id)}
                     className="material-icons-outlined cursor-pointer"
-                    style={{ color: "#ffff" }} // Set contrast color
+                    style={{ color: "#000" }} // Set contrast color
                   >
                     delete
                   </button>

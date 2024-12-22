@@ -32,20 +32,24 @@ export default function EventModal() {
       setTitle(selectedEvent.title);
       setDescription(selectedEvent.description || ""); // Ensure description can be empty
       setSelectedLabel(selectedEvent.label);
-      setDate(daySelected.toDate());
+      setDate(new Date(selectedEvent.day)); // Set the date from the selected event
       setIsChecked(selectedEvent.checked);
       if (selectedEvent.time) {
         setSpecificTime(true);
         setTime(
-          `${selectedEvent.time.hours}:${selectedEvent.time.minutes
+          `${selectedEvent.time.hours.toString().padStart(2, "0")}:${selectedEvent.time.minutes
             .toString()
             .padStart(2, "0")}`
         );
+      } else {
+        setSpecificTime(false);
+        setTime("00:00");
       }
     } else {
       resetForm();
     }
   }, [selectedEvent]);
+  
 
   const resetForm = () => {
     setTitle("");
@@ -121,9 +125,9 @@ export default function EventModal() {
   };
 
   return (
-    <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50 z-40 dark:bg-zinc-800 dark:bg-opacity-75">
+    <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50 z-51 dark:bg-zinc-800 dark:bg-opacity-75">
       <form
-        className="bg-white dark:bg-zinc-950 rounded-lg shadow-2xl w-1/3 z-50"
+        className="bg-white dark:bg-zinc-950 rounded-lg shadow-2xl w-1/3 z-51"
         onSubmit={handleSubmit}
       >
         <header className="bg-gray-100 dark:bg-zinc-900 px-4 py-2 flex justify-between items-center rounded-t-lg">
@@ -231,12 +235,20 @@ export default function EventModal() {
                     onClick={() => !isChecked && setSelectedLabel(lbl.name)}
                     className="flex items-center justify-center cursor-pointer rounded w-40"
                     style={{
-                      backgroundColor: selectedLabel === lbl.name ? `${lbl.color}80` : lbl.color,
-                      border: selectedLabel === lbl.name ? `2px solid white` : "2px solid transparent",
+                      backgroundColor:
+                        selectedLabel === lbl.name
+                          ? `${lbl.color}80`
+                          : lbl.color,
+                      border:
+                        selectedLabel === lbl.name
+                          ? `2px solid white`
+                          : "2px solid transparent",
                       padding: "0.5rem 0", // Double the width
                     }}
                   >
-                    <span className="text-black font-bold text-sm">{lbl.name}</span>
+                    <span className="text-black font-bold text-sm">
+                      {lbl.name}
+                    </span>
                   </div>
                 ))}
               </div>

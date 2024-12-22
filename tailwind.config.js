@@ -24,6 +24,10 @@ module.exports = {
       fontFamily: {
         sans: ["Open Sans"]
       },
+      zIndex: {
+        '51': '51',
+        '49': '49',
+      },
       gridTemplateColumns: {
         "1/5": "1fr 5fr"
       }
