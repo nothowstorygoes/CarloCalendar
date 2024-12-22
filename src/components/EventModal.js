@@ -21,7 +21,7 @@ export default function EventModal() {
   } = useContext(GlobalContext);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedLabel, setSelectedLabel] = useState(labels[0]?.name || "");
+  const [selectedLabel, setSelectedLabel] = useState("");
   const [specificTime, setSpecificTime] = useState(false);
   const [date, setDate] = useState(daySelected.toDate());
   const [time, setTime] = useState("");
@@ -49,12 +49,11 @@ export default function EventModal() {
       resetForm();
     }
   }, [selectedEvent]);
-  
 
   const resetForm = () => {
     setTitle("");
     setDescription("");
-    setSelectedLabel(labels[0]?.name || "");
+    setSelectedLabel(""); // No label selected by default
     setSpecificTime(false);
     setDate(daySelected.toDate());
     setTime(
@@ -259,7 +258,7 @@ export default function EventModal() {
           <button
             type="submit"
             className="bg-blue-500 hover:bg-blue-600 px-6 py-2 rounded text-white"
-            disabled={isChecked}
+            disabled={isChecked || selectedLabel === ""}
           >
             {t("save")}
           </button>
