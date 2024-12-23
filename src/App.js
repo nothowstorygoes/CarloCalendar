@@ -15,13 +15,13 @@ import GlobalContext from "./context/GlobalContext";
 import YearView from "./components/YearView";
 import { getMonth } from "./util";
 import dayjs from "dayjs";
+import Profile from "./components/Profile";
 import { auth, db } from "./firebase"; // Ensure you have configured Firebase
 import Login from "./components/login"; // Import the Login component
 import Spinner from "./assets/spinner"; // Import the Spinner component
 
 function App() {
   const [currentMonth, setCurrentMonth] = useState(getMonth());
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const {
@@ -35,6 +35,8 @@ function App() {
     dispatchCalEvent,
     setFilteredEvents,
     setLabels,
+    user,
+    setUser,
   } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -148,6 +150,11 @@ function App() {
                     {viewMode === "labelManager" && (
                       <div className="w-[calc(100%-16rem)] h-full">
                         <LabelManager />
+                      </div>
+                    )}
+                    {viewMode === "profile" && (
+                      <div className="w-[calc(100%-16rem)] h-full">
+                        <Profile />
                       </div>
                     )}
                   </div>

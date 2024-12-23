@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from "react";
+import React, { useContext, useRef, useState } from "react";
 import dayjs from "dayjs";
 import GlobalContext from "../context/GlobalContext";
 import { useTranslation } from "react-i18next";
@@ -14,6 +14,7 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
   } = useContext(GlobalContext);
   const modalRef = useRef(null);
   const { t } = useTranslation();
+  const [showPassedEvents, setShowPassedEvents] = useState(false);
   const labelEvents = filteredEvents.filter((evt) => evt.label === label.name);
 
   const handleEventClick = (event) => {
@@ -39,29 +40,28 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
     }
   };
 
-  const eventsWithTime = labelEvents
-    .filter((evt) => evt.time && !evt.checked)
-    .sort((a, b) => {
-      const aTime = dayjs(a.day).hour(a.time.hours).minute(a.time.minutes);
-      const bTime = dayjs(b.day).hour(b.time.hours).minute(b.time.minutes);
-      return aTime - bTime;
-    });
+  const activeEvents = labelEvents.filter((evt) => !evt.checked);
+  const passedEvents = labelEvents.filter((evt) => evt.checked);
 
-  const eventsWithoutTime = labelEvents
-    .filter((evt) => !evt.time && !evt.checked)
-    .sort((a, b) => {
-      const aTime = dayjs(a.day);
-      const bTime = dayjs(b.day);
-      return aTime - bTime;
-    });
+  const orderedActiveEvents = activeEvents.sort((a, b) => {
+    const aTime = dayjs(a.day)
+      .hour(a.time?.hours || 0)
+      .minute(a.time?.minutes || 0);
+    const bTime = dayjs(b.day)
+      .hour(b.time?.hours || 0)
+      .minute(b.time?.minutes || 0);
+    return aTime - bTime;
+  });
 
-  const checkedEvents = labelEvents.filter((evt) => evt.checked);
-
-  const orderedEvents = [
-    ...eventsWithTime,
-    ...eventsWithoutTime,
-    ...checkedEvents,
-  ];
+  const orderedPassedEvents = passedEvents.sort((a, b) => {
+    const aTime = dayjs(a.day)
+      .hour(a.time?.hours || 0)
+      .minute(a.time?.minutes || 0);
+    const bTime = dayjs(b.day)
+      .hour(b.time?.hours || 0)
+      .minute(b.time?.minutes || 0);
+    return aTime - bTime;
+  });
 
   function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -79,70 +79,131 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
               {t("events_for")}{" "}
               <span style={{ color: label.color }}>{label.name}</span>
             </h2>
+            <button
+              className={`text-black dark:text-white rounded px-4 py-2 mr-12 mb-6`}
+              style={{
+                backgroundColor: showPassedEvents ? "gray" : label.color,
+              }}
+              onClick={() => setShowPassedEvents(!showPassedEvents)}
+            >
+              {showPassedEvents ? t("active_events") : t("passed_events")}
+            </button>
           </div>
-          {orderedEvents.length === 0 && (
-            <p className="text-gray-500 dark:text-zinc-50 text-sm items-center flex justify-center">
-              {t("no_events_label")}
-            </p>
-          )}
-          <div className="grid grid-cols-5 gap-4 pr-4 w-full">
-            {orderedEvents.map((evt) => (
-              <div
-                key={evt.id}
-                className="flex flex-col justify-between items-start mb-2 p-2 rounded cursor-pointer"
-                style={{
-                  backgroundColor: evt.checked
-                    ? "rgba(128, 128, 128, 0.8)"
-                    : `${label.color}`,
-                }}
-              >
-                <div className="flex justify-between w-full">
-                  <div className="flex flex-col">
-                    <span className="font-bold text-black">{evt.title}</span>
-                    <p
-                      className="text-sm w-44"
-                      style={{
-                        color: evt.checked ? "black" : label.color,
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                        height: "2.7rem",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {evt.description}
-                    </p>
-                    <p className="text-sm mt-6 text-black font-bold">
-                      {capitalizeFirstLetter(
-                        dayjs(evt.day).format("MMMM D, YYYY")
-                      )}{" "}
-                      {evt.time &&
-                        `, alle ${evt.time.hours}:${evt.time.minutes}`}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-center justify-center gap-6 mr-6">
-                    {!evt.time && (
-                      <>
-                        <input
-                          type="checkbox"
-                          className="rounded-full w-6 h-6 cursor-pointer"
-                          checked={evt.checked}
-                          onChange={(e) => handleCheckboxChange(e, evt)}
-                        />
-                      </>
-                    )}
-                    <span
-                      className="material-icons cursor-pointer text-black"
-                      onClick={() => handleEventClick(evt)}
-                    >
-                      edit
-                    </span>
+          {showPassedEvents ? (
+            <div className="grid grid-cols-5 gap-4 pr-4 w-full">
+              {orderedPassedEvents.length === 0 && (
+                <p className="text-gray-500 dark:text-zinc-50 text-sm items-center flex justify-center">
+                  {t("no_passed_events")}
+                </p>
+              )}
+              {orderedPassedEvents.map((evt) => (
+                <div
+                  key={evt.id}
+                  className="flex flex-col justify-between items-start mb-2 p-2 rounded cursor-pointer"
+                  style={{
+                    backgroundColor: "rgba(128, 128, 128, 0.8)",
+                  }}
+                >
+                  <div className="flex justify-between w-full">
+                    <div className="flex flex-col">
+                      <span className="font-bold text-black">{evt.title}</span>
+                      <p
+                        className="text-sm w-44"
+                        style={{
+                          color: "black",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                          height: "2.7rem",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {evt.description}
+                      </p>
+                      <p className="text-sm mt-6 text-black font-bold">
+                        {capitalizeFirstLetter(
+                          dayjs(evt.day).format("MMMM D, YYYY")
+                        )}{" "}
+                        {evt.time &&
+                          `, alle ${evt.time}`}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-center justify-center gap-6 mr-6">
+                      <span
+                        className="material-icons cursor-pointer text-black"
+                        onClick={() => handleEventClick(evt)}
+                      >
+                        edit
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-5 gap-4 pr-4 w-full">
+              {orderedActiveEvents.length === 0 && (
+                <p className="text-gray-500 dark:text-zinc-50 text-sm items-center flex justify-center">
+                  {t("no_active_events")}
+                </p>
+              )}
+              {orderedActiveEvents.map((evt) => (
+                <div
+                  key={evt.id}
+                  className="flex flex-col justify-between items-start mb-2 p-2 rounded cursor-pointer"
+                  style={{
+                    backgroundColor: `${label.color}`,
+                  }}
+                >
+                  <div className="flex justify-between w-full">
+                    <div className="flex flex-col">
+                      <span className="font-bold text-black">{evt.title}</span>
+                      <p
+                        className="text-sm w-44"
+                        style={{
+                          color: label.color,
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                          height: "2.7rem",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {evt.description}
+                      </p>
+                      <p className="text-sm mt-6 text-black font-bold">
+                        {capitalizeFirstLetter(
+                          dayjs(evt.day).format("MMMM D, YYYY")
+                        )}{" "}
+                        {evt.time &&
+                          `, alle ${evt.time}`}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-center justify-center gap-6 mr-6">
+                      {!evt.time && (
+                        <>
+                          <input
+                            type="checkbox"
+                            className="rounded-full w-6 h-6 cursor-pointer"
+                            checked={evt.checked}
+                            onChange={(e) => handleCheckboxChange(e, evt)}
+                          />
+                        </>
+                      )}
+                      <span
+                        className="material-icons cursor-pointer text-black"
+                        onClick={() => handleEventClick(evt)}
+                      >
+                        edit
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
       <style jsx>{`

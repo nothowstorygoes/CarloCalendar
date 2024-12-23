@@ -4,7 +4,7 @@ import GlobalContext from "../context/GlobalContext";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { db, auth } from "../firebase";
-import { collection, addDoc, doc, updateDoc, setDoc } from "firebase/firestore";
+import { collection, addDoc, doc, updateDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { registerLocale } from "react-datepicker";
 import enGB from "date-fns/locale/en-GB";
 registerLocale("en-GB", enGB);
@@ -56,11 +56,15 @@ export default function EventModal() {
     setSelectedLabel(""); // No label selected by default
     setSpecificTime(false);
     setDate(daySelected.toDate());
-    setTime(
-      `${new Date().getHours()}:${
-        Math.floor(new Date().getMinutes() / 15) * 15
-      }`
+
+    const now = new Date();
+    const closestQuarterHour = new Date(
+      Math.round(now.getTime() / (15 * 60 * 1000)) * (15 * 60 * 1000)
     );
+    const hours = closestQuarterHour.getHours().toString().padStart(2, "0");
+    const minutes = closestQuarterHour.getMinutes().toString().padStart(2, "0");
+
+    setTime(`${hours}:${minutes}`);
     setIsChecked(false);
   };
 
@@ -74,7 +78,7 @@ export default function EventModal() {
       day: date.getTime(),
       id: selectedEvent ? selectedEvent.id : Date.now().toString(),
       checked: isChecked,
-      time: specificTime ? { hours, minutes } : null,
+      time: specificTime ? `${hours}:${minutes}` : null, // Store time as hours:minutes
       userId: auth.currentUser.uid,
     };
     try {
@@ -123,6 +127,16 @@ export default function EventModal() {
     return options;
   };
 
+  const handleDeleteEvent = async (eventId) => {
+    try {
+      const eventRef = doc(db, `users/${auth.currentUser.uid}/events`, eventId);
+      await deleteDoc(eventRef);
+      dispatchCalEvent({ type: "delete", payload: { id: eventId } });
+    } catch (error) {
+      console.error("Error deleting event: ", error);
+    }
+  };
+
   return (
     <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50 z-51 dark:bg-zinc-800 dark:bg-opacity-75">
       <form
@@ -137,10 +151,10 @@ export default function EventModal() {
             {selectedEvent && (
               <span
                 onClick={() => {
-                  dispatchCalEvent({ type: "delete", payload: selectedEvent });
+                  handleDeleteEvent(selectedEvent.id);
                   handleClose();
                 }}
-                className="material-icons-outlined text-gray-400 dark:text-zinc-200 cursor-pointer"
+                className="material-icons-outlined text-gray-400 dark:text-zinc-200 cursor-pointer mr-4"
               >
                 delete
               </span>

@@ -3,6 +3,8 @@ import dayjs from "dayjs";
 import "dayjs/locale/it"; // Import Italian locale
 import GlobalContext from "../context/GlobalContext";
 import { useTranslation } from "react-i18next";
+import { doc, deleteDoc } from "firebase/firestore";
+import { auth, db } from "../firebase";
 
 const EventItem = ({
   evt,
@@ -48,7 +50,7 @@ const EventItem = ({
         {evt.time && (
           <p className="text-sm text-black">
             {" "}
-            alle {evt.time.hours}:{evt.time.minutes}
+            alle {evt.time}
           </p>
         )}
       </div>
@@ -119,8 +121,14 @@ export default function DayInfoModal() {
     return events;
   }, [filteredEvents, daySelected, labels]);
 
-  const handleDeleteEvent = (eventId) => {
-    dispatchCalEvent({ type: "delete", payload: { id: eventId } });
+  const handleDeleteEvent = async (eventId) => {
+    try {
+      const eventRef = doc(db, `users/${auth.currentUser.uid}/events`, eventId);
+      await deleteDoc(eventRef);
+      dispatchCalEvent({ type: "delete", payload: { id: eventId } });
+    } catch (error) {
+      console.error("Error deleting event: ", error);
+    }
   };
 
   const handleEventClick = (event) => {

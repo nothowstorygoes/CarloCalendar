@@ -6,6 +6,8 @@ import { useTranslation } from "react-i18next";
 import logo from "../assets/logo.png";
 import SearchBox from "./SearchBox";
 import { useEffect } from "react";
+import blankProfilePic from "../assets/blank.png"; // Import the blank profile picture
+
 
 export default function CalendarHeader() {
   const {
@@ -24,12 +26,23 @@ export default function CalendarHeader() {
   const { t } = useTranslation();
   const [darkMode, setDarkMode] = useState(false);
   const [showSearchBox, setShowSearchBox] = useState(false);
+  const [propic, setPropic] = useState(blankProfilePic); // Initialize propic with blank profile picture
+
 
   function handleReset() {
     setMonthIndex(dayjs().month());
     setYear(dayjs().year());
     setDaySelected(dayjs());
   }
+
+
+  useEffect(() => {
+    const savedPropic = localStorage.getItem("propic");
+    if (savedPropic) {
+      setPropic(`data:image/png;base64,${savedPropic}`);
+    }
+  }, []);
+
 
   function handleViewModeChange(mode) {
     setViewMode(mode);
@@ -216,6 +229,16 @@ export default function CalendarHeader() {
             </button>
           </div>
         )}
+        <button 
+      onClick={() => handleViewModeChange("profile")}
+      className="rounded-full overflow-hidden w-10 h-10 ml-4"
+    >
+      <img
+        src={propic}
+        alt="Profile"
+        className="w-full h-full object-cover"
+      />
+    </button>
       </div>
     </header>
   );

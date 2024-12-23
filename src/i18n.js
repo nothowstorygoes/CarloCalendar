@@ -41,6 +41,9 @@ const resources = {
       "select_priority": "Select Priority",
       "workweek": "Work Week",
       "year": "Year",
+      "loading_user_info": "Loading user info...",
+      "Profile": "Profile",
+      "Sign Out": "Sign Out",
     }
   },
   it: {
@@ -80,7 +83,12 @@ const resources = {
       "spinner": "Caricamento...",
         "add_code": "Priorità",
         "workweek": "Work Week",
+        "loading_user_info": "Caricamento informazioni utente...",
         "year": "Anno",
+      "active_events": "Eventi Attivi",
+      "passed_events": "Eventi Passati",
+      "sign_out": "Esci",
+      "profile": "Profilo",
     }
   }
 };

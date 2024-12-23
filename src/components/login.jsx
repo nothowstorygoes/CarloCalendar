@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { useTranslation } from 'react-i18next';
-import { auth } from "../firebase"; // Ensure you have configured Firebase
+import { auth, db } from "../firebase"; // Ensure you have configured Firebase
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 export default function Login() {
   const { t } = useTranslation();
@@ -11,10 +12,23 @@ export default function Login() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  const checkAndCreateUserDoc = async (user) => {
+    const userDocRef = doc(db, `users/${user.uid}/info`, user.email);
+    const userDoc = await getDoc(userDocRef);
+    if (!userDoc.exists()) {
+      await setDoc(userDocRef, {
+        email: user.email,
+        profilePicture: "null",
+      });
+    }
+  };
+
   const handleEmailLogin = async (e) => {
     e.preventDefault();
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      await checkAndCreateUserDoc(user);
       navigate("/");
     } catch (err) {
       setError(err.message);
@@ -23,7 +37,9 @@ export default function Login() {
 
   const handleGoogleLogin = async () => {
     try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
+      const result = await signInWithPopup(auth, new GoogleAuthProvider());
+      const user = result.user;
+      await checkAndCreateUserDoc(user);
       navigate("/");
     } catch (err) {
       setError(err.message);

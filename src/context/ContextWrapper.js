@@ -37,6 +37,7 @@ export default function ContextWrapper(props) {
   const [showLabelEventsModal, setShowLabelEventsModal] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState(null);
   const [smallCalendarMonth, setSmallCalendarMonth] = useState(dayjs().month());
+  const [user, setUser] = useState(null); // Add user state
 
   const [savedEvents, dispatchCalEvent] = useReducer(savedEventsReducer, [], initEvents);
 
@@ -113,6 +114,8 @@ export default function ContextWrapper(props) {
         setSelectedLabel,
         smallCalendarMonth,
         setSmallCalendarMonth,
+        user,
+        setUser,
       }}
     >
       {props.children}
