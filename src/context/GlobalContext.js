@@ -25,7 +25,7 @@ const GlobalContext = React.createContext({
   createLabel: () => {},
   filteredEvents: [],
   setFilteredEvents: () => {},
-  viewMode: "month",
+  viewMode: "day",
   user: null,
   setUser: () => {},
   setViewMode: () => {},

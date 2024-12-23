@@ -108,8 +108,10 @@ export default function DayInfoModal() {
     // Sort events by time in ascending order if time is specified
     events.sort((a, b) => {
       if (a.time && b.time) {
-        const timeA = dayjs().hour(a.time.hours).minute(a.time.minutes);
-        const timeB = dayjs().hour(b.time.hours).minute(b.time.minutes);
+        const [hoursA, minutesA] = a.time.split(":").map(Number);
+        const [hoursB, minutesB] = b.time.split(":").map(Number);
+        const timeA = dayjs().hour(hoursA).minute(minutesA);
+        const timeB = dayjs().hour(hoursB).minute(minutesB);
         return timeA - timeB;
       }
       return 0;

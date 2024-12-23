@@ -7,6 +7,7 @@ import { db, auth } from "../firebase";
 import { collection, addDoc, doc, updateDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { registerLocale } from "react-datepicker";
 import enGB from "date-fns/locale/en-GB";
+import dayjs from "dayjs"; // Ensure dayjs is imported
 registerLocale("en-GB", enGB);
 
 export default function EventModal() {
@@ -36,11 +37,7 @@ export default function EventModal() {
       setIsChecked(selectedEvent.checked);
       if (selectedEvent.time) {
         setSpecificTime(true);
-        setTime(
-          `${selectedEvent.time.hours.toString().padStart(2, "0")}:${selectedEvent.time.minutes
-            .toString()
-            .padStart(2, "0")}`
-        );
+        setTime(selectedEvent.time); // Set time directly from the selected event
       } else {
         setSpecificTime(false);
         setTime("00:00");
@@ -70,7 +67,6 @@ export default function EventModal() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const [hours, minutes] = time.split(":").map(Number);
     const calendarEvent = {
       title: title,
       description: description || "", // Ensure description can be empty
@@ -78,7 +74,7 @@ export default function EventModal() {
       day: date.getTime(),
       id: selectedEvent ? selectedEvent.id : Date.now().toString(),
       checked: isChecked,
-      time: specificTime ? `${hours}:${minutes}` : null, // Store time as hours:minutes
+      time: specificTime ? {time} : null, // Store time as an object with hours and minutes
       userId: auth.currentUser.uid,
     };
     try {

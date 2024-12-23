@@ -32,7 +32,7 @@ export default function ContextWrapper(props) {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [labels, setLabels] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
-  const [viewMode, setViewMode] = useState("month");
+  const [viewMode, setViewMode] = useState("day");
   const [labelManager, toggleLabelManager] = useState(false);
   const [showLabelEventsModal, setShowLabelEventsModal] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState(null);
