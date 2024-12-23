@@ -80,7 +80,7 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
               <span style={{ color: label.color }}>{label.name}</span>
             </h2>
             <button
-              className={`text-black dark:text-white rounded px-4 py-2 mr-12 mb-6`}
+              className={`text-black dark:text-black font-bold rounded px-4 py-2 mr-12 mb-6`}
               style={{
                 backgroundColor: showPassedEvents ? label.color : "gray" ,
               }}
