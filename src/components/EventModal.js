@@ -4,10 +4,20 @@ import GlobalContext from "../context/GlobalContext";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { db, auth } from "../firebase";
-import { collection, addDoc, doc, updateDoc, setDoc, deleteDoc } from "firebase/firestore";
+import { getWeeksInInterval } from "../util";
+import {
+  collection,
+  addDoc,
+  doc,
+  updateDoc,
+  setDoc,
+  deleteDoc,
+  writeBatch,
+} from "firebase/firestore";
 import { registerLocale } from "react-datepicker";
 import enGB from "date-fns/locale/en-GB";
 import dayjs from "dayjs"; // Ensure dayjs is imported
+import RepeatEventModal from "./RepeatEventModal"; // Import RepeatEventModal
 registerLocale("en-GB", enGB);
 
 export default function EventModal() {
@@ -27,6 +37,8 @@ export default function EventModal() {
   const [date, setDate] = useState(daySelected.toDate());
   const [time, setTime] = useState("");
   const [isChecked, setIsChecked] = useState(false);
+  const [showRepeatModal, setShowRepeatModal] = useState(false);
+  const [repeatOptions, setRepeatOptions] = useState(null);
 
   useEffect(() => {
     if (selectedEvent) {
@@ -74,9 +86,10 @@ export default function EventModal() {
       day: date.getTime(),
       id: selectedEvent ? selectedEvent.id : Date.now().toString(),
       checked: isChecked,
-      time: specificTime ? {time} : null, // Store time as an object with hours and minutes
+      time: specificTime ? time : null, // Store time as a string "hh:mm"
       userId: auth.currentUser.uid,
     };
+
     try {
       const eventRef = doc(
         db,
@@ -84,11 +97,17 @@ export default function EventModal() {
         calendarEvent.id
       );
       await setDoc(eventRef, calendarEvent);
+
       if (selectedEvent) {
         dispatchCalEvent({ type: "update", payload: calendarEvent });
       } else {
         dispatchCalEvent({ type: "push", payload: calendarEvent });
       }
+
+      if (repeatOptions) {
+        await createRepeatedEvents(calendarEvent, repeatOptions);
+      }
+
       setShowEventModal(false);
       setSelectedEvent(null); // Reset selectedEvent state
       resetForm(); // Reset the form after closing the modal
@@ -97,6 +116,179 @@ export default function EventModal() {
       resetForm(); // Reset the form after closing the modal
     }
   };
+
+  async function createRepeatedEvents(event, repeatOptions) {
+    const endDate = repeatOptions.endDate;
+    const endMonth = repeatOptions.endMonth;
+    const endYear = repeatOptions.endYear;
+    const interval = repeatOptions.customRepeat.interval;
+    const daysOfWeek = repeatOptions.customRepeat.daysOfWeek;
+    const frequency = repeatOptions.customRepeat.frequency;
+    const startMonth = dayjs(event.day).month() + 1;
+    const startYear = dayjs(event.day).year();
+    console.log("Start month:", startMonth);
+    console.log("Start year:", startYear);
+    console.log("Creating repeated events with options:", repeatOptions);
+
+    if (frequency === "week") {
+      const weeksMatrix = getWeeksInInterval(
+        startMonth,
+        startYear,
+        endMonth,
+        endYear,
+        date,
+        endDate
+      );
+      console.log("Weeks matrix:", weeksMatrix);
+      let eventCount = 0;
+      for (let weekIndex = 0; weekIndex < weeksMatrix.length; weekIndex++) {
+        if (weekIndex % interval === 0) {
+          for (let i = 0; i < daysOfWeek.length; i++) {
+            const day = weeksMatrix[weekIndex][daysOfWeek[i][0]];
+            const eventDate = dayjs(day, "ddd, D MMM, YYYY").toDate();
+            console.log("Creating event for date:", eventDate);
+
+            // Skip the selected day
+            console.log("Event day:", day);
+            console.log(
+              "Selected day:",
+              dayjs(event.day).locale("en").format("ddd, D MMM, YYYY")
+            );
+            if (
+              day === dayjs(event.day).locale("en").format("ddd, D MMM, YYYY")
+            ) {
+              continue;
+            }
+
+            const repeatedEvent = {
+              ...event,
+              day: eventDate.getTime(),
+              id: `${event.id}-${eventCount}`,
+            };
+
+            const eventRef = doc(
+              db,
+              `users/${auth.currentUser.uid}/events`,
+              repeatedEvent.id
+            );
+            await setDoc(eventRef, repeatedEvent);
+            console.log("Event created:", repeatedEvent);
+            dispatchCalEvent({ type: "push", payload: repeatedEvent });
+            eventCount++;
+          }
+        }
+      }
+    } else if (repeatOptions.repeatType === "monthly") {
+      let currentMonth = startMonth;
+      let currentYear = startYear;
+      const endDay = dayjs(endDate).date();
+      const originalDay = dayjs(event.day).date();
+      console.log(
+        "Starting month loop with currentMonth:",
+        currentMonth,
+        "currentYear:",
+        currentYear,
+        "originalDay:",
+        originalDay,
+        "endDay",
+        endDay
+      );
+
+      while (
+        currentYear < endYear ||
+        (currentYear === endYear && currentMonth <= endMonth)
+      ) {
+        const eventDate = dayjs(
+          new Date(currentYear, currentMonth, originalDay)
+        ).toDate();
+        console.log("Creating event for date:", eventDate);
+
+        const checkEvent = dayjs(
+          new Date(currentYear, currentMonth, originalDay)
+        );
+        // Check if the event date is after the endDate
+        if (checkEvent.isAfter(dayjs(endDate))) {
+          break;
+        }
+
+        const repeatedEvent = {
+          ...event,
+          day: eventDate.getTime(),
+          id: `${event.id}-${currentYear}-${currentMonth}`,
+        };
+
+        const eventRef = doc(
+          db,
+          `users/${auth.currentUser.uid}/events`,
+          repeatedEvent.id
+        );
+        dispatchCalEvent({ type: "push", payload: repeatedEvent });
+
+        await setDoc(eventRef, repeatedEvent);
+        console.log("Event created:", repeatedEvent);
+
+        if (currentMonth === 11) {
+          currentMonth = 0;
+          currentYear++;
+        } else {
+          currentMonth++;
+        }
+      }
+    } else if (repeatOptions.repeatType === "yearly") {
+      let currentYear = startYear;
+      const originalDay = dayjs(event.day).date();
+      const originalMonth = dayjs(event.day).month();
+      console.log(
+        "Starting year loop with currentYear:",
+        currentYear,
+        "originalDay:",
+        originalDay,
+        "originalMonth:",
+        originalMonth
+      );
+
+      while (currentYear <= endYear) {
+        const eventDate = dayjs(
+          new Date(currentYear, originalMonth, originalDay)
+        ).toDate();
+        console.log("Creating event for date:", eventDate);
+
+        const checkEvent = dayjs(
+          new Date(currentYear, originalMonth, originalDay)
+        );
+
+        // Skip the selected day
+        if (eventDate.isSame(dayjs(event.day), "day")) {
+          currentYear++;
+          continue;
+        }
+
+        // Check if the event date is after the endDate
+        if (checkEvent.isAfter(dayjs(endDate))) {
+          break;
+        }
+
+        const repeatedEvent = {
+          ...event,
+          day: eventDate.getTime(),
+          id: `${event.id}-${currentYear}`,
+        };
+
+        const eventRef = doc(
+          db,
+          `users/${auth.currentUser.uid}/events`,
+          repeatedEvent.id
+        );
+        dispatchCalEvent({ type: "push", payload: repeatedEvent });
+
+        await setDoc(eventRef, repeatedEvent);
+        console.log("Event created:", repeatedEvent);
+
+        currentYear++;
+      }
+    }
+    handleClose();
+  }
 
   const handleClose = () => {
     setShowEventModal(false);
@@ -135,6 +327,14 @@ export default function EventModal() {
 
   return (
     <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50 z-51 dark:bg-zinc-800 dark:bg-opacity-75">
+      {showRepeatModal && (
+        <RepeatEventModal
+          onClose={() => setShowRepeatModal(false)}
+          onSave={(options) => setRepeatOptions(options)}
+          selectedDate={date}
+          repeatType={repeatOptions ? repeatOptions.repeatType : "no_repeat"}
+        />
+      )}
       <form
         className="bg-white dark:bg-zinc-950 rounded-lg shadow-2xl w-1/3 z-51"
         onSubmit={handleSubmit}
@@ -196,15 +396,38 @@ export default function EventModal() {
                 </span>
               </div>
               <div className="flex items-center gap-x-2 ml-6 justify-between">
-                <DatePicker
-                  selected={date}
-                  onChange={(date) => setDate(date)}
-                  dateFormat="dd/MM/yyyy"
-                  className="w-32 p-2 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
-                  disabled={isChecked}
-                  locale="en-GB"
-                />
-                <div className="flex items-center flex-row ml-10">
+                <div>
+                  <DatePicker
+                    selected={date}
+                    onChange={(date) => setDate(date)}
+                    dateFormat="dd/MM/yyyy"
+                    className="w-32 p-2 ml-2 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
+                    disabled={isChecked}
+                    locale="en-GB"
+                  />
+                  <div className="flex justify-end mt-4">
+                    <select
+                      value={
+                        repeatOptions ? repeatOptions.repeatType : "no_repeat"
+                      }
+                      onChange={(e) => {
+                        if (e.target.value !== "no_repeat") {
+                          setShowRepeatModal(true);
+                          setRepeatOptions({ repeatType: e.target.value });
+                        } else {
+                          setRepeatOptions(null);
+                        }
+                      }}
+                      className="bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-800 px-8 rounded-2xl text-white mr-2"
+                    >
+                      <option value="no_repeat">{t("no_repeat")}</option>
+                      <option value="monthly">{t("monthly")}</option>
+                      <option value="yearly">{t("yearly")}</option>
+                      <option value="custom">{t("custom")}</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex items-center flex-row ml-2">
                   <span className="material-icons text-gray-400 dark:text-zinc-200">
                     access_time
                   </span>

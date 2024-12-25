@@ -27,6 +27,7 @@ module.exports = {
       zIndex: {
         '51': '51',
         '49': '49',
+        '52': '52',
       },
       gridTemplateColumns: {
         "1/5": "1fr 5fr"

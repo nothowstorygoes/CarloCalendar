@@ -89,6 +89,27 @@ const resources = {
       "passed_events": "Eventi Passati",
       "sign_out": "Esci",
       "profile": "Profilo",
+      "repeat_event": "Ripeti Evento",
+      "end_date": "Data di fine",
+      "custom": "Personalizzato",
+      "monthly": "Mensile",
+      "weekly": "Settimanale",
+      "daily": "Giornaliero",
+      "custom_repeat": "Ripetizione personalizzata",
+      "days_of_week": "Giorni della settimana",
+      "repeat": "Ripeti",
+      "yearly": "Annuale",
+      "no_repeat": "Non si ripete",
+      "end_year" :  "Anno di fine",
+      "days": {
+        "Mon": "Lun",
+        "Tue": "Mar",
+        "Wed": "Mer",
+        "Thu": "Gio",
+        "Fri": "Ven",
+        "Sat": "Sab",
+        "Sun": "Dom"
+      }
     }
   }
 };
