@@ -3,7 +3,7 @@ import GlobalContext from "../context/GlobalContext";
 import { useTranslation } from "react-i18next";
 
 export default function Labels() {
-  const { labels, updateLabel, setViewMode, setSelectedLabel } =
+  const { labels, setViewMode, setSelectedLabel } =
     useContext(GlobalContext);
   const { t } = useTranslation();
 

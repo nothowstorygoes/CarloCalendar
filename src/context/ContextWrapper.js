@@ -42,16 +42,12 @@ export default function ContextWrapper(props) {
   const [savedEvents, dispatchCalEvent] = useReducer(savedEventsReducer, [], initEvents);
 
   useEffect(() => {
-    console.log("Saved events updated:", savedEvents);
     const labelNames = labels.map((lbl) => lbl.name);
-    console.log("Label names:", labelNames);
     const filtered = savedEvents.filter((evt) => labelNames.includes(evt.label));
-    console.log("Filtered events:", filtered);
     setFilteredEvents(filtered);
   }, [savedEvents, labels]);
 
   useEffect(() => {
-    console.log("Filtered events updated:", filteredEvents);
   }, [filteredEvents]);
 
   const createLabel = async (newLabel) => {

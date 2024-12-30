@@ -29,12 +29,14 @@ const SearchBox = ({ setShowSearchBox, handleEventClick }) => {
       return;
     }
     setIsSearching(true);
+    const lowerCaseTerm = term.toLowerCase();
     const eventsRef = collection(db, `users/${auth.currentUser.uid}/events`);
-    const q = query(eventsRef, where("title", ">=", term), where("title", "<=", term + "\uf8ff"));
-    const querySnapshot = await getDocs(q);
-    const events = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    const sortedEvents = events.sort((a, b) => a.checked - b.checked);
-    setSearchResults(sortedEvents);
+    const querySnapshot = await getDocs(eventsRef);
+    const events = querySnapshot.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() }))
+      .filter((event) => event.title.toLowerCase().includes(lowerCaseTerm));
+      const sortedEvents = events.sort((a, b) => new Date(a.day) - new Date(b.day));
+      setSearchResults(sortedEvents);
     setIsSearching(false);
   }, 2000);
 
@@ -82,9 +84,9 @@ const SearchBox = ({ setShowSearchBox, handleEventClick }) => {
           </div>
         )}
         {searchResults.length > 0 && (
-          <div className="absolute top-full -mt-1 left-0 w-full bg-white dark:bg-zinc-900 p-4 rounded shadow-lg z-50 max-h-48 overflow-y-auto custom-scrollbar">
+          <div className="absolute top-full -mt-1 left-0 w-full bg-white dark:bg-zinc-900 p-4 rounded shadow-lg z-50 max-h-96 overflow-y-auto custom-scrollbar">
             <ul>
-              {searchResults.slice(0, 3).map((event, index) => (
+              {searchResults.map((event, index) => (
                 <li
                   key={index}
                   className="text-gray-800 dark:text-zinc-50 cursor-pointer mb-2 mt-2 bg-gray-200 dark:bg-zinc-700 p-2 rounded-xl"

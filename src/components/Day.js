@@ -75,8 +75,8 @@ export default function Day({ day, rowIdx, currentMonthIdx, year, roundedClass }
               e.stopPropagation(); // Prevent triggering the modal when clicking on an event
               setSelectedEvent(evt);
             }}
-            className="p-1 mx-1 text-xs rounded mb-1 truncate text-center"
-            style={{ backgroundColor: evt.checked ? "rgba(128, 128, 128, 0.8)" : `${getLabelColor(evt.label)}80` , color: evt.checked ? "black" : `${getLabelColor(evt.label)}` }}
+            className="p-1 mx-1 text-xs rounded mb-1 truncate text-center font-bold"
+            style={{ backgroundColor: evt.checked ? "rgba(128, 128, 128, 0.8)" : `${getLabelColor(evt.label)}80` , color: "black" }}
           >
             {evt.title}
           </div>

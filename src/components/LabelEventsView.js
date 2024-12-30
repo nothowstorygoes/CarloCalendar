@@ -67,11 +67,15 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
+  const truncate = (str, n) => {
+    return str.length > n ? str.substr(0, n - 1) + "..." : str;
+  };
+
   return (
     <div className="h-[calc(100%-6rem)] w-[calc(100%-1.5rem)] rounded-3xl left-0 top-0 flex justify-start items-center bg-white dark:bg-zinc-950">
       <div
         ref={modalRef}
-        className="bg-white dark:bg-zinc-950 w-full h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative pointer-events-auto"
+        className="bg-white dark:bg-zinc-950 w-full h-[calc(100%-4rem)] max-h-none overflow-hidden relative pointer-events-auto"
       >
         <div className="p-4 overflow-auto relative h-full custom-scrollbar">
           <div className="flex items-center justify-between mb-6 w-full">
@@ -82,7 +86,7 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
             <button
               className={`text-black dark:text-black font-bold rounded px-4 py-2 mr-12 mb-6`}
               style={{
-                backgroundColor: showPassedEvents ? label.color : "gray" ,
+                backgroundColor: showPassedEvents ? label.color : "gray",
               }}
               onClick={() => setShowPassedEvents(!showPassedEvents)}
             >
@@ -125,8 +129,7 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
                         {capitalizeFirstLetter(
                           dayjs(evt.day).format("MMMM D, YYYY")
                         )}{" "}
-                        {evt.time &&
-                          `, alle ${evt.time}`}
+                        {evt.time && `, alle ${evt.time}`}
                       </p>
                     </div>
                     <div className="flex flex-col items-center justify-center gap-6 mr-6">
@@ -158,7 +161,10 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
                 >
                   <div className="flex justify-between w-full">
                     <div className="flex flex-col">
-                      <span className="font-bold text-black">{evt.title}</span>
+                      <span className="font-bold text-black">
+                        {" "}
+                        {truncate(evt.title, 18)}
+                      </span>
                       <p
                         className="text-sm w-44"
                         style={{
@@ -177,8 +183,7 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
                         {capitalizeFirstLetter(
                           dayjs(evt.day).format("MMMM D, YYYY")
                         )}{" "}
-                        {evt.time &&
-                          `, alle ${evt.time}`}
+                        {evt.time && `, alle ${evt.time}`}
                       </p>
                     </div>
                     <div className="flex flex-col items-center justify-center gap-6 mr-6">

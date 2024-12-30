@@ -3,8 +3,18 @@ import dayjs from "dayjs";
 import "dayjs/locale/it"; // Import Italian locale
 import GlobalContext from "../context/GlobalContext";
 import { useTranslation } from "react-i18next";
-import { doc, deleteDoc } from "firebase/firestore";
+import { useState } from "react";
+import {
+  doc,
+  deleteDoc,
+  getDoc,
+  query,
+  collection,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { auth, db } from "../firebase";
+import { DeleteConfirmationModal } from "./DeleteConfirmationModal";
 
 const EventItem = ({
   evt,
@@ -47,12 +57,7 @@ const EventItem = ({
             </p>
           </div>
         </div>
-        {evt.time && (
-          <p className="text-sm text-black">
-            {" "}
-            alle {evt.time}
-          </p>
-        )}
+        {evt.time && <p className="text-sm text-black"> alle {evt.time}</p>}
       </div>
       <div className="flex flex-row items-center">
         <p className="text-sm mr-3 text-black font-bold">{evt.label}</p>
@@ -91,6 +96,8 @@ export default function DayInfoModal() {
   const modalRef = useRef(null);
   const { t } = useTranslation();
   const today = dayjs();
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [deleteTargetEvent, setDeleteTargetEvent] = useState(null);
 
   const dayEvents = useMemo(() => {
     const events = filteredEvents.filter(
@@ -126,10 +133,48 @@ export default function DayInfoModal() {
   const handleDeleteEvent = async (eventId) => {
     try {
       const eventRef = doc(db, `users/${auth.currentUser.uid}/events`, eventId);
-      await deleteDoc(eventRef);
-      dispatchCalEvent({ type: "delete", payload: { id: eventId } });
+      const eventDoc = await getDoc(eventRef);
+      const event = eventDoc.data();
+
+      if (event.repeat) {
+        setDeleteTargetEvent(event);
+        setShowDeleteConfirmation(true);
+      } else {
+        await deleteDoc(eventRef);
+        dispatchCalEvent({ type: "delete", payload: { id: eventId } });
+      }
     } catch (error) {
       console.error("Error deleting event: ", error);
+    }
+  };
+
+  const handleDeleteSingle = async () => {
+    if (deleteTargetEvent) {
+      await deleteDoc(
+        doc(db, `users/${auth.currentUser.uid}/events`, deleteTargetEvent.id)
+      );
+      dispatchCalEvent({
+        type: "delete",
+        payload: { id: deleteTargetEvent.id },
+      });
+      setShowDeleteConfirmation(false);
+      setDeleteTargetEvent(null);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (deleteTargetEvent) {
+      const eventsQuery = query(
+        collection(db, `users/${auth.currentUser.uid}/events`),
+        where("repeat", "==", deleteTargetEvent.repeat)
+      );
+      const querySnapshot = await getDocs(eventsQuery);
+      querySnapshot.forEach(async (doc) => {
+        await deleteDoc(doc.ref);
+        dispatchCalEvent({ type: "delete", payload: { id: doc.id } });
+      });
+      setShowDeleteConfirmation(false);
+      setDeleteTargetEvent(null);
     }
   };
 
@@ -167,12 +212,17 @@ export default function DayInfoModal() {
     return string.replace(/\b\w/g, (char) => char.toUpperCase());
   }
 
-
-
   const isToday = daySelected.isSame(dayjs(), "day");
 
   return (
     <div className="h-[calc(100%-6rem)] w-[calc(100%-1.5rem)] left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-950 rounded-3xl">
+      {showDeleteConfirmation && (
+        <DeleteConfirmationModal
+          onClose={() => setShowDeleteConfirmation(false)}
+          onDeleteSingle={handleDeleteSingle}
+          onDeleteAll={handleDeleteAll}
+        />
+      )}
       <div
         ref={modalRef}
         className="bg-white dark:bg-zinc-950 w-[calc(100%-16rem)] h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative mt-8"
@@ -222,21 +272,21 @@ export default function DayInfoModal() {
                 getLabelColor={getLabelColor}
               />
             ))}
-             <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 12px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: var(--scrollbar-track-bg);
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #888;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #555;
-        }
-      `}</style>
+            <style jsx>{`
+              .custom-scrollbar::-webkit-scrollbar {
+                width: 12px;
+              }
+              .custom-scrollbar::-webkit-scrollbar-track {
+                background: var(--scrollbar-track-bg);
+              }
+              .custom-scrollbar::-webkit-scrollbar-thumb {
+                background: #888;
+                border-radius: 4px;
+              }
+              .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                background: #555;
+              }
+            `}</style>
           </div>
         </div>
       </div>
