@@ -53,7 +53,7 @@ function EditConfirmationModal({ onClose, onEditSingle, onEditAll }) {
   );
 }
 
-export function DeleteConfirmationModal({ onClose, onDeleteSingle, onDeleteAll }) {
+function DeleteConfirmationModal({ onClose, onDeleteSingle, onDeleteAll }) {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-52">
       <div className="bg-white dark:bg-zinc-950 rounded-lg shadow-2xl p-6 z-52">
