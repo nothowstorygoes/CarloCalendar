@@ -110,7 +110,7 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
                 >
                   <div className="flex justify-between w-full">
                     <div className="flex flex-col">
-                      <span className="font-bold text-black">{evt.title}</span>
+                      <span className="font-bold text-black">{truncate(evt.title, 18)}</span>
                       <p
                         className="text-sm w-44"
                         style={{
@@ -125,11 +125,10 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
                       >
                         {evt.description}
                       </p>
-                      <p className="text-sm mt-6 text-black font-bold">
+                      <p className="text-xs mt-6 text-black font-bold">
                         {capitalizeFirstLetter(
                           dayjs(evt.day).format("MMMM D, YYYY")
-                        )}{" "}
-                        {evt.time && `, alle ${evt.time}`}
+                        )}{evt.time && `, alle ${evt.time}`}
                       </p>
                     </div>
                     <div className="flex flex-col items-center justify-center gap-6 mr-6">
@@ -179,10 +178,10 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
                       >
                         {evt.description}
                       </p>
-                      <p className="text-sm mt-6 text-black font-bold">
+                      <p className="text-xs mt-6 text-black font-bold">
                         {capitalizeFirstLetter(
                           dayjs(evt.day).format("MMMM D, YYYY")
-                        )}{" "}
+                        )}
                         {evt.time && `, alle ${evt.time}`}
                       </p>
                     </div>

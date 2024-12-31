@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import GlobalContext from "../context/GlobalContext";
 import { db, auth } from "../firebase";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, collection, where, query, getDocs, writeBatch } from "firebase/firestore";
 
 export default function LabelEditor({ selectedLabel, setShowLabelEditor }) {
   const { t } = useTranslation();
@@ -26,9 +26,27 @@ export default function LabelEditor({ selectedLabel, setShowLabelEditor }) {
       code,
       color,
     };
+  
     try {
       const labelRef = doc(db, `users/${auth.currentUser.uid}/labels`, selectedLabel.id);
       await updateDoc(labelRef, updatedLabel);
+  
+      // Check if the label name has changed
+      if (selectedLabel.name !== name) {
+        // Fetch all events with the old label name
+        const eventsRef = collection(db, `users/${auth.currentUser.uid}/events`);
+        const q = query(eventsRef, where("label", "==", selectedLabel.name));
+        const querySnapshot = await getDocs(q);
+  
+        const batch = writeBatch(db);
+        querySnapshot.forEach((doc) => {
+          const eventRef = doc.ref;
+          const updatedEvent = { ...doc.data(), label: name };
+          batch.update(eventRef, updatedEvent);
+        });
+        await batch.commit();
+      }
+  
       setLabels(labels.map(lbl => lbl.id === selectedLabel.id ? { ...lbl, ...updatedLabel } : lbl));
       setShowLabelEditor(false);
     } catch (error) {

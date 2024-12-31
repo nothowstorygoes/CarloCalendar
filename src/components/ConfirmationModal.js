@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useTranslation } from "react-i18next";
 import { db, auth } from "../firebase";
-import { doc, deleteDoc, collection, getDocs, query, where } from "firebase/firestore";
+import GlobalContext from "../context/GlobalContext";
+import { doc, deleteDoc, collection, getDocs, query, where, writeBatch} from "firebase/firestore";
 
 const ConfirmationModal = ({ label, setShowConfirmationModal, setLabels, labels }) => {
   const { t } = useTranslation();
+  const { dispatchCalEvent} = useContext(GlobalContext);
 
   const handleDelete = async () => {
     try {
@@ -17,9 +19,12 @@ const ConfirmationModal = ({ label, setShowConfirmationModal, setLabels, labels 
       const q = query(eventsRef, where("label", "==", label.name));
       const querySnapshot = await getDocs(q);
 
-      const batch = db.batch();
+      const batch = writeBatch(db);
       querySnapshot.forEach((doc) => {
         batch.delete(doc.ref);
+        let event = doc.data();
+        console.log("Deleting event:", event);
+        dispatchCalEvent({ type: "delete", payload: event });
       });
       await batch.commit();
 

@@ -41,11 +41,7 @@ export default function Day({ day, rowIdx, currentMonthIdx, year, roundedClass }
   };
 
   const displayEvents = dayEvents.slice(0, 2);
-  if (dayEvents.length > 3) {
-    displayEvents.push({ title: `+${dayEvents.length - 2}`, label: { color: "gray" } });
-  } else {
-    displayEvents.push(...dayEvents.slice(2, 3));
-  }
+
 
   return (
     <div
