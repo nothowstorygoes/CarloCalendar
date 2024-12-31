@@ -179,7 +179,7 @@ export default function EventModal() {
     try {
       if (selectedEvent && selectedEvent.postponable) {
         // Duplicate the event if it is postponable
-        const duplicatedEvent = { ...calendarEvent, id: Date.now().toString(), checked: false };
+        const duplicatedEvent = { ...calendarEvent, id: Date.now().toString(), checked: false, postponable: true };
         const duplicatedEventRef = doc(
           db,
           `users/${auth.currentUser.uid}/events`,
