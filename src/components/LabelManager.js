@@ -7,12 +7,11 @@ import LabelEditor from "./LabelEditor";
 import ConfirmationModal from "./ConfirmationModal";
 
 export default function LabelManager() {
-  const { labels, setLabels, setViewMode } = useContext(GlobalContext);
+  const { labels, setLabels, setViewMode, selectedLabel, setSelectedLabel } = useContext(GlobalContext);
   const [newLabelName, setNewLabelName] = useState("");
   const [newLabelCode, setNewLabelCode] = useState("");
   const [newLabelColor, setNewLabelColor] = useState("#808080"); // Default to gray
   const [showLabelEditor, setShowLabelEditor] = useState(false);
-  const [selectedLabel, setSelectedLabel] = useState(null);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const { t } = useTranslation();
   const modalRef = useRef(null);
@@ -54,6 +53,11 @@ export default function LabelManager() {
   const handleEditLabel = (label) => {
     setSelectedLabel(label);
     setShowLabelEditor(true);
+  };
+
+  const handleLabelClick = (label) => {
+    setSelectedLabel(label);
+    setViewMode("label");
   };
 
   const sortedLabels = [...labels].sort((a, b) => a.code - b.code);
@@ -139,7 +143,7 @@ export default function LabelManager() {
                 className="flex items-center justify-between mb-2 p-4 rounded"
                 style={{ backgroundColor: `${color}` }} // Semi-transparent background
               >
-                <span className="font-bold" style={{ color: "#000" }}>
+                <span className="font-bold cursor-pointer" style={{ color: "#000" }} onClick={() => handleLabelClick({ id, name, code, color })}>
                   {name} ({code})
                 </span>
                 <div>

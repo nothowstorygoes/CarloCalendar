@@ -109,7 +109,10 @@ const resources = {
         "Fri": "Ven",
         "Sat": "Sab",
         "Sun": "Dom"
-      }
+      },
+      "no_active_events": "Non ci sono eventi attivi.",
+      "no_passed_events": "Non ci sono eventi passati.",
+      "postponable": "Rinviabile",
     }
   }
 };

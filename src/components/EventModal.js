@@ -21,13 +21,17 @@ import dayjs from "dayjs"; // Ensure dayjs is imported
 import RepeatEventModal from "./RepeatEventModal"; // Import RepeatEventModal
 registerLocale("en-GB", enGB);
 
-
 function EditConfirmationModal({ onClose, onEditSingle, onEditAll }) {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-52">
       <div className="bg-white dark:bg-zinc-950 rounded-lg shadow-2xl p-6 z-52">
-        <h2 className="text-lg font-semibold mb-4 text-white">Modifica Evento</h2>
-        <p className="mb-4 text-white">Vuoi salvare le modifiche per l'evento corrente o tutte le sue occorrenze?</p>
+        <h2 className="text-lg font-semibold mb-4 text-white">
+          Modifica Evento
+        </h2>
+        <p className="mb-4 text-white">
+          Vuoi salvare le modifiche per l'evento corrente o tutte le sue
+          occorrenze?
+        </p>
         <div className="flex justify-end">
           <button
             onClick={onClose}
@@ -58,7 +62,9 @@ function DeleteConfirmationModal({ onClose, onDeleteSingle, onDeleteAll }) {
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-52">
       <div className="bg-white dark:bg-zinc-950 rounded-lg shadow-2xl p-6 z-52">
         <h2 className="text-lg font-semibold mb-4 text-white">Elimina Event</h2>
-        <p className="mb-4 text-white">Vuoi eliminare l'evento corrente o tutte le sue occorrenze?</p>
+        <p className="mb-4 text-white">
+          Vuoi eliminare l'evento corrente o tutte le sue occorrenze?
+        </p>
         <div className="flex justify-end">
           <button
             onClick={onClose}
@@ -98,6 +104,7 @@ export default function EventModal() {
   const [description, setDescription] = useState("");
   const [selectedLabel, setSelectedLabel] = useState("");
   const [specificTime, setSpecificTime] = useState(false);
+  const [postponable, setPostponable] = useState(false);
   const [date, setDate] = useState(daySelected.toDate());
   const [time, setTime] = useState("");
   const [isChecked, setIsChecked] = useState(false);
@@ -106,7 +113,6 @@ export default function EventModal() {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [deleteTargetEvent, setDeleteTargetEvent] = useState(null);
   const [showEditConfirmation, setShowEditConfirmation] = useState(false);
-
 
   useEffect(() => {
     if (selectedEvent) {
@@ -132,6 +138,7 @@ export default function EventModal() {
     setDescription("");
     setSelectedLabel(""); // No label selected by default
     setSpecificTime(false);
+    setPostponable(false);
     setDate(daySelected.toDate());
 
     const now = new Date();
@@ -161,40 +168,50 @@ export default function EventModal() {
       description: description || "", // Ensure description can be empty
       label: selectedLabel,
       day: date.getTime(),
+      postponable: postponable,
       id: selectedEvent ? selectedEvent.id : Date.now().toString(),
       checked: isChecked,
       repeat: repeatOptions ? repeatId : null,
       time: specificTime ? time : null, // Store time as a string "hh:mm"
       userId: auth.currentUser.uid,
     };
-
+  
     try {
-      const eventRef = doc(
-        db,
-        `users/${auth.currentUser.uid}/events`,
-        calendarEvent.id
-      );
-      await setDoc(eventRef, calendarEvent);
-
-
-
-      if (selectedEvent && selectedEvent.repeat) {
-        const eventUpdatedRepeted = {...calendarEvent, repeat: selectedEvent.repeat};
-        dispatchCalEvent({ type: "update", payload: eventUpdatedRepeted });
-        setDeleteTargetEvent(eventUpdatedRepeted);
-        setShowEditConfirmation(true);
-        return;
-      } else if (selectedEvent) {
-        dispatchCalEvent({ type: "update", payload: calendarEvent });
+      if (selectedEvent && selectedEvent.postponable) {
+        // Duplicate the event if it is postponable
+        const duplicatedEvent = { ...calendarEvent, id: Date.now().toString(), checked: false };
+        const duplicatedEventRef = doc(
+          db,
+          `users/${auth.currentUser.uid}/events`,
+          duplicatedEvent.id
+        );
+        await setDoc(duplicatedEventRef, duplicatedEvent);
+        dispatchCalEvent({ type: "push", payload: duplicatedEvent });
+      } else {
+        const eventRef = doc(
+          db,
+          `users/${auth.currentUser.uid}/events`,
+          calendarEvent.id
+        );
+        await setDoc(eventRef, calendarEvent);
+  
+        if (selectedEvent && selectedEvent.repeat) {
+          const eventUpdatedRepeted = { ...calendarEvent, repeat: selectedEvent.repeat };
+          dispatchCalEvent({ type: "update", payload: eventUpdatedRepeted });
+          setDeleteTargetEvent(eventUpdatedRepeted);
+          setShowEditConfirmation(true);
+          return;
+        } else if (selectedEvent) {
+          dispatchCalEvent({ type: "update", payload: calendarEvent });
+        } else {
+          dispatchCalEvent({ type: "push", payload: calendarEvent });
+        }
       }
-      else {
-        dispatchCalEvent({ type: "push", payload: calendarEvent });
-      }
-
+  
       if (repeatOptions) {
         await createRepeatedEvents(calendarEvent, repeatOptions);
       }
-
+  
       setShowEventModal(false);
       setSelectedEvent(null); // Reset selectedEvent state
       resetForm(); // Reset the form after closing the modal
@@ -209,7 +226,7 @@ export default function EventModal() {
     const { interval, daysOfWeek, frequency } = customRepeat;
     const startMonth = dayjs(event.day).month() + 1;
     const startYear = dayjs(event.day).year();
-  
+
     const batch = writeBatch(db); // Use batch to group multiple operations
     if (frequency === "week") {
       const weeksMatrix = getWeeksInInterval(
@@ -222,21 +239,27 @@ export default function EventModal() {
       );
       console.log("Weeks matrix", weeksMatrix);
       let eventCount = 0;
-      for (let weekIndex = 0; weekIndex < weeksMatrix.length; weekIndex += interval) {
+      for (
+        let weekIndex = 0;
+        weekIndex < weeksMatrix.length;
+        weekIndex += interval
+      ) {
         for (let i = 0; i < daysOfWeek.length; i++) {
           const day = weeksMatrix[weekIndex][daysOfWeek[i][0]];
           const eventDate = dayjs(day, "ddd, D MMM, YYYY").toDate();
           console.log("Event date", eventDate);
-          if (day === dayjs(event.day).locale("en").format("ddd, D MMM, YYYY")) {
+          if (
+            day === dayjs(event.day).locale("en").format("ddd, D MMM, YYYY")
+          ) {
             continue;
           }
-  
+
           const repeatedEvent = {
             ...event,
             day: eventDate.getTime(),
             id: `${event.id}-${eventCount}`,
           };
-  
+
           const eventRef = doc(
             db,
             `users/${auth.currentUser.uid}/events`,
@@ -251,27 +274,34 @@ export default function EventModal() {
       let currentMonth = startMonth;
       let currentYear = startYear;
       const originalDay = dayjs(event.day).date();
-  
-      while (currentYear < endYear || (currentYear === endYear && currentMonth <= endMonth)) {
+
+      while (
+        currentYear < endYear ||
+        (currentYear === endYear && currentMonth <= endMonth)
+      ) {
         let eventDay = originalDay;
-        const daysInMonth = dayjs(new Date(currentYear, currentMonth)).daysInMonth();
-  
+        const daysInMonth = dayjs(
+          new Date(currentYear, currentMonth)
+        ).daysInMonth();
+
         if (originalDay > daysInMonth) {
           eventDay = daysInMonth;
         }
-  
-        const eventDate = dayjs(new Date(currentYear, currentMonth, eventDay)).toDate();
-  
+
+        const eventDate = dayjs(
+          new Date(currentYear, currentMonth, eventDay)
+        ).toDate();
+
         if (dayjs(eventDate).isAfter(dayjs(endDate))) {
           break;
         }
-  
+
         const repeatedEvent = {
           ...event,
           day: eventDate.getTime(),
           id: `${event.id}-${currentYear}-${currentMonth}`,
         };
-  
+
         const eventRef = doc(
           db,
           `users/${auth.currentUser.uid}/events`,
@@ -279,7 +309,7 @@ export default function EventModal() {
         );
         batch.set(eventRef, repeatedEvent); // Add to batch
         dispatchCalEvent({ type: "push", payload: repeatedEvent });
-  
+
         if (currentMonth === 11) {
           currentMonth = 0;
           currentYear++;
@@ -291,16 +321,18 @@ export default function EventModal() {
       let currentYear = startYear + 1;
       const originalDay = dayjs(event.day).date();
       const originalMonth = dayjs(event.day).month();
-  
+
       while (currentYear <= endYear) {
-        const eventDate = dayjs(new Date(currentYear, originalMonth, originalDay)).toDate();
-  
+        const eventDate = dayjs(
+          new Date(currentYear, originalMonth, originalDay)
+        ).toDate();
+
         const repeatedEvent = {
           ...event,
           day: eventDate.getTime(),
           id: `${event.id}-${currentYear}`,
         };
-  
+
         const eventRef = doc(
           db,
           `users/${auth.currentUser.uid}/events`,
@@ -308,15 +340,15 @@ export default function EventModal() {
         );
         batch.set(eventRef, repeatedEvent); // Add to batch
         dispatchCalEvent({ type: "push", payload: repeatedEvent });
-  
+
         currentYear++;
       }
     }
-  
+
     await batch.commit(); // Commit the batch
     handleClose();
   }
-  
+
   const handleClose = () => {
     setShowEventModal(false);
     setSelectedEvent(null); // Reset selectedEvent state
@@ -346,15 +378,15 @@ export default function EventModal() {
     console.log(showDeleteConfirmation);
   }, [showDeleteConfirmation]);
 
-  const handleDeleteEvent =  (event) => {
+  const handleDeleteEvent = (event) => {
     console.log("Delete event triggered:", event);
     if (event.repeat) {
       setDeleteTargetEvent(event);
       setShowDeleteConfirmation(!showDeleteConfirmation);
       console.log("Show delete confirmation", showDeleteConfirmation);
     } else {
-       deleteEvent(event);
-       handleClose();
+      deleteEvent(event);
+      handleClose();
     }
   };
 
@@ -410,61 +442,65 @@ export default function EventModal() {
     }
   };
 
-const saveEvent = async (event) => {
-  try {
-    const eventRef = doc(db, `users/${auth.currentUser.uid}/events`, event.id);
-    await setDoc(eventRef, event);
-    dispatchCalEvent({ type: "update", payload: event });
-  } catch (error) {
-    console.error("Error saving event: ", error);
-  }
-};
+  const saveEvent = async (event) => {
+    try {
+      const eventRef = doc(
+        db,
+        `users/${auth.currentUser.uid}/events`,
+        event.id
+      );
+      await setDoc(eventRef, event);
+      dispatchCalEvent({ type: "update", payload: event });
+    } catch (error) {
+      console.error("Error saving event: ", error);
+    }
+  };
 
-const saveAllEvents = async (event, repeatId) => {
-  try {
-    const batch = writeBatch(db);
-    console.log(event);
-    const eventsQuery = query(
-      collection(db, `users/${auth.currentUser.uid}/events`),
-      where("repeat", "==", repeatId)
-    );
-    const querySnapshot = await getDocs(eventsQuery);
-    const updatedEvents = [];
-    querySnapshot.forEach((doc) => {
-      console.log("Updating event:", doc.data());
-      const oldEvent = doc.data();
-      const eventRef = doc.ref;
-      const updatedEvent = { ...event, day : oldEvent.day, id: oldEvent.id}; // Ensure the id is preserved
-      batch.update(eventRef, updatedEvent);
-      updatedEvents.push(updatedEvent);
-    });
-    await batch.commit();
-    updatedEvents.forEach((updatedEvent) => {
-      dispatchCalEvent({ type: "update", payload: updatedEvent });
-    });
-  } catch (error) {
-    console.error("Error saving events: ", error);
-  }
-};
+  const saveAllEvents = async (event, repeatId) => {
+    try {
+      const batch = writeBatch(db);
+      console.log(event);
+      const eventsQuery = query(
+        collection(db, `users/${auth.currentUser.uid}/events`),
+        where("repeat", "==", repeatId)
+      );
+      const querySnapshot = await getDocs(eventsQuery);
+      const updatedEvents = [];
+      querySnapshot.forEach((doc) => {
+        console.log("Updating event:", doc.data());
+        const oldEvent = doc.data();
+        const eventRef = doc.ref;
+        const updatedEvent = { ...event, day: oldEvent.day, id: oldEvent.id }; // Ensure the id is preserved
+        batch.update(eventRef, updatedEvent);
+        updatedEvents.push(updatedEvent);
+      });
+      await batch.commit();
+      updatedEvents.forEach((updatedEvent) => {
+        dispatchCalEvent({ type: "update", payload: updatedEvent });
+      });
+    } catch (error) {
+      console.error("Error saving events: ", error);
+    }
+  };
 
-const handleEditSingle = async () => {
-  if (deleteTargetEvent) {
-    await saveEvent(deleteTargetEvent);
-    setShowEditConfirmation(false);
-    setDeleteTargetEvent(null);
-    handleClose();
-  }
-};
+  const handleEditSingle = async () => {
+    if (deleteTargetEvent) {
+      await saveEvent(deleteTargetEvent);
+      setShowEditConfirmation(false);
+      setDeleteTargetEvent(null);
+      handleClose();
+    }
+  };
 
-const handleEditAll = async () => {
-  if (deleteTargetEvent) {
-    console.log("Edit all events");
-    await saveAllEvents(deleteTargetEvent, deleteTargetEvent.repeat);
-    setShowEditConfirmation(false);
-    setDeleteTargetEvent(null);
-    handleClose();
-  }
-};
+  const handleEditAll = async () => {
+    if (deleteTargetEvent) {
+      console.log("Edit all events");
+      await saveAllEvents(deleteTargetEvent, deleteTargetEvent.repeat);
+      setShowEditConfirmation(false);
+      setDeleteTargetEvent(null);
+      handleClose();
+    }
+  };
 
   return (
     <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50 z-51 dark:bg-zinc-800 dark:bg-opacity-75">
@@ -484,12 +520,12 @@ const handleEditAll = async () => {
         />
       )}
       {showEditConfirmation === true && (
-      <EditConfirmationModal
-        onClose={() => setShowEditConfirmation(false)}
-        onEditSingle={handleEditSingle}
-        onEditAll={handleEditAll}
-      />
-    )}
+        <EditConfirmationModal
+          onClose={() => setShowEditConfirmation(false)}
+          onEditSingle={handleEditSingle}
+          onEditAll={handleEditAll}
+        />
+      )}
       <form
         className="bg-white dark:bg-zinc-950 rounded-lg shadow-2xl w-1/3 z-51"
         onSubmit={handleSubmit}
@@ -523,23 +559,36 @@ const handleEditAll = async () => {
               <span className="material-icons-outlined text-gray-400 dark:text-zinc-200">
                 edit
               </span>
-              <input
-                type="text"
-                name="title"
-                placeholder={t("add_title")}
-                value={title}
-                disabled={isChecked}
-                required
-                className="ml-6 pt-3 border-0 text-gray-600 dark:text-zinc-200 text-xl font-semibold pb-2 w-60 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-zinc-700 rounded"
-                onChange={(e) => setTitle(e.target.value)}
-              />
+              <div className="flex justify-between items-center">
+                <input
+                  type="text"
+                  name="title"
+                  placeholder={t("add_title")}
+                  value={title}
+                  disabled={isChecked && postponable}
+                  required
+                  className="ml-6 mr-6 pt-3 border-0 text-gray-600 dark:text-zinc-200 text-xl font-semibold pb-2 w-60 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-zinc-700 rounded"
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+                <div className="flex items-center -mt-3">
+                  <input
+                    type="checkbox"
+                    checked={postponable}
+                    onChange={() => setPostponable(!postponable)}
+                    className="mr-2 rounded-full"
+                  />
+                  <label className="text-gray-600 dark:text-zinc-200">
+                    {t("postponable")}
+                  </label>
+                </div>
+              </div>
             </div>
             <textarea
               name="description"
               placeholder={t("add_description")}
               value={description}
               rows="4"
-              disabled={isChecked}
+              disabled={isChecked && postponable}
               className="ml-12 pt-3 border-0 text-gray-600 dark:text-zinc-200 pb-2 w-96 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 bg-gray-100 dark:bg-zinc-700 rounded"
               onChange={(e) => setDescription(e.target.value)}
             />
@@ -556,7 +605,7 @@ const handleEditAll = async () => {
                     onChange={(date) => setDate(date)}
                     dateFormat="dd/MM/yyyy"
                     className="w-32 p-2 ml-2 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
-                    disabled={isChecked}
+                    disabled={isChecked && postponable}
                     locale="en-GB"
                   />
                   <div className="flex justify-end mt-4">
@@ -564,6 +613,7 @@ const handleEditAll = async () => {
                       value={
                         repeatOptions ? repeatOptions.repeatType : "no_repeat"
                       }
+                      disabled={isChecked && postponable}
                       onChange={(e) => {
                         if (e.target.value !== "no_repeat") {
                           setShowRepeatModal(true);
@@ -598,8 +648,8 @@ const handleEditAll = async () => {
                           ? "border-black dark:border-zinc-200"
                           : "border-gray-300 bg-gray-100 dark:border-zinc-700 dark:bg-zinc-700"
                       }`}
-                      disabled={!specificTime || isChecked}
-                    >
+                      disabled={!specificTime || (isChecked && postponable)}
+                      >
                       {generateTimeOptions()}
                     </select>
                   </div>
@@ -610,16 +660,15 @@ const handleEditAll = async () => {
                 checked={specificTime}
                 onChange={() => setSpecificTime(!specificTime)}
                 className="ml-4 rounded-full"
-                disabled={isChecked}
-              />
+                disabled={isChecked && postponable}
+                />
             </div>
             <div className="flex flex-row items-center justify-between mt-4 ml-2 mr-2">
               <div className="grid grid-cols-3 gap-x-16 gap-y-5 mr-12">
                 {sortedLabels.map((lbl, i) => (
                   <div
                     key={i}
-                    onClick={() => !isChecked && setSelectedLabel(lbl.name)}
-                    className="flex items-center justify-center cursor-pointer rounded w-40"
+                    onClick={() => (!isChecked || !postponable) && setSelectedLabel(lbl.name)}                    className="flex items-center justify-center cursor-pointer rounded w-40"
                     style={{
                       backgroundColor:
                         selectedLabel === lbl.name
@@ -645,8 +694,7 @@ const handleEditAll = async () => {
           <button
             type="submit"
             className="bg-blue-500 hover:bg-blue-600 px-6 py-2 rounded text-white"
-            disabled={isChecked || selectedLabel === ""}
-          >
+            disabled={(isChecked && postponable) || selectedLabel === ""}          >
             {t("save")}
           </button>
         </footer>

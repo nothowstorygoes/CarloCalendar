@@ -16,6 +16,14 @@ import {
 import { auth, db } from "../firebase";
 import { DeleteConfirmationModal } from "./DeleteConfirmationModal";
 
+// Utility function to truncate text
+const truncateText = (text, maxLength) => {
+  if (text.length > maxLength) {
+    return text.substring(0, maxLength) + "...";
+  }
+  return text;
+};
+
 const EventItem = ({
   evt,
   handleEventClick,
@@ -45,7 +53,10 @@ const EventItem = ({
             }}
           ></span>
           <div>
-            <span className="text-black-600 font-bold w-68">{evt.title}</span>
+            <span className="text-black-600 font-bold w-68">
+              {" "}
+              {truncateText(evt.title, 40)}
+            </span>
             <p
               className="text-sm w-96 dark:text-black"
               style={{
