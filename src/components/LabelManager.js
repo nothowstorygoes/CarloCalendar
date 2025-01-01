@@ -97,13 +97,13 @@ export default function LabelManager() {
               required
               value={newLabelName}
               onChange={(e) => setNewLabelName(e.target.value)}
-              className="border p-2 rounded mr-2 w-64 bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-zinc-50"
+              className="border p-2 rounded mr-4 w-64 bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-zinc-50"
             />
             <select
               value={newLabelCode}
               required
               onChange={(e) => setNewLabelCode(e.target.value)}
-              className="border p-2 rounded mr-2 w-64 bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-zinc-50 custom-scrollbar"
+              className="border p-2 rounded mr-4 w-64 bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-zinc-50 custom-scrollbar"
             >
               <option value="" disabled>
                 {t("select_priority")}
@@ -127,7 +127,7 @@ export default function LabelManager() {
               type="color"
               value={newLabelColor}
               onChange={(e) => setNewLabelColor(e.target.value)}
-              className="border p-5 rounded w-14 bg-gray-100 dark:bg-zinc-700"
+              className="border p-5 rounded w-14 bg-gray-100 dark:bg-zinc-700 mr-4"
             />
             <button
               onClick={handleCreateLabel}

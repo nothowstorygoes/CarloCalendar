@@ -42,12 +42,12 @@ const ConfirmationModal = ({ label, setShowConfirmationModal, setLabels, labels 
 
   return (
     <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50 z-50 dark:bg-zinc-800 dark:bg-opacity-75">
-      <div className="bg-white dark:bg-zinc-950 rounded-lg shadow-2xl w-1/3 z-50">
-        <header className="bg-gray-100 dark:bg-zinc-900 px-4 py-2 flex justify-between items-center rounded-t-lg">
-          <h2 className="text-gray-600 dark:text-zinc-50">Conferma cancellazione</h2>
+      <div className="bg-white dark:bg-zinc-950 rounded-4xl shadow-2xl w-1/3 z-50">
+        <header className="bg-gray-100 dark:bg-zinc-900 px-4 py-4 flex justify-between items-center rounded-t-4xl">
+          <h2 className="text-gray-600 dark:text-zinc-50 ml-4">Conferma cancellazione</h2>
           <button
             onClick={handleClose}
-            className="material-icons-outlined text-gray-400 dark:text-zinc-200"
+            className="material-icons-outlined text-gray-400 dark:text-zinc-200 mr-2"
           >
             close
           </button>
@@ -57,16 +57,16 @@ const ConfirmationModal = ({ label, setShowConfirmationModal, setLabels, labels 
             Sei sicuro di voler eliminare la categoria {label.name}?
           </p>
         </div>
-        <footer className="flex justify-end border-t p-3">
+        <footer className="flex justify-end p-3 py-6">
           <button
             onClick={handleClose}
-            className="bg-gray-500 hover:bg-gray-600 px-6 py-2 rounded text-white mr-2"
+            className="hover:bg-zinc-900 px-6 py-2 rounded-4xl text-white mr-4"
           >
             Cancella
           </button>
           <button
             onClick={handleDelete}
-            className="bg-red-500 hover:bg-red-600 px-6 py-2 rounded text-white"
+            className="bg-red-500 hover:bg-red-600 px-6 py-2 rounded-4xl text-white mr-4"
           >
             {t("delete")}
           </button>
