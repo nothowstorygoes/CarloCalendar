@@ -31,6 +31,9 @@ module.exports = {
       },
       gridTemplateColumns: {
         "1/5": "1fr 5fr"
+      },
+      borderRadius: {
+        '4xl': '2rem',
       }
     },
   },

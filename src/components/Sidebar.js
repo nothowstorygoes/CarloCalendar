@@ -8,7 +8,7 @@ export default function Sidebar() {
     <aside className="p-5 w-64 bg-white dark:bg-zinc-900">
       <CreateEventButton />
       <SmallCalendar />
-      <hr className="mt-6 border-gray-200 dark:border-zinc-700"></hr>
+      <hr className="mb-2 mt-2 border-gray-200 dark:border-zinc-700"></hr>
       <Labels />
     </aside>
   );

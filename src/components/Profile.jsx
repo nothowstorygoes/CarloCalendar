@@ -23,6 +23,8 @@ export default function Profile() {
           if (userSnapshot.exists()) {
             console.log("User document found:", userSnapshot.data());
             setUserInfo(userSnapshot.data());
+            let propic = userInfo.profilePicture;
+            localStorage.setItem("propic", propic);
           } else {
             console.error("User document does not exist");
           }
@@ -72,7 +74,7 @@ export default function Profile() {
 
   if (!userInfo) {
     return (
-      <div className="h-[calc(100%-6rem)] w-[calc(100%-1.5rem)] left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-950 rounded-3xl">
+      <div className="h-[calc(100%-4rem)] w-[calc(100%-1.5rem)] left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-950 rounded-3xl">
         <div className="bg-white dark:bg-zinc-950 w-[calc(100%-16rem)] h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative mt-8 justify-center flex items-center">
           <p className="text-gray-500 dark:text-zinc-50 text-sm">
             {t("loading_user_info")}
@@ -83,7 +85,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="h-[calc(100%-6rem)] w-[calc(100%-1.5rem)] left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-950 rounded-3xl">
+    <div className="h-[calc(100%-4rem)] w-[calc(100%-1.5rem)] left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-950 rounded-3xl">
       <div className="bg-white dark:bg-zinc-950 w-[calc(100%-16rem)] h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative mt-8">
         <div className="p-4 relative w-full">
           <div className="flex justify-between overflow-x-hidden custom-scrollbar">
@@ -104,7 +106,7 @@ export default function Profile() {
               </div>
               <button
                 onClick={handleSignOut}
-                className="mt-8 bg-red-500 hover:bg-red-600 text-white p-2 rounded w-40"
+                className="mt-8 bg-red-500 hover:bg-red-600 text-white p-2 rounded-4xl w-40"
               >
                 {t("sign_out")}
               </button>

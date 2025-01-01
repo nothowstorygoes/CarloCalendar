@@ -21,7 +21,7 @@ export default function Labels() {
   return (
     <React.Fragment>
       <div
-        className="flex items-center mt-10"
+        className="flex items-center"
         style={{
           "--scrollbar-track-bg": document.documentElement.classList.contains(
             "dark"

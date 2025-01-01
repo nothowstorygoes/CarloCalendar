@@ -85,7 +85,7 @@ export default function YearView() {
   }, [year]);
 
   return (
-    <div className="h-[calc(100%-6rem)] w-[calc(100%-1.5rem)] rounded-3xl left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-950">
+    <div className="h-[calc(100%-2rem)] w-[calc(100%-1.5rem)] rounded-3xl left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-950">
       <div className="bg-white dark:bg-zinc-950 w-full h-[calc(100%)] max-w-none max-h-none overflow-hidden relative rounded-3xl">
         <div className="mb-5 flex-1 grid grid-cols-4 grid-rows-3 gap-4 bg-white dark:bg-zinc-950 rounded-3xl p-4 overflow-auto">
           {currentYear.map((_, monthIndex) => (

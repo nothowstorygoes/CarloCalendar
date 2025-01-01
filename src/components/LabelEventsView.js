@@ -72,10 +72,10 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
   };
 
   return (
-    <div className="h-[calc(100%-6rem)] w-[calc(100%-1.5rem)] rounded-3xl left-0 top-0 flex justify-start items-center bg-white dark:bg-zinc-950">
+    <div className="h-[calc(100%-4rem)] w-[calc(100%-1.5rem)] rounded-3xl left-0 top-0 flex justify-start items-center bg-white dark:bg-zinc-950">
       <div
         ref={modalRef}
-        className="bg-white dark:bg-zinc-950 w-full h-[calc(100%-4rem)] max-h-none overflow-hidden relative pointer-events-auto"
+        className="bg-white dark:bg-zinc-950 w-full h-[calc(100%-2rem)] max-h-none overflow-hidden relative pointer-events-auto"
       >
         <div className="p-4 overflow-auto relative h-full custom-scrollbar">
           <div className="flex items-center justify-between mb-6 w-full">

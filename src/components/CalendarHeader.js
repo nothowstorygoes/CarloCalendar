@@ -111,7 +111,7 @@ export default function CalendarHeader() {
           </h2>}
         <button
           onClick={handleReset}
-          className="border rounded py-2 px-4 ml-5 bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50"
+          className="border rounded-3xl py-2 px-6 ml-5 bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50"
         >
           {t("today")}
         </button>
@@ -140,7 +140,7 @@ export default function CalendarHeader() {
         <div className="flex items-center mr-5">
           <button
             onClick={() => handleViewModeChange("day")}
-            className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
+            className={`border rounded-3xl py-2 px-4 mr-2 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
               viewMode === "day"
                 ? "bg-blue-500 dark:bg-blue-700"
                 : "bg-gray-200 dark:bg-zinc-700"
@@ -150,7 +150,7 @@ export default function CalendarHeader() {
           </button>
           <button
             onClick={() => handleViewModeChange("week")}
-            className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
+            className={`border rounded-3xl py-2 px-4 mr-2 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
               viewMode === "week"
                 ? "bg-blue-500 dark:bg-blue-700"
                 : "bg-gray-200 dark:bg-zinc-700"
@@ -160,7 +160,7 @@ export default function CalendarHeader() {
           </button>
           <button
             onClick={() => handleViewModeChange("workweek")}
-            className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center justify-center text-gray-800 dark:text-zinc-50 ${
+            className={`border rounded-3xl py-2 px-4 mr-2 ml-1 flex items-center justify-center text-gray-800 dark:text-zinc-50 ${
               viewMode === "workweek"
                 ? "bg-blue-500 dark:bg-blue-700"
                 : "bg-gray-200 dark:bg-zinc-700"
@@ -170,7 +170,7 @@ export default function CalendarHeader() {
           </button>
           <button
             onClick={() => handleViewModeChange("month")}
-            className={`border rounded py-2 px-4 mr-2 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
+            className={`border rounded-3xl py-2 px-4 mr-2 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
               viewMode === "month"
                 ? "bg-blue-500 dark:bg-blue-700"
                 : "bg-gray-200 dark:bg-zinc-700"
@@ -180,7 +180,7 @@ export default function CalendarHeader() {
           </button>
           <button
             onClick={() => handleViewModeChange("year")}
-            className={`border rounded py-2 px-4 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
+            className={`border rounded-3xl py-2 px-4 ml-1 flex items-center text-gray-800 dark:text-zinc-50 ${
               viewMode === "year"
                 ? "bg-blue-500 dark:bg-blue-700"
                 : "bg-gray-200 dark:bg-zinc-700"

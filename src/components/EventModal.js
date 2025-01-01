@@ -15,11 +15,9 @@ import {
   where,
   deleteDoc,
 } from "firebase/firestore";
-import { registerLocale } from "react-datepicker";
-import enGB from "date-fns/locale/en-GB";
+import it from "date-fns/locale/it";
 import dayjs from "dayjs"; // Ensure dayjs is imported
 import RepeatEventModal from "./RepeatEventModal"; // Import RepeatEventModal
-registerLocale("en-GB", enGB);
 
 function EditConfirmationModal({ onClose, onEditSingle, onEditAll }) {
   return (
@@ -527,11 +525,11 @@ export default function EventModal() {
         />
       )}
       <form
-        className="bg-white dark:bg-zinc-950 rounded-lg shadow-2xl w-1/3 z-51"
+        className="bg-white dark:bg-zinc-950 rounded-4xl shadow-2xl w-2/5 z-51"
         onSubmit={handleSubmit}
       >
-        <header className="bg-gray-100 dark:bg-zinc-900 px-4 py-2 flex justify-between items-center rounded-t-lg">
-          <span className="material-icons-outlined text-gray-400 dark:text-zinc-200">
+        <header className="bg-gray-100 dark:bg-zinc-900 px-4 py-2 flex justify-between items-center rounded-t-4xl">
+          <span className="material-icons-outlined text-gray-400 dark:text-zinc-200 ml-4">
             drag_handle
           </span>
           <div>
@@ -540,20 +538,20 @@ export default function EventModal() {
                 onClick={() => {
                   handleDeleteEvent(selectedEvent);
                 }}
-                className="material-icons-outlined text-gray-400 dark:text-zinc-200 cursor-pointer mr-4"
+                className="material-icons-outlined text-gray-400 dark:text-zinc-200 cursor-pointer mr-6"
               >
                 delete
               </span>
             )}
             <button
               onClick={handleClose}
-              className="material-icons-outlined text-gray-400 dark:text-zinc-200"
+              className="material-icons-outlined text-gray-400 dark:text-zinc-200 mr-4 mt-1"
             >
               close
             </button>
           </div>
         </header>
-        <div className="p-3">
+        <div className="p-3 mt-2">
           <div className="flex flex-col gap-y-4">
             <div className="flex items-center">
               <span className="material-icons-outlined text-gray-400 dark:text-zinc-200">
@@ -570,7 +568,7 @@ export default function EventModal() {
                   className="ml-6 mr-6 pt-3 border-0 text-gray-600 dark:text-zinc-200 text-xl font-semibold pb-2 w-60 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-zinc-700 rounded"
                   onChange={(e) => setTitle(e.target.value)}
                 />
-                <div className="flex items-center -mt-3">
+                <div className="flex items-center -mt-3 ml-32">
                   <input
                     type="checkbox"
                     checked={postponable}
@@ -604,9 +602,9 @@ export default function EventModal() {
                     selected={date}
                     onChange={(date) => setDate(date)}
                     dateFormat="dd/MM/yyyy"
-                    className="w-32 p-2 ml-2 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
+                    className="w-32 p-2 ml-5 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
                     disabled={isChecked && postponable}
-                    locale="en-GB"
+                    locale={it}
                   />
                   <div className="flex justify-end mt-4">
                     <select
@@ -631,7 +629,7 @@ export default function EventModal() {
                     </select>
                   </div>
                 </div>
-                <div className="flex items-center flex-row ml-2">
+                <div className="flex items-center flex-row ml-20">
                   <span className="material-icons text-gray-400 dark:text-zinc-200">
                     access_time
                   </span>
@@ -663,8 +661,8 @@ export default function EventModal() {
                 disabled={isChecked && postponable}
                 />
             </div>
-            <div className="flex flex-row items-center justify-between mt-4 ml-2 mr-2">
-              <div className="grid grid-cols-3 gap-x-16 gap-y-5 mr-12">
+            <div className="flex flex-row items-center justify-between mt-4 ml-2 mr-6">
+              <div className="grid grid-cols-3 gap-x-16 gap-y-5">
                 {sortedLabels.map((lbl, i) => (
                   <div
                     key={i}
@@ -690,10 +688,10 @@ export default function EventModal() {
             </div>
           </div>
         </div>
-        <footer className="flex justify-end border-t p-3 mt-5">
+        <footer className="flex justify-end p-3 mt-5 rounded-b-4xl">
           <button
             type="submit"
-            className="bg-blue-500 hover:bg-blue-600 px-6 py-2 rounded text-white"
+            className="hover:bg-zinc-700 px-6 py-2 rounded-4xl text-white mr-4 mb-1"
             disabled={(isChecked && postponable) || selectedLabel === ""}          >
             {t("save")}
           </button>

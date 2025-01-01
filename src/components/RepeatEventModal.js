@@ -3,6 +3,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
+import it from "date-fns/locale/it";
 
 export default function RepeatEventModal({ onClose, onSave, repeatType, selectedDate }) {
   const { t } = useTranslation();
@@ -100,7 +101,6 @@ export default function RepeatEventModal({ onClose, onSave, repeatType, selected
                     className="p-2 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
                   >
                     <option value="weekly">{t("weekly")}</option>
-                    <option value="daily">{t("daily")}</option>
                   </select>
                 </div>
                 <label className="text-gray-600 dark:text-zinc-200">
@@ -149,7 +149,7 @@ export default function RepeatEventModal({ onClose, onSave, repeatType, selected
                   onChange={(date) => setEndDate(date)}
                   dateFormat="yyyy"
                   className="w-32 p-2 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
-                  locale="en-GB"
+                  locale={it}
                 />
               </div>
             )}

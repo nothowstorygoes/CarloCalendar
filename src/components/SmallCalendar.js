@@ -70,7 +70,7 @@ export default function SmallCalendar() {
       <div className="grid grid-cols-7 grid-rows-6 text-sm">
         {currentMonth[0].map((day, i) => (
           <span key={i} className="text-center text-gray-500 dark:text-zinc-50">
-            {capitalizeFirstLetter(day.format("dd").charAt(0))}
+            {capitalizeFirstLetter(day.locale("it").format("dd").charAt(0))}
           </span>
         ))}
         {currentMonth.map((row, i) => (
