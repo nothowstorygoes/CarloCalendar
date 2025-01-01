@@ -2,7 +2,7 @@ export function DeleteConfirmationModal({ onClose, onDeleteSingle, onDeleteAll }
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-52">
       <div className="bg-white dark:bg-zinc-950 rounded-lg shadow-2xl p-6 z-52">
-        <h2 className="text-lg font-semibold mb-4 text-white">Elimina Event</h2>
+        <h2 className="text-lg font-semibold mb-4 text-white">Elimina Evento</h2>
         <p className="mb-4 text-white">Vuoi eliminare l'evento corrente o tutte le sue occorrenze?</p>
         <div className="flex justify-end">
           <button
