@@ -24,7 +24,7 @@ export default function RepeatEventModal({
 
   useEffect(() => {
     if (repeatType === "custom") {
-      setCustomRepeat({ interval: 1, frequency: "week", daysOfWeek: [] });
+      setCustomRepeat({ interval: 1, frequency: "week", daysOfWeek: [] , dayOfMonth: 1});
     }
     if (repeatType === "yearly") {
       setCustomRepeat({ interval: 1, frequency: "yearly", daysOfWeek: [] });

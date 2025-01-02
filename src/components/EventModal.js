@@ -210,18 +210,13 @@ export default function EventModal() {
         await setDoc(duplicatedEventRef, duplicatedEvent);
         dispatchCalEvent({ type: "push", payload: duplicatedEvent });
       } else {
-        const eventRef = doc(
-          db,
-          `users/${auth.currentUser.uid}/events`,
-          calendarEvent.id
-        );
-        await setDoc(eventRef, calendarEvent);
 
         if (selectedEvent && selectedEvent.repeat) {
           const eventUpdatedRepeted = {
             ...calendarEvent,
             repeat: selectedEvent.repeat,
           };
+          console.log("lol",eventUpdatedRepeted)
           dispatchCalEvent({ type: "update", payload: eventUpdatedRepeted });
           setDeleteTargetEvent(eventUpdatedRepeted);
           setShowEditConfirmation(true);
@@ -229,6 +224,12 @@ export default function EventModal() {
         } else if (selectedEvent) {
           dispatchCalEvent({ type: "update", payload: calendarEvent });
         } else {
+          const duplicatedEventRef = doc(
+            db,
+            `users/${auth.currentUser.uid}/events`,
+            calendarEvent.id
+          );
+          await setDoc(duplicatedEventRef, calendarEvent);
           dispatchCalEvent({ type: "push", payload: calendarEvent });
         }
       }
@@ -252,6 +253,7 @@ export default function EventModal() {
       repeatOptions;
     const { interval, daysOfWeek, frequency, dayOfMonth } = customRepeat;
     const startMonth = dayjs(event.day).month() + 1;
+    console.log(dayOfMonth);
     const startYear = dayjs(event.day).year();
     console.log(repeatOptions);
     const batch = writeBatch(db); // Use batch to group multiple operations
@@ -302,9 +304,6 @@ export default function EventModal() {
         date,
         calculatedEndDate
       );
-      console.log("Weeks matrix", weeksMatrix);
-      console.log(interval);
-      console.log(daysOfWeek);
       let eventCount = 0;
       for (
         let weekIndex = 0;
@@ -361,9 +360,6 @@ export default function EventModal() {
       const originalDay = dayjs(event.day).date();
       const originalMonth = dayjs(event.day).month();
       const originalYear = dayjs(event.day).year();
-      console.log(calculatedEndDate);
-      console.log(calculatedEndMonth);
-      console.log(currentYear, currentMonth, endYear, endMonth);
       while (
         currentYear < calculatedEndYear ||
         (currentYear === calculatedEndYear && currentMonth <= calculatedEndMonth)
