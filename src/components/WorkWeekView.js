@@ -148,7 +148,7 @@ export default function WorkWeekView() {
                             <span className="text-black font-bold">
                               {truncateTitle(evt.title)}
                             </span>
-                            <div className="absolute left-0 top-full mt-1 w-max max-w-xs p-2 bg-zinc-900 text-white font-bold border border-gray-300 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div className="absolute left-0 top-full mt-1 w-max p-2 bg-zinc-900 text-white font-bold border border-gray-300 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                               {evt.title}
                             </div>
                           </div>
