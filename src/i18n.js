@@ -113,6 +113,12 @@ const resources = {
       "no_active_events": "Non ci sono eventi attivi.",
       "no_passed_events": "Non ci sono eventi passati.",
       "postponable": "Rinviabile",
+      "specific_date": "Data specifica",
+      "never": "Mai",
+      "after": "Dopo",
+      "occurrences": "occorrenze",
+      "day_of_month": "Giorno del mese",
+      "select_a_label": "Seleziona una categoria",
     }
   }
 };

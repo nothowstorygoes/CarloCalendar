@@ -5,7 +5,13 @@ import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import it from "date-fns/locale/it";
 
-export default function RepeatEventModal({ onClose, onSave, repeatType, selectedDate }) {
+export default function RepeatEventModal({
+  onClose,
+  onSave,
+  repeatType,
+  selectedDate,
+  setShowRepeatModal,
+}) {
   const { t } = useTranslation();
   const [endDate, setEndDate] = useState(selectedDate);
   const [customRepeat, setCustomRepeat] = useState({
@@ -13,24 +19,47 @@ export default function RepeatEventModal({ onClose, onSave, repeatType, selected
     frequency: "monthly",
     daysOfWeek: [],
   });
+  const [endOption, setEndOption] = useState("date"); // "date", "never", "occurrences"
+  const [occurrences, setOccurrences] = useState(1);
 
   useEffect(() => {
     if (repeatType === "custom") {
       setCustomRepeat({ interval: 1, frequency: "week", daysOfWeek: [] });
     }
+    if (repeatType === "yearly") {
+      setCustomRepeat({ interval: 1, frequency: "yearly", daysOfWeek: [] });
+    }
   }, [repeatType]);
 
   const handleSave = () => {
-    const endDateObj = dayjs(endDate, 'ddd MMM D YYYY');
+    const endDateObj = dayjs(endDate, "ddd MMM D YYYY");
     const endYear = endDateObj.year();
     const endMonth = endDateObj.month();
-    onSave({ repeatType, endDate, endYear, endMonth, customRepeat });
-    onClose();
+    console.log(customRepeat.daysOfWeek);
+    console.log({
+      repeatType,
+      endDate,
+      endYear,
+      endMonth,
+      customRepeat,
+      endOption,
+      occurrences,
+    });
+    onSave({
+      repeatType,
+      endDate,
+      endYear,
+      endMonth,
+      customRepeat,
+      endOption,
+      occurrences,
+    });
+    setShowRepeatModal(false);
   };
 
   const handleDayOfWeekChange = (day, index) => {
     setCustomRepeat((prev) => {
-      const daysOfWeek = prev.daysOfWeek.some(d => d[0] === index)
+      const daysOfWeek = prev.daysOfWeek.some((d) => d[0] === index)
         ? prev.daysOfWeek.filter((d) => d[0] !== index)
         : [...prev.daysOfWeek, [index, day]];
       return { ...prev, daysOfWeek };
@@ -38,13 +67,13 @@ export default function RepeatEventModal({ onClose, onSave, repeatType, selected
   };
 
   const handleDateChange = (date) => {
-    const formattedDate = dayjs(date).locale("en").format('ddd MMM D YYYY');
+    const formattedDate = dayjs(date).locale("en").format("ddd MMM D YYYY");
     setEndDate(formattedDate);
   };
 
   return (
     <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50 z-52 dark:bg-zinc-800 dark:bg-opacity-75">
-      <div className="bg-white dark:bg-zinc-950 rounded-4xl shadow-2xl w-1/3 z-52">
+      <div className="bg-white dark:bg-zinc-950 rounded-4xl shadow-2xl w-2/5 z-52">
         <header className="w-full bg-gray-100 dark:bg-zinc-900 px-4 py-4 flex justify-between items-center rounded-t-4xl">
           <h2 className="text-lg font-bold text-gray-600 dark:text-zinc-50 ml-4">
             {t("repeat_event")}
@@ -63,14 +92,63 @@ export default function RepeatEventModal({ onClose, onSave, repeatType, selected
                 <label className="text-gray-600 dark:text-zinc-200">
                   {t("end_date")}
                 </label>
-                <DatePicker
-                  selected={endDate}
-                  showMonthYearPicker
-                  onChange={(date) => setEndDate(date)}
-                  dateFormat="dd/MM/yyyy"
-                  className="w-40 p-2 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
-                  locale="en-GB"
-                />
+                <div className="flex flex-row gap-x-8 mb-4">
+                  <label className="flex items-center text-white">
+                    <input
+                      type="radio"
+                      name="endOption"
+                      value="date"
+                      checked={endOption === "date"}
+                      onChange={() => setEndOption("date")}
+                      className="mr-2"
+                    />
+                    {t("specific_date")}
+                  </label>
+                  <label className="flex items-center text-white">
+                    <input
+                      type="checkbox"
+                      name="endOption"
+                      value="occurrences"
+                      checked={endOption === "occurrences"}
+                      onChange={() =>
+                        setEndOption(
+                          endOption === "occurrences" ? "date" : "occurrences"
+                        )
+                      }
+                      className="mr-2 rounded-full"
+                    />
+                    {t("after")}
+                    <input
+                      type="number"
+                      value={occurrences}
+                      onChange={(e) => setOccurrences(e.target.value)}
+                      className=" mr-2 ml-2 w-16 p-2 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
+                      min="1"
+                      disabled={endOption !== "occurrences"}
+                    />
+                    {t("occurrences")}
+                  </label>
+                  <label className="flex items-center text-white">
+                    <input
+                      type="radio"
+                      name="endOption"
+                      value="never"
+                      checked={endOption === "never"}
+                      onChange={() => setEndOption("never")}
+                      className="mr-2"
+                    />
+                    {t("never")}
+                  </label>
+                </div>
+                {endOption === "date" && (
+                  <DatePicker
+                    selected={endDate}
+                    onChange={(date) => setEndDate(date)}
+                    dateFormat="dd/MM/yyyy"
+                    className="w-40 p-2 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
+                    locale={it}
+                  />
+                )}
               </div>
             )}
             {repeatType === "custom" && (
@@ -98,44 +176,128 @@ export default function RepeatEventModal({ onClose, onSave, repeatType, selected
                         frequency: e.target.value,
                       })
                     }
-                    className="p-2 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
+                    className="p-2 px-4 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
                   >
-                    <option value="weekly">{t("weekly")}</option>
+                    <option value="">
+                      Seleziona frequenza
+                    </option>
+                    <option value="week">Settimana</option>
+                    <option value="monthlyCustom">Mese</option>
                   </select>
                 </div>
-                <label className="text-gray-600 dark:text-zinc-200">
-                  {t("days_of_week")}
-                </label>
-                <div className="flex gap-x-2">
-                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
-                    (day, index) => (
-                      <button
-                        key={day}
-                        type="button"
-                        className={`p-2 border rounded ${
-                          customRepeat.daysOfWeek.some(d => d[0] === index)
-                            ? "bg-blue-500 text-white"
-                            : "bg-gray-100 dark:bg-zinc-700 dark:text-white"
-                        }`}
-                        onClick={() => handleDayOfWeekChange(day, index)}
-                      >
-                        {t(`days.${day}`)}
-                      </button>
-                    )
-                  )}
-                </div>
+
+                {customRepeat.frequency === "week" && (
+                  <div className="flex flex-col items-center gap-y-4">
+                    <label className="text-gray-600 dark:text-zinc-200">
+                      {t("days_of_week")}
+                    </label>
+                    <div className="flex gap-x-2">
+                      {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
+                        (day, index) => (
+                          <button
+                            key={day}
+                            type="button"
+                            className={`p-2 border rounded ${
+                              customRepeat.daysOfWeek.some(
+                                (d) => d[0] === index
+                              )
+                                ? "bg-blue-500 text-white"
+                                : "bg-gray-100 dark:bg-zinc-700 dark:text-white"
+                            }`}
+                            onClick={() => handleDayOfWeekChange(day, index)}
+                          >
+                            {t(`days.${day}`)}
+                          </button>
+                        )
+                      )}
+                    </div>
+                  </div>
+                )}
+                {customRepeat.frequency === "monthlyCustom" && (
+                  <div className="flex flex-col items-center gap-y-4">
+                    <label className="text-gray-600 dark:text-zinc-200">
+                      {t("day_of_month")}
+                    </label>
+                    <select
+                      value={customRepeat.dayOfMonth}
+                      onChange={(e) =>
+                        setCustomRepeat({
+                          ...customRepeat,
+                          dayOfMonth: parseInt(e.target.value, 10),
+                        })
+                      }
+                      className="p-2 px-6 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
+                    >
+                      {Array.from({ length: 31 }, (_, i) => i + 1).map(
+                        (day) => (
+                          <option key={day} value={day}>
+                            {day}
+                          </option>
+                        )
+                      )}
+                    </select>
+                  </div>
+                )}
                 <label className="text-gray-600 dark:text-zinc-200">
                   {t("end_date")}
                 </label>
-                <div className="h-full">
-                    <DatePicker
-                      selected={endDate ? new Date(endDate) : null}
-                      onChange={handleDateChange}
-                      dateFormat="dd/MM/yyyy"
-                      className="w-full p-2 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
-                      locale="en-GB"
+                <div className="flex flex-row gap-x-8 mb-4">
+                  <label className="flex items-center text-white">
+                    <input
+                      type="radio"
+                      name="endOption"
+                      value="date"
+                      checked={endOption === "date"}
+                      onChange={() => setEndOption("date")}
+                      className="mr-2"
                     />
-                  </div>
+                    {t("specific_date")}
+                  </label>
+                  <label className="flex items-center text-white">
+                    <input
+                      type="checkbox"
+                      name="endOption"
+                      value="occurrences"
+                      checked={endOption === "occurrences"}
+                      onChange={() =>
+                        setEndOption(
+                          endOption === "occurrences" ? "date" : "occurrences"
+                        )
+                      }
+                      className="mr-2 rounded-full"
+                    />
+                    {t("after")}
+                    <input
+                      type="number"
+                      value={occurrences}
+                      onChange={(e) => setOccurrences(e.target.value)}
+                      className=" mr-2 ml-2 w-16 p-2 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
+                      min="1"
+                      disabled={endOption !== "occurrences"}
+                    />
+                    {t("occurrences")}
+                  </label>
+                  <label className="flex items-center text-white">
+                    <input
+                      type="radio"
+                      name="endOption"
+                      value="never"
+                      checked={endOption === "never"}
+                      onChange={() => setEndOption("never")}
+                      className="mr-2"
+                    />
+                    {t("never")}
+                  </label>
+                </div>
+                {endOption === "date" && (
+                  <DatePicker
+                    selected={endDate ? new Date(endDate) : null}
+                    onChange={handleDateChange}
+                    dateFormat="dd/MM/yyyy"
+                    className="w-full p-2 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
+                    locale={it}
+                  />
+                )}
               </div>
             )}
             {repeatType === "yearly" && (
@@ -143,14 +305,64 @@ export default function RepeatEventModal({ onClose, onSave, repeatType, selected
                 <label className="text-gray-600 dark:text-zinc-200">
                   {t("end_year")}
                 </label>
-                <DatePicker
-                  showYearPicker
-                  selected={endDate}
-                  onChange={(date) => setEndDate(date)}
-                  dateFormat="yyyy"
-                  className="w-32 p-2 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
-                  locale={it}
-                />
+                <div className="flex flex-row gap-x-8 mb-4">
+                  <label className="flex items-center text-white">
+                    <input
+                      type="radio"
+                      name="endOption"
+                      value="date"
+                      checked={endOption === "date"}
+                      onChange={() => setEndOption("date")}
+                      className="mr-2"
+                    />
+                    {t("specific_date")}
+                  </label>
+                  <label className="flex items-center text-white">
+                    <input
+                      type="checkbox"
+                      name="endOption"
+                      value="occurrences"
+                      checked={endOption === "occurrences"}
+                      onChange={() =>
+                        setEndOption(
+                          endOption === "occurrences" ? "date" : "occurrences"
+                        )
+                      }
+                      className="mr-2 rounded-full"
+                    />
+                    {t("after")}
+                    <input
+                      type="number"
+                      value={occurrences}
+                      onChange={(e) => setOccurrences(e.target.value)}
+                      className=" mr-2 ml-2 w-16 p-2 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
+                      min="1"
+                      disabled={endOption !== "occurrences"}
+                    />
+                    {t("occurrences")}
+                  </label>
+                  <label className="flex items-center text-white">
+                    <input
+                      type="radio"
+                      name="endOption"
+                      value="never"
+                      checked={endOption === "never"}
+                      onChange={() => setEndOption("never")}
+                      className="mr-2"
+                    />
+                    {t("never")}
+                  </label>
+                </div>
+                {endOption === "date" && (
+                  <DatePicker
+                    showYearPicker
+                    selected={endDate}
+                    onChange={(date) => setEndDate(date)}
+                    dateFormat="yyyy"
+                    className="w-32 p-2 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
+                    locale={it}
+                  />
+                )}
               </div>
             )}
           </div>

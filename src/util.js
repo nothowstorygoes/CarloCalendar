@@ -22,9 +22,9 @@ export function getWeeks(month = dayjs().month(), year = dayjs().year()) {
 export function formatDay(day) {
   return day.locale("en").format("ddd, D MMM, YYYY");
 }
+
 function getMonthWeeks(month, year, startDate, endDate) {
   const daysMatrix = getMonth(month, year);
-  console.log("Days matrix:", daysMatrix);
   const formattedStartDate = dayjs(startDate).startOf('day');
   const formattedEndDate = dayjs(endDate).endOf('day');
 
@@ -33,9 +33,9 @@ function getMonthWeeks(month, year, startDate, endDate) {
       if (day.isAfter(formattedStartDate.subtract(1, 'day')) && day.isBefore(formattedEndDate.add(1, 'day'))) {
         return formatDay(day);
       }
-      return null;
-    }).filter(day => day !== null)
-  ).filter(week => week.length > 0);
+      return formatDay(day); // Include all days in the week
+    })
+  );
 }
 
 export function getWeeksInInterval(
@@ -46,7 +46,7 @@ export function getWeeksInInterval(
   startDate,
   endDate
 ) {
-  let currentMonth = startMonth-1;
+  let currentMonth = startMonth - 1;
   console.log("Current month:", currentMonth);
   let currentYear = startYear;
   const weeksMatrix = [];
@@ -56,7 +56,6 @@ export function getWeeksInInterval(
 
   while (start.isBefore(end) || start.isSame(end, "month")) {
     const monthWeeks = getMonthWeeks(currentMonth, currentYear, start, end);
-    console.log("Month weeks:", monthWeeks);
     weeksMatrix.push(...monthWeeks);
 
     if (currentMonth === 11) {

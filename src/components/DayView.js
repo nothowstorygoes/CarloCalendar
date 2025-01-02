@@ -10,7 +10,9 @@ import {
   getDoc,
   query,
   collection,
+  updateDoc,
   where,
+  writeBatch,
   getDocs,
 } from "firebase/firestore";
 import { auth, db } from "../firebase";
@@ -53,10 +55,14 @@ const EventItem = ({
             }}
           ></span>
           <div>
-            <span className="text-black-600 font-bold w-68">
-              {" "}
-              {truncateText(evt.title, 40)}
-            </span>
+            <div className="relative group">
+              <span className="text-black-600 font-bold w-68">
+                {truncateText(evt.title, 40)}
+              </span>
+              <div className="absolute left-0 top-full mt-1 w-max max-w-xs p-2 bg-zinc-900 text-white font-bold border border-gray-300 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                {evt.title}
+              </div>
+            </div>
             <p
               className="text-sm w-96 dark:text-black"
               style={{
@@ -173,6 +179,30 @@ export default function DayInfoModal() {
     }
   };
 
+  const handleDeleteFuture = async () => {
+    console.log("Delete all future events");
+    if (deleteTargetEvent) {
+      try {
+        const eventsQuery = query(
+          collection(db, `users/${auth.currentUser.uid}/events`),
+          where("repeat", "==", deleteTargetEvent.repeat),
+          where("checked", "==", false)
+        );
+        const querySnapshot = await getDocs(eventsQuery);
+        const batch = writeBatch(db); // Use batch to group multiple operations
+        querySnapshot.forEach((doc) => {
+          batch.delete(doc.ref);
+          dispatchCalEvent({ type: "delete", payload: { id: doc.id } });
+        });
+        await batch.commit(); // Commit the batch
+      } catch (error) {
+        console.error("Error deleting future events: ", error);
+      }
+      setShowDeleteConfirmation(false);
+      setDeleteTargetEvent(null);
+    }
+  };
+
   const handleDeleteAll = async () => {
     if (deleteTargetEvent) {
       const eventsQuery = query(
@@ -202,16 +232,16 @@ export default function DayInfoModal() {
     setDaySelected(daySelected.add(1, "day"));
   };
 
-  const handleCheckboxChange = (event, evt) => {
+  const handleCheckboxChange = async (event, evt) => {
     event.stopPropagation();
     const updatedEvent = { ...evt, checked: !evt.checked };
+    try {
+      const eventRef = doc(db, `users/${auth.currentUser.uid}/events`, evt.id);
+      await updateDoc(eventRef, { checked: updatedEvent.checked });
+    } catch (error) {
+      console.error("Error updating event: ", error);
+    }
     dispatchCalEvent({ type: "update", payload: updatedEvent });
-    localStorage.setItem(
-      "savedEvents",
-      JSON.stringify(
-        filteredEvents.map((e) => (e.id === evt.id ? updatedEvent : e))
-      )
-    );
   };
 
   const getLabelColor = (labelName) => {
@@ -232,6 +262,7 @@ export default function DayInfoModal() {
           onClose={() => setShowDeleteConfirmation(false)}
           onDeleteSingle={handleDeleteSingle}
           onDeleteAll={handleDeleteAll}
+          onDeleteFuture={handleDeleteFuture}
         />
       )}
       <div
