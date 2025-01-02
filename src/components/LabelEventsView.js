@@ -176,7 +176,7 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
                     <div className="flex flex-col">
                       <div className="relative group">
                         <span className="text-black font-bold">
-                          {truncate(evt.title, 18)}
+                          {truncate(evt.title, 14)} &nbsp;&nbsp; {evt.postponable && "↺"}
                         </span>
                         <div className="absolute left-0 top-full mt-1 w-max p-2 bg-zinc-900 text-white font-bold border border-gray-300 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
                           {evt.title}
