@@ -75,9 +75,9 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
     <div className="h-[calc(100%-4rem)] w-[calc(100%-1.5rem)] rounded-3xl left-0 top-0 flex justify-start items-center bg-white dark:bg-zinc-950">
       <div
         ref={modalRef}
-        className="bg-white dark:bg-zinc-950 w-full h-[calc(100%-2rem)] max-h-none overflow-hidden relative pointer-events-auto"
+        className="bg-white dark:bg-zinc-950 w-full h-[calc(100%-2rem)] overflow-hidden relative pointer-events-auto"
       >
-        <div className="p-4 overflow-auto relative h-full custom-scrollbar">
+        <div className="p-4 relative h-full">
           <div className="flex items-center justify-between mb-6 w-full">
             <h2 className="text-lg font-bold text-left mb-6 ml-6 text-gray-600 dark:text-zinc-50">
               {t("events_for")}{" "}
@@ -94,7 +94,7 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
             </button>
           </div>
           {showPassedEvents ? (
-            <div className="grid grid-cols-5 gap-4 pr-4 w-full">
+            <div className="grid grid-cols-5 gap-4 pr-4 w-full overflow-auto custom-scrollbar" style={{ maxHeight: '30rem' }}>
               {orderedPassedEvents.length === 0 && (
                 <p className="text-gray-500 dark:text-zinc-50 text-sm items-center flex justify-center">
                   {t("no_passed_events")}
@@ -152,7 +152,7 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-5 gap-4 pr-4 w-full">
+            <div className="grid grid-cols-5 gap-4 pr-4 w-full overflow-auto custom-scrollbar" style={{ maxHeight: '30rem' }}>
               {orderedActiveEvents.length === 0 && (
                 <p className="text-gray-500 dark:text-zinc-50 text-sm items-center flex justify-center">
                   {t("no_active_events")}

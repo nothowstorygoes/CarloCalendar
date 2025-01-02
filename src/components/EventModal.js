@@ -356,9 +356,11 @@ export default function EventModal() {
         }
       }
     } else if (frequency === "monthlyCustom") {
-      let currentMonth = startMonth;
+      let currentMonth = startMonth-1;
       let currentYear = startYear;
       const originalDay = dayjs(event.day).date();
+      const originalMonth = dayjs(event.day).month();
+      const originalYear = dayjs(event.day).year();
       console.log(calculatedEndDate);
       console.log(calculatedEndMonth);
       console.log(currentYear, currentMonth, endYear, endMonth);
@@ -381,6 +383,19 @@ export default function EventModal() {
         console.log(eventDate);
         if (dayjs(eventDate).isAfter(dayjs(calculatedEndDate))) {
           break;
+        }
+
+        if (
+          eventDay === originalDay &&
+          currentMonth === originalMonth &&
+          currentYear === originalYear
+        ) {
+          currentMonth += parseInt(interval, 10); // Increment by custom interval
+          if (currentMonth > 11) {
+            currentMonth -= 12;
+            currentYear++;
+          }
+          continue;
         }
   
         const repeatedEvent = {
