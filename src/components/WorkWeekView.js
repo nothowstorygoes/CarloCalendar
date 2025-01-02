@@ -81,20 +81,28 @@ export default function WorkWeekView() {
               onClick={handlePrevWeek}
               className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-600 dark:text-zinc-50 rounded-full p-2 w-10 h-10 flex items-center justify-center"
             >
-              <span className="material-icons dark:text-zinc-50">chevron_left</span>
+              <span className="material-icons dark:text-zinc-50">
+                chevron_left
+              </span>
             </button>
             <h2 className="text-lg font-bold text-center mb-6 text-gray-600 dark:text-zinc-50">
               {currentWeek.length > 0 &&
-                capitalizeFirstLetter(currentWeek[0]?.locale("it").format("MMMM D"))}{" "}
+                capitalizeFirstLetter(
+                  currentWeek[0]?.locale("it").format("MMMM D")
+                )}{" "}
               -{" "}
               {currentWeek.length > 0 &&
-                capitalizeFirstLetter(currentWeek[4]?.locale("it").format("MMMM D, YYYY"))}
+                capitalizeFirstLetter(
+                  currentWeek[4]?.locale("it").format("MMMM D, YYYY")
+                )}
             </h2>
             <button
               onClick={handleNextWeek}
               className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-600 dark:text-zinc-50 rounded-full p-2 w-10 h-10 flex items-center justify-center"
             >
-              <span className="material-icons dark:text-zinc-50">chevron_right</span>
+              <span className="material-icons dark:text-zinc-50">
+                chevron_right
+              </span>
             </button>
           </div>
           <div className="grid grid-cols-5 gap-8 h-full">
@@ -107,7 +115,10 @@ export default function WorkWeekView() {
               const remainingEvents = events.length - MAX_EVENTS;
 
               return (
-                <div key={idx} className="p-4 h-full flex flex-col items-center">
+                <div
+                  key={idx}
+                  className="p-4 h-full flex flex-col items-center"
+                >
                   <h3
                     className={`text-lg font-bold mb-2 cursor-pointer text-gray-600 dark:text-zinc-50 ${
                       day.isSame(dayjs(), "day")
@@ -116,7 +127,9 @@ export default function WorkWeekView() {
                     }`}
                     onClick={() => handleDateClick(day)}
                   >
-                    {capitalizeFirstLetter(day.locale("it").format("dddd, MMMM D"))}
+                    {capitalizeFirstLetter(
+                      day.locale("it").format("dddd, MMMM D")
+                    )}
                   </h3>
                   {displayEvents.map((evt) => (
                     <div
@@ -131,9 +144,14 @@ export default function WorkWeekView() {
                     >
                       <div className="flex items-center w-full">
                         <div className="w-full">
-                          <span className="font-bold truncate text-black">
-                            {truncateTitle(evt.title)}
-                          </span>
+                          <div className="relative group">
+                            <span className="text-black font-bold">
+                              {truncateTitle(evt.title)}
+                            </span>
+                            <div className="absolute left-0 top-full mt-1 w-max max-w-xs p-2 bg-zinc-900 text-white font-bold border border-gray-300 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                              {evt.title}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>

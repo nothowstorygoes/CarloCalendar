@@ -110,7 +110,14 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
                 >
                   <div className="flex justify-between w-full">
                     <div className="flex flex-col">
-                      <span className="font-bold text-black">{truncate(evt.title, 18)}</span>
+                      <div className="relative group">
+                        <span className="text-black font-bold">
+                          {truncate(evt.title, 18)}
+                        </span>
+                        <div className="absolute left-0 top-full mt-1 w-max max-w-xs p-2 bg-zinc-900 text-white font-bold border border-gray-300 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          {evt.title}
+                        </div>
+                      </div>{" "}
                       <p
                         className="text-sm w-44"
                         style={{
@@ -128,7 +135,8 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
                       <p className="text-xs mt-6 text-black font-bold">
                         {capitalizeFirstLetter(
                           dayjs(evt.day).format("MMMM D, YYYY")
-                        )}{evt.time && `, alle ${evt.time}`}
+                        )}
+                        {evt.time && `, alle ${evt.time}`}
                       </p>
                     </div>
                     <div className="flex flex-col items-center justify-center gap-6 mr-6">
@@ -160,10 +168,14 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
                 >
                   <div className="flex justify-between w-full">
                     <div className="flex flex-col">
-                      <span className="font-bold text-black">
-                        {" "}
-                        {truncate(evt.title, 18)}
-                      </span>
+                      <div className="relative group">
+                        <span className="text-black font-bold">
+                          {truncate(evt.title, 18)}
+                        </span>
+                        <div className="absolute left-0 top-full mt-1 w-max max-w-xs p-2 bg-zinc-900 text-white font-bold border border-gray-300 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          {evt.title}
+                        </div>
+                      </div>
                       <p
                         className="text-sm w-44"
                         style={{

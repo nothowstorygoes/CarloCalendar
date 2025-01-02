@@ -112,7 +112,10 @@ export default function WeeklyView() {
               const remainingEvents = events.length - MAX_EVENTS;
 
               return (
-                <div key={idx} className="p-4 h-full flex flex-col items-center">
+                <div
+                  key={idx}
+                  className="p-4 h-full flex flex-col items-center"
+                >
                   <h3
                     className={`text-lg font-bold mb-2 cursor-pointer text-gray-600 dark:text-zinc-50 ${
                       day.isSame(dayjs(), "day")
@@ -138,9 +141,14 @@ export default function WeeklyView() {
                     >
                       <div className="flex items-center w-full">
                         <div className="w-full">
-                          <span className="font-bold truncate text-black">
-                            {truncateTitle(evt.title)}
-                          </span>
+                          <div className="relative group">
+                            <span className="text-black font-bold">
+                              {truncateTitle(evt.title)}
+                            </span>
+                            <div className="absolute left-0 top-full mt-1 w-max max-w-xs p-2 bg-zinc-900 text-white font-bold border border-gray-300 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                              {evt.title}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
