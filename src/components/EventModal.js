@@ -165,6 +165,7 @@ export default function EventModal() {
       title: title,
       description: description || "", // Ensure description can be empty
       label: selectedLabel,
+      calendarId: 1,
       day: date.getTime(),
       postponable: postponable,
       id: selectedEvent ? selectedEvent.id : Date.now().toString(),
