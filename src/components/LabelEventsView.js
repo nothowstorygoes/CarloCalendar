@@ -94,7 +94,7 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
             </button>
           </div>
           {showPassedEvents ? (
-            <div className="grid grid-cols-5 gap-4 pr-4 w-full overflow-auto custom-scrollbar" style={{ maxHeight: '30rem' }}>
+            <div className="grid grid-cols-5 gap-4 pr-4 w-full overflow-auto custom-scrollbar overflow-x-hidden" style={{ maxHeight: '30rem' }}>
               {orderedPassedEvents.length === 0 && (
                 <p className="text-gray-500 dark:text-zinc-50 text-sm items-center flex justify-center">
                   {t("no_passed_events")}
@@ -152,7 +152,7 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-5 gap-4 pr-4 w-full overflow-auto custom-scrollbar" style={{ maxHeight: '30rem' }}>
+            <div className="grid grid-cols-5 gap-4 pr-4 w-full overflow-auto custom-scrollbar overflow-x-hidden" style={{ maxHeight: '30rem' }}>
               {orderedActiveEvents.length === 0 && (
                 <p className="text-gray-500 dark:text-zinc-50 text-sm items-center flex justify-center">
                   {t("no_active_events")}
