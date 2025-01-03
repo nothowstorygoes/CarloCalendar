@@ -1,6 +1,8 @@
 import React, { useContext, useRef, useEffect, useState } from "react";
 import dayjs from "dayjs";
 import GlobalContext from "../context/GlobalContext";
+import { db, auth } from "../firebase";
+import { getDocs, collection } from "firebase/firestore";
 import { useTranslation } from "react-i18next";
 import "dayjs/locale/it"; // Import Italian locale
 import { getWeeks } from "../util";
@@ -19,6 +21,28 @@ export default function WeeklyView() {
   const modalRef = useRef(null);
   const [currentWeek, setCurrentWeek] = useState([]);
   const { t } = useTranslation();
+  const [label, setLabel] = useState([]);
+
+
+  useEffect(() => {
+    const fetchLabels = async () => {
+      const labelsSnapshot = await getDocs(
+        collection(db, `users/${auth.currentUser.uid}/labels`)
+      );
+      const labelsData = labelsSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setLabel(labelsData);
+    };
+
+    fetchLabels();
+  }, []);
+
+  const getLabelCode = (labelName) => {
+    const label = labels.find((lbl) => lbl.name === labelName);
+    return label ? label.code : 0; // Default to 0 if label not found
+  };
 
   useEffect(() => {
     const weeks = getWeeks(daySelected.month(), daySelected.year());
@@ -108,7 +132,10 @@ export default function WeeklyView() {
                 (evt) =>
                   dayjs(evt.day).format("DD-MM-YY") === day.format("DD-MM-YY")
               );
-              const displayEvents = events.slice(0, MAX_EVENTS);
+              const sortedEvents = events.sort(
+                (a, b) => getLabelCode(a.label) - getLabelCode(b.label)
+              );
+              const displayEvents = sortedEvents.slice(0, MAX_EVENTS);
               const remainingEvents = events.length - MAX_EVENTS;
 
               return (

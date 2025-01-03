@@ -23,7 +23,7 @@ export default function Day({ day, rowIdx, currentMonthIdx, year, roundedClass }
 
   function getCurrentDayClass() {
     return day.format("DD-MM-YY") === dayjs().format("DD-MM-YY")
-      ? "bg-blue-600 text-white rounded-full w-6 h-4 flex items-center justify-center"
+      ? "bg-blue-600 text-white rounded-full w-6 h-4 p-3 flex items-center justify-center"
       : "";
   }
 
@@ -40,7 +40,15 @@ export default function Day({ day, rowIdx, currentMonthIdx, year, roundedClass }
     return label ? label.color : "gray";
   };
 
-  const displayEvents = dayEvents.slice(0, 2);
+  const getLabelCode = (labelName) => {
+    const label = labels.find((lbl) => lbl.name === labelName);
+    return label ? label.code : 0;
+  };
+
+  const sortedEvents = dayEvents.sort(
+    (a, b) => getLabelCode(a.label) - getLabelCode(b.label)
+  );
+  const displayEvents = sortedEvents.slice(0, 2);
 
 
   return (
