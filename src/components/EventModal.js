@@ -223,6 +223,12 @@ export default function EventModal() {
           return;
         } else if (selectedEvent) {
           dispatchCalEvent({ type: "update", payload: calendarEvent });
+          const duplicatedEventRef = doc(
+            db,
+            `users/${auth.currentUser.uid}/events`,
+            calendarEvent.id
+          );
+          await setDoc(duplicatedEventRef, calendarEvent);
         } else {
           const duplicatedEventRef = doc(
             db,
