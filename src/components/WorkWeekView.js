@@ -129,7 +129,7 @@ export default function WorkWeekView() {
               </span>
             </button>
           </div>
-          <div className="grid grid-cols-5 gap-8 h-full overflow-x-hidden">
+          <div className="grid grid-cols-5 gap-8 h-full overflow-x-hidden overflow-y-hidden">
             {currentWeek.map((day, idx) => {
               const events = filteredEvents.filter(
                 (evt) =>
