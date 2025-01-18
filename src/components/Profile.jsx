@@ -9,7 +9,7 @@ import imageCompression from 'browser-image-compression';
 
 export default function Profile() {
   const { t } = useTranslation();
-  const { user } = useContext(GlobalContext);
+  const { user, viewMode, setViewMode} = useContext(GlobalContext);
   const [userInfo, setUserInfo] = useState(null);
   const navigate = useNavigate();
 
@@ -104,12 +104,18 @@ export default function Profile() {
                 onChange={handleProfilePictureUpload}
               />
               </div>
+              <div className="flex justify-between items-center mt-12">
+                <button className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-4xl w-40" onClick={() => setViewMode("backup")}>
+                  I tuoi backup
+                </button>
+              
               <button
                 onClick={handleSignOut}
-                className="mt-8 bg-red-500 hover:bg-red-600 text-white p-2 rounded-4xl w-40"
+                className="bg-red-500 ml-14 hover:bg-red-600 text-white p-2 rounded-4xl w-40"
               >
                 {t("sign_out")}
               </button>
+              </div>
             </div>
             <div className="flex items-center justify-center">
               <img

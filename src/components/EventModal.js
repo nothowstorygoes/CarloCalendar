@@ -209,6 +209,12 @@ export default function EventModal() {
         );
         await setDoc(duplicatedEventRef, duplicatedEvent);
         dispatchCalEvent({ type: "push", payload: duplicatedEvent });
+        const updatedPostponableEvent = {
+          ...calendarEvent,
+          checked:true,
+        }
+        await setDoc(duplicatedEventRef, updatedPostponableEvent);
+        dispatchCalEvent({type: "update", payload: updatedPostponableEvent});
       } else {
 
         if (selectedEvent && selectedEvent.repeat) {

@@ -5,6 +5,24 @@ import { auth, db } from "../firebase";
 import { addDoc, collection, doc, deleteDoc } from "firebase/firestore";
 import LabelEditor from "./LabelEditor";
 import ConfirmationModal from "./ConfirmationModal";
+import { query, where, getDocs } from "firebase/firestore";
+
+export const checkLabelNameUnique = async (name) => {
+  try {
+    const labelsRef = collection(db, `users/${auth.currentUser.uid}/labels`);
+    const q = query(labelsRef, where("name", "==", name));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      return 1; // Name is unique
+    } else {
+      return 0; // Name is not unique
+    }
+  } catch (error) {
+    console.error("Error checking label name uniqueness: ", error);
+    return 0; // Default to not unique in case of error
+  }
+};
 
 export default function LabelManager() {
   const { labels, setLabels, setViewMode, selectedLabel, setSelectedLabel } = useContext(GlobalContext);
@@ -12,6 +30,7 @@ export default function LabelManager() {
   const [newLabelCode, setNewLabelCode] = useState("");
   const [newLabelColor, setNewLabelColor] = useState("#808080"); // Default to gray
   const [showLabelEditor, setShowLabelEditor] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const { t } = useTranslation();
   const modalRef = useRef(null);
@@ -22,8 +41,10 @@ export default function LabelManager() {
       code: newLabelCode,
       color: newLabelColor,
     };
-
+    
     try {
+      const isUnique = await checkLabelNameUnique(newLabelName);
+      if (isUnique) {
       console.log("Creating label:", newLabel);
       const labelRef = await addDoc(
         collection(db, `users/${auth.currentUser.uid}/labels`),
@@ -34,7 +55,10 @@ export default function LabelManager() {
       setNewLabelName("");
       setNewLabelCode("");
       setNewLabelColor("#808080"); // Reset to default gray
-    } catch (error) {
+    }
+      else{
+        setShowAlert(true);
+     } } catch (error) {
       console.error("Error creating label:", error);
     }
   };
@@ -136,6 +160,17 @@ export default function LabelManager() {
               {t("create")}
             </button>
           </div>
+          {showAlert && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+              <strong className="font-bold">Errore: &nbsp;</strong>
+              <span className="block sm:inline">Esiste gia' una categoria con questo nome!</span>
+              <span className="absolute top-0 bottom-0 right-0 px-4 py-3">
+                <button onClick={() => setShowAlert(false)}>
+                  <span className="material-icons-outlined">close</span>
+                </button>
+              </span>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
             {sortedLabels.map(({ id, name, code, color }, idx) => (
               <div

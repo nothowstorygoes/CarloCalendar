@@ -15,6 +15,7 @@ import GlobalContext from "./context/GlobalContext";
 import YearView from "./components/YearView";
 import { getMonth } from "./util";
 import dayjs from "dayjs";
+import Backup from "./components/Backup";
 import Profile from "./components/Profile";
 import { auth, db } from "./firebase"; // Ensure you have configured Firebase
 import Login from "./components/login"; // Import the Login component
@@ -101,7 +102,7 @@ function App() {
 
 
   if (loading) {
-    return <Spinner />;
+    return <div className="h-96"><Spinner /></div>;
   }
 
   return (
@@ -155,6 +156,11 @@ function App() {
                     {viewMode === "profile" && (
                       <div className="w-[calc(100%-16rem)] h-full">
                         <Profile />
+                      </div>
+                    )}
+                    {viewMode === "backup" && (
+                      <div className="w-[calc(100%-16rem)] h-full">
+                        <Backup />
                       </div>
                     )}
                   </div>
