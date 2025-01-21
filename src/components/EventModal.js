@@ -19,7 +19,12 @@ import it from "date-fns/locale/it";
 import dayjs from "dayjs"; // Ensure dayjs is imported
 import RepeatEventModal from "./RepeatEventModal"; // Import RepeatEventModal
 
-function EditConfirmationModal({ onClose, onEditSingle, onEditAll, onEditFuture }) {
+function EditConfirmationModal({
+  onClose,
+  onEditSingle,
+  onEditAll,
+  onEditFuture,
+}) {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-52">
       <div className="bg-white dark:bg-zinc-950 rounded-lg shadow-2xl p-6 z-52">
@@ -61,7 +66,12 @@ function EditConfirmationModal({ onClose, onEditSingle, onEditAll, onEditFuture 
   );
 }
 
-function DeleteConfirmationModal({ onClose, onDeleteSingle, onDeleteAll, onDeleteFuture }) {
+function DeleteConfirmationModal({
+  onClose,
+  onDeleteSingle,
+  onDeleteAll,
+  onDeleteFuture,
+}) {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-52">
       <div className="bg-white dark:bg-zinc-950 rounded-lg shadow-2xl p-6 z-52">
@@ -173,7 +183,7 @@ export default function EventModal() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if(selectedLabel === ""){
+    if (selectedLabel === "") {
       setShowLabelWarning(true);
       return;
     }
@@ -209,20 +219,26 @@ export default function EventModal() {
         );
         await setDoc(duplicatedEventRef, duplicatedEvent);
         dispatchCalEvent({ type: "push", payload: duplicatedEvent });
-        const updatedPostponableEvent = {
-          ...calendarEvent,
-          checked:true,
-        }
-        await setDoc(duplicatedEventRef, updatedPostponableEvent);
-        dispatchCalEvent({type: "update", payload: updatedPostponableEvent});
-      } else {
 
+        // Update the original event to set the checked property to true
+        const updatedPostponableEvent = {
+          ...selectedEvent,
+          checked: true,
+        };
+        const originalEventRef = doc(
+          db,
+          `users/${auth.currentUser.uid}/events`,
+          selectedEvent.id
+        );
+        await setDoc(originalEventRef, updatedPostponableEvent);
+        dispatchCalEvent({ type: "update", payload: updatedPostponableEvent });
+      } else {
         if (selectedEvent && selectedEvent.repeat) {
           const eventUpdatedRepeted = {
             ...calendarEvent,
             repeat: selectedEvent.repeat,
           };
-          console.log("lol",eventUpdatedRepeted)
+          console.log("lol", eventUpdatedRepeted);
           dispatchCalEvent({ type: "update", payload: eventUpdatedRepeted });
           setDeleteTargetEvent(eventUpdatedRepeted);
           setShowEditConfirmation(true);
@@ -285,27 +301,26 @@ export default function EventModal() {
       let freq;
       switch (frequency) {
         case "monthly":
-          freq= "month";
+          freq = "month";
           break;
         case "yearly":
-          freq= "year";
+          freq = "year";
           break;
         case "week":
-          freq= "week";
+          freq = "week";
           break;
-        case "monthlyCustom": 
-          freq= "month";
+        case "monthlyCustom":
+          freq = "month";
           break;
       }
       calculatedEndDate = dayjs(event.day)
-        .add(parseInt(occurrences,10) * parseInt(interval,10), freq)
+        .add(parseInt(occurrences, 10) * parseInt(interval, 10), freq)
         .toDate();
       calculatedEndMonth = dayjs(calculatedEndDate).month();
       calculatedEndYear = dayjs(calculatedEndDate).year();
     }
 
     console.log(calculatedEndYear, calculatedEndDate);
-
 
     if (frequency === "week") {
       const weeksMatrix = getWeeksInInterval(
@@ -320,7 +335,7 @@ export default function EventModal() {
       for (
         let weekIndex = 0;
         weekIndex < weeksMatrix.length;
-        weekIndex += parseInt(interval,10)
+        weekIndex += parseInt(interval, 10)
       ) {
         for (let i = 0; i < daysOfWeek.length; i++) {
           const dayIndex = daysOfWeek[i][0];
@@ -329,15 +344,21 @@ export default function EventModal() {
 
           const day = weeksMatrix[weekIndex][dayIndex];
           if (weekIndex >= weeksMatrix.length) {
-            console.error(`Invalid weekIndex: ${weekIndex} out of ${weeksMatrix.length}`);
+            console.error(
+              `Invalid weekIndex: ${weekIndex} out of ${weeksMatrix.length}`
+            );
             continue;
           }
           if (dayIndex >= weeksMatrix[weekIndex].length) {
-            console.error(`Invalid dayIndex: ${dayIndex} out of ${weeksMatrix[weekIndex].length}`);
+            console.error(
+              `Invalid dayIndex: ${dayIndex} out of ${weeksMatrix[weekIndex].length}`
+            );
             continue;
           }
           if (!day) {
-            console.error(`Undefined day at weekIndex=${weekIndex}, dayIndex=${dayIndex}`);
+            console.error(
+              `Undefined day at weekIndex=${weekIndex}, dayIndex=${dayIndex}`
+            );
             continue;
           }
           console.log("Day", day);
@@ -367,24 +388,25 @@ export default function EventModal() {
         }
       }
     } else if (frequency === "monthlyCustom") {
-      let currentMonth = startMonth-1;
+      let currentMonth = startMonth - 1;
       let currentYear = startYear;
       const originalDay = dayjs(event.day).date();
       const originalMonth = dayjs(event.day).month();
       const originalYear = dayjs(event.day).year();
       while (
         currentYear < calculatedEndYear ||
-        (currentYear === calculatedEndYear && currentMonth <= calculatedEndMonth)
+        (currentYear === calculatedEndYear &&
+          currentMonth <= calculatedEndMonth)
       ) {
         let eventDay = dayOfMonth;
         const daysInMonth = dayjs(
           new Date(currentYear, currentMonth)
         ).daysInMonth();
-  
+
         if (originalDay > daysInMonth) {
           eventDay = daysInMonth;
         }
-  
+
         const eventDate = dayjs(
           new Date(currentYear, currentMonth, eventDay)
         ).toDate();
@@ -405,13 +427,13 @@ export default function EventModal() {
           }
           continue;
         }
-  
+
         const repeatedEvent = {
           ...event,
           day: eventDate.getTime(),
           id: `${event.id}-${currentYear}-${currentMonth}`,
         };
-  
+
         const eventRef = doc(
           db,
           `users/${auth.currentUser.uid}/events`,
@@ -419,14 +441,14 @@ export default function EventModal() {
         );
         batch.set(eventRef, repeatedEvent); // Add to batch
         dispatchCalEvent({ type: "push", payload: repeatedEvent });
-  
+
         currentMonth += parseInt(interval, 10); // Increment by custom interval
         if (currentMonth > 11) {
           currentMonth -= 12;
           currentYear++;
         }
       }
-    }else if (repeatOptions.repeatType === "monthly") {
+    } else if (repeatOptions.repeatType === "monthly") {
       let currentMonth = startMonth;
       let currentYear = startYear;
       const originalDay = dayjs(event.day).date();
@@ -435,7 +457,8 @@ export default function EventModal() {
       console.log(currentYear, currentMonth, endYear, endMonth);
       while (
         currentYear < calculatedEndYear ||
-        (currentYear === calculatedEndYear && currentMonth <= calculatedEndMonth)
+        (currentYear === calculatedEndYear &&
+          currentMonth <= calculatedEndMonth)
       ) {
         let eventDay = originalDay;
         const daysInMonth = dayjs(
@@ -584,14 +607,16 @@ export default function EventModal() {
     try {
       const eventsQuery = query(
         collection(db, `users/${auth.currentUser.uid}/events`),
-        where("repeat", "==", repeatId)      );
+        where("repeat", "==", repeatId)
+      );
       const querySnapshot = await getDocs(eventsQuery);
       const batch = writeBatch(db); // Use batch to group multiple operations
       querySnapshot.forEach((doc) => {
         let event = doc.data();
-        if(event.checked === false){
-        batch.delete(doc.ref);
-        dispatchCalEvent({ type: "delete", payload: { id: event.id } });}
+        if (event.checked === false) {
+          batch.delete(doc.ref);
+          dispatchCalEvent({ type: "delete", payload: { id: event.id } });
+        }
       });
       await batch.commit(); // Commit the batch
     } catch (error) {
@@ -628,7 +653,6 @@ export default function EventModal() {
       handleClose();
     }
   };
-
 
   const saveEvent = async (event) => {
     try {
@@ -928,13 +952,13 @@ export default function EventModal() {
           </div>
         </div>
         <footer className="flex justify-end p-3 mt-5 rounded-b-4xl">
-        {showLabelWarning && (
-        <p className="text-red-500 mr-6 mt-2">{t("select_a_label")}</p>
-      )}
+          {showLabelWarning && (
+            <p className="text-red-500 mr-6 mt-2">{t("select_a_label")}</p>
+          )}
           <button
             type="submit"
             className="hover:bg-zinc-700 px-6 py-2 rounded-4xl text-white mr-4 mb-1"
-            disabled={(isChecked && postponable)}
+            disabled={isChecked && postponable}
           >
             {t("save")}
           </button>
