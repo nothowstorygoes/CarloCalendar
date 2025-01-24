@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
-import { doc, getDoc, updateDoc, writeBatch } from "firebase/firestore";
+import { doc, getDoc, updateDoc, writeBatch, collection, getDocs, setDoc } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import GlobalContext from "../context/GlobalContext";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import Spinner from "../assets/spinner";
-import { collection, getDocs, addDoc, setDoc } from "firebase/firestore";
 import dayjs from "dayjs";
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 export default function Backup() {
   const { t } = useTranslation();
@@ -41,7 +42,7 @@ export default function Backup() {
     };
 
     fetchBackupInfo();
-  }, [user,backupTriggered]);
+  }, [user, backupTriggered]);
 
   const handleRollback = async (backup) => {
     console.log("Rolling back to backup:", backup);
@@ -49,118 +50,110 @@ export default function Backup() {
       console.error("User is not defined or does not have a UID");
       return;
     }
-  
+
     try {
-      // Fetch all backup folders and store them in a temp array
       const backupsCollectionRef = collection(db, `users/${user.uid}/backup`);
       const backupsSnapshot = await getDocs(backupsCollectionRef);
       const tempArray = backupsSnapshot.docs.map(doc => ({
         id: doc.id,
         created: doc.data().created
       }));
-  
-      // Find the match between {backup} and the array by comparing the first 10 chars
+
       const backupDate = backup.substring(0, 10);
       const matchedBackup = tempArray.find(item => item.created.startsWith(backupDate));
-  
+
       if (!matchedBackup) {
         console.error("No matching backup folder found");
         return;
       }
-  
+
       const backupFolderRef = doc(db, `users/${user.uid}/backup`, matchedBackup.id);
-  
-      // Delete all events and labels from /events and /labels
+
       const eventsCollectionRef = collection(db, `users/${user.uid}/events`);
       const eventsSnapshot = await getDocs(eventsCollectionRef);
       const labelsCollectionRef = collection(db, `users/${user.uid}/labels`);
       const labelsSnapshot = await getDocs(labelsCollectionRef);
-  
+
       const batch = writeBatch(db);
-  
+
       eventsSnapshot.forEach((doc) => {
         batch.delete(doc.ref);
       });
-  
+
       labelsSnapshot.forEach((doc) => {
         batch.delete(doc.ref);
       });
-  
+
       await batch.commit();
-  
-      // Copy the /events and /labels from the backup folder to the user's /events and /labels
-    const backupEventsCollectionRef = collection(backupFolderRef, "events");
-    const backupEventsSnapshot = await getDocs(backupEventsCollectionRef);
-    const backupLabelsCollectionRef = collection(backupFolderRef, "labels");
-    const backupLabelsSnapshot = await getDocs(backupLabelsCollectionRef);
 
-    const restoreBatch = writeBatch(db);
+      const backupEventsCollectionRef = collection(backupFolderRef, "events");
+      const backupEventsSnapshot = await getDocs(backupEventsCollectionRef);
+      const backupLabelsCollectionRef = collection(backupFolderRef, "labels");
+      const backupLabelsSnapshot = await getDocs(backupLabelsCollectionRef);
 
-    backupEventsSnapshot.forEach((backupDoc) => {
-      const eventRef = doc(db, `users/${user.uid}/events`, backupDoc.id);
-      restoreBatch.set(eventRef, backupDoc.data());
-    });
+      const restoreBatch = writeBatch(db);
 
-    backupLabelsSnapshot.forEach((backupDoc) => {
-      const labelRef = doc(db, `users/${user.uid}/labels`, backupDoc.id);
-      restoreBatch.set(labelRef, backupDoc.data());
-    });
+      backupEventsSnapshot.forEach((backupDoc) => {
+        const eventRef = doc(db, `users/${user.uid}/events`, backupDoc.id);
+        restoreBatch.set(eventRef, backupDoc.data());
+      });
 
-    await restoreBatch.commit();
-  
+      backupLabelsSnapshot.forEach((backupDoc) => {
+        const labelRef = doc(db, `users/${user.uid}/labels`, backupDoc.id);
+        restoreBatch.set(labelRef, backupDoc.data());
+      });
+
+      await restoreBatch.commit();
+
       console.log("Rollback completed successfully");
     } catch (error) {
       console.error("Error during rollback:", error);
     }
   };
 
-  const handleDeleteBackup = async (backup) =>
-  {
+  const handleDeleteBackup = async (backup) => {
     console.log("Deleting backup:", backup);
     if (!user) {
       console.error("User is not defined or does not have a UID");
       return;
     }
-  
+
     try {
-      // Fetch all backup folders and store them in a temp array
       const backupsCollectionRef = collection(db, `users/${user.uid}/backup`);
       const backupsSnapshot = await getDocs(backupsCollectionRef);
       const tempArray = backupsSnapshot.docs.map(doc => ({
         id: doc.id,
         created: doc.data().created
       }));
-  
-      // Find the match between {backup} and the array by comparing the first 10 chars
+
       const backupDate = backup.substring(0, 10);
       const matchedBackup = tempArray.find(item => item.created.startsWith(backupDate));
-  
+
       if (!matchedBackup) {
         console.error("No matching backup folder found");
         return;
       }
-  
+
       const backupFolderRef = doc(db, `users/${user.uid}/backup`, matchedBackup.id);
-  
-      // Delete the backup folder and its subcollections
+
       const batch = writeBatch(db);
-  
+
       const backupEventsCollectionRef = collection(backupFolderRef, "events");
       const backupEventsSnapshot = await getDocs(backupEventsCollectionRef);
       backupEventsSnapshot.forEach((backupDoc) => {
         batch.delete(backupDoc.ref);
       });
-  
+
       const backupLabelsCollectionRef = collection(backupFolderRef, "labels");
       const backupLabelsSnapshot = await getDocs(backupLabelsCollectionRef);
       backupLabelsSnapshot.forEach((backupDoc) => {
         batch.delete(backupDoc.ref);
       });
-  
+
       batch.delete(backupFolderRef);
-  
+
       await batch.commit();
-  
+
       console.log("Backup deleted successfully");
       setBackupTriggered(true);
     } catch (error) {
@@ -178,7 +171,6 @@ export default function Backup() {
     }
 
     try {
-      // Fetch user's events
       const eventsSnapshot = await getDocs(
         collection(db, `users/${auth.currentUser.uid}/events`)
       );
@@ -187,7 +179,6 @@ export default function Backup() {
         ...doc.data(),
       }));
 
-      // Fetch user's labels
       const labelsSnapshot = await getDocs(
         collection(db, `users/${auth.currentUser.uid}/labels`)
       );
@@ -196,7 +187,6 @@ export default function Backup() {
         ...doc.data(),
       }));
 
-      // Create a new folder with today's date
       const today = dayjs().format("YYYY-MM-DD");
       const backupFolderRef = doc(
         db,
@@ -204,7 +194,6 @@ export default function Backup() {
         today
       );
 
-      // Insert events into the new folder
       const eventsBackupRef = collection(backupFolderRef, "events");
       for (const event of events) {
         await setDoc(doc(eventsBackupRef, event.id), event);
@@ -212,7 +201,6 @@ export default function Backup() {
 
       await setDoc(backupFolderRef, { created: dayjs().toISOString() });
 
-      // Insert labels into the new folder
       const labelsBackupRef = collection(backupFolderRef, "labels");
       for (const label of labels) {
         await setDoc(doc(labelsBackupRef, label.id), label);
@@ -226,8 +214,43 @@ export default function Backup() {
     setCreating(false);
   };
 
+  const handleDownloadBackup = async () => {
+    if (!user) {
+      console.error("User is not defined or does not have a UID");
+      return;
+    }
 
+    const zip = new JSZip();
 
+    try {
+      const eventsSnapshot = await getDocs(
+        collection(db, `users/${auth.currentUser.uid}/events`)
+      );
+      const events = eventsSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      const labelsSnapshot = await getDocs(
+        collection(db, `users/${auth.currentUser.uid}/labels`)
+      );
+      const labels = labelsSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      zip.file('events.json', JSON.stringify(events));
+      zip.file('labels.json', JSON.stringify(labels));
+
+      zip.generateAsync({ type: 'blob' }).then((content) => {
+        saveAs(content, 'backup.zip');
+      });
+
+      console.log("Backup downloaded successfully");
+    } catch (error) {
+      console.error("Error downloading backup:", error);
+    }
+  };
 
   if (!backupInfo) {
     return (
@@ -261,7 +284,7 @@ export default function Backup() {
                   <div role="status">
                     <svg
                       aria-hidden="true"
-                      class="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-gray-600 dark:fill-gray-300"
+                      className="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-gray-600 dark:fill-gray-300"
                       viewBox="0 0 100 101"
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
@@ -275,7 +298,7 @@ export default function Backup() {
                         fill="currentFill"
                       />
                     </svg>
-                    <span class="sr-only">Loading...</span>
+                    <span className="sr-only">Loading...</span>
                   </div>
                 )}
               </div>
@@ -295,14 +318,20 @@ export default function Backup() {
                       {backup}
                     </p>
                     <div className="flex items-center">
-                    <button className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-4xl w-24" onClick={() => handleRollback(backup)}>
-                      Ripristina
-                    </button>
-                    <button className="bg-red-500 hover:bg-red-600 text-white px-2 py-2 rounded-4xl flex items-center justify-center ml-4" onClick={()=>handleDeleteBackup(backup)}>
+                    <button
+                  onClick={handleDownloadBackup}
+                  className="bg-green-500 hover:bg-green-600 text-white font-bold text-xl px-2 py-1 rounded-4xl material-icons mr-4"
+                >
+                  download
+                </button>
+                      <button className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-4xl w-24" onClick={() => handleRollback(backup)}>
+                        Ripristina
+                      </button>
+                      <button className="bg-red-500 hover:bg-red-600 text-white px-2 py-2 rounded-4xl flex items-center justify-center ml-4" onClick={() => handleDeleteBackup(backup)}>
                         <span className="material-icons-outlined">
-                            delete
+                          delete
                         </span>
-                    </button>
+                      </button>
                     </div>
                   </div>
                 ))}
