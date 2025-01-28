@@ -23,7 +23,7 @@ export default function Day({ day, rowIdx, currentMonthIdx, year, roundedClass }
 
   function getCurrentDayClass() {
     return day.format("DD-MM-YY") === dayjs().format("DD-MM-YY")
-      ? "bg-blue-600 text-white rounded-full w-6 h-4 p-3 flex items-center justify-center"
+      ? "bg-blue-600 text-white rounded-full w-2 h-4 p-3 flex items-center justify-center"
       : "";
   }
 
@@ -79,7 +79,7 @@ export default function Day({ day, rowIdx, currentMonthIdx, year, roundedClass }
               e.stopPropagation(); // Prevent triggering the modal when clicking on an event
               setSelectedEvent(evt);
             }}
-            className="p-1 mx-1 text-xs rounded mb-1 truncate text-center font-bold"
+            className="p-1 mx-2 text-xs rounded mb-1 truncate text-center font-bold"
             style={{ backgroundColor: evt.checked ? "rgba(128, 128, 128, 0.8)" : `${getLabelColor(evt.label)}80` , color: "black" }}
           >
             {evt.title}

@@ -66,7 +66,7 @@ const EventItem = ({
             <p
               className="text-sm w-96 dark:text-black"
               style={{
-                color: evt.checked ? "black" : `${getLabelColor(evt.label)}`,
+                color: "black",
                 textOverflow: "ellipsis",
               }}
             >
