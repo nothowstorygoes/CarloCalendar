@@ -22,7 +22,6 @@ import RepeatEventModal from "./RepeatEventModal"; // Import RepeatEventModal
 function EditConfirmationModal({
   onClose,
   onEditSingle,
-  onEditAll,
   onEditFuture,
 }) {
   return (
@@ -53,12 +52,6 @@ function EditConfirmationModal({
             className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded text-white mr-2"
           >
             Modifica solo futuri
-          </button>
-          <button
-            onClick={onEditAll}
-            className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded text-white"
-          >
-            Modifica tutti
           </button>
         </div>
       </div>
@@ -673,32 +666,6 @@ export default function EventModal() {
     }
   };
 
-  const saveAllEvents = async (event, repeatId) => {
-    try {
-      const batch = writeBatch(db);
-      console.log(event);
-      const eventsQuery = query(
-        collection(db, `users/${auth.currentUser.uid}/events`),
-        where("repeat", "==", repeatId)
-      );
-      const querySnapshot = await getDocs(eventsQuery);
-      const updatedEvents = [];
-      querySnapshot.forEach((doc) => {
-        console.log("Updating event:", doc.data());
-        const oldEvent = doc.data();
-        const eventRef = doc.ref;
-        const updatedEvent = { ...event, day: oldEvent.day, id: oldEvent.id }; // Ensure the id is preserved
-        batch.update(eventRef, updatedEvent);
-        updatedEvents.push(updatedEvent);
-      });
-      await batch.commit();
-      updatedEvents.forEach((updatedEvent) => {
-        dispatchCalEvent({ type: "update", payload: updatedEvent });
-      });
-    } catch (error) {
-      console.error("Error saving events: ", error);
-    }
-  };
 
   const saveFutureEvents = async (event, repeatId) => {
     try {
@@ -731,16 +698,6 @@ export default function EventModal() {
   const handleEditSingle = async () => {
     if (deleteTargetEvent) {
       await saveEvent(deleteTargetEvent);
-      setShowEditConfirmation(false);
-      setDeleteTargetEvent(null);
-      handleClose();
-    }
-  };
-
-  const handleEditAll = async () => {
-    if (deleteTargetEvent) {
-      console.log("Edit all events");
-      await saveAllEvents(deleteTargetEvent, deleteTargetEvent.repeat);
       setShowEditConfirmation(false);
       setDeleteTargetEvent(null);
       handleClose();
@@ -788,7 +745,6 @@ export default function EventModal() {
         <EditConfirmationModal
           onClose={() => setShowEditConfirmation(false)}
           onEditSingle={handleEditSingle}
-          onEditAll={handleEditAll}
           onEditFuture={handleEditFuture}
         />
       )}
