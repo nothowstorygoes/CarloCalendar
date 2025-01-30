@@ -16,7 +16,6 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
   const { t } = useTranslation();
   const [showPassedEvents, setShowPassedEvents] = useState(false);
   const labelEvents = filteredEvents.filter((evt) => evt.label === label.name);
-
   const handleEventClick = (event) => {
     setSelectedEvent(event);
     setShowEventModal(true);
@@ -96,7 +95,7 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
           {showPassedEvents ? (
             <div
               className="grid grid-cols-5 gap-4 pr-4 w-full overflow-auto custom-scrollbar overflow-x-hidden"
-              style={{ maxHeight: "30rem" }}
+              style={{ maxHeight: "40rem" }}
             >
               {orderedPassedEvents.length === 0 && (
                 <p className="text-gray-500 dark:text-zinc-50 text-sm items-center flex justify-center">
@@ -157,7 +156,7 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
           ) : (
             <div
               className="grid grid-cols-5 gap-4 pr-4 w-full overflow-auto custom-scrollbar overflow-x-hidden"
-              style={{ maxHeight: "30rem" }}
+              style={{ maxHeight: "40rem" }}
             >
               {orderedActiveEvents.length === 0 && (
                 <p className="text-gray-500 dark:text-zinc-50 text-sm items-center flex justify-center">

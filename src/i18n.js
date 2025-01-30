@@ -57,7 +57,7 @@ const resources = {
       "add_label": "Aggiungi Categoria",
       "create": "Crea",
       "delete": "Elimina",
-      "manage_labels": "Gestione Categorie",
+      "manage_labels_for": "Gestione Categorie",
       "label_name": "Nome categoria",
       "events_for": "Eventi per",
       "no_events_label": "Non ci sono eventi per questa categoria.",
@@ -119,6 +119,7 @@ const resources = {
       "occurrences": "occorrenze",
       "day_of_month": "Giorno del mese",
       "select_a_label": "Seleziona una categoria",
+      "add_calendar": "Aggiungi Calendario",
     }
   }
 };

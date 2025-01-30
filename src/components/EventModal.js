@@ -119,10 +119,12 @@ export default function EventModal() {
     selectedEvent,
     setSelectedEvent,
     labels,
+    calendars,
   } = useContext(GlobalContext);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedLabel, setSelectedLabel] = useState("");
+  const [selectedCalendar, setSelectedCalendar] = useState("");
   const [specificTime, setSpecificTime] = useState(false);
   const [postponable, setPostponable] = useState(false);
   const [showLabelWarning, setShowLabelWarning] = useState(false);
@@ -140,6 +142,8 @@ export default function EventModal() {
       setTitle(selectedEvent.title);
       setDescription(selectedEvent.description || ""); // Ensure description can be empty
       setSelectedLabel(selectedEvent.label);
+      setPostponable(selectedEvent.postponable);
+      setSelectedCalendar(selectedEvent.calendarId);
       setDate(new Date(selectedEvent.day)); // Set the date from the selected event
       setIsChecked(selectedEvent.checked);
       if (selectedEvent.time) {
@@ -159,6 +163,7 @@ export default function EventModal() {
     setDescription("");
     setSelectedLabel(""); // No label selected by default
     setSpecificTime(false);
+    setSelectedCalendar(""); // No calendar selected by default
     setPostponable(false);
     setDate(daySelected.toDate());
 
@@ -193,7 +198,7 @@ export default function EventModal() {
       title: title,
       description: description || "", // Ensure description can be empty
       label: selectedLabel,
-      calendarId: 1,
+      calendarId: selectedCalendar,
       day: date.getTime(),
       postponable: postponable,
       id: selectedEvent ? selectedEvent.id : Date.now().toString(),
@@ -202,9 +207,9 @@ export default function EventModal() {
       time: specificTime ? time : null, // Store time as a string "hh:mm"
       userId: auth.currentUser.uid,
     };
-
+    console.log(calendarEvent);
     try {
-      if (selectedEvent && selectedEvent.postponable) {
+      if (selectedEvent && selectedEvent.postponable && selectedEvent.day !== calendarEvent.day) {
         // Duplicate the event if it is postponable
         const duplicatedEvent = {
           ...calendarEvent,
@@ -752,6 +757,9 @@ export default function EventModal() {
     }
   };
 
+  const sortedCalendar = [...calendars].sort((a, b) => a.id - b.id);
+  console.log(sortedCalendar);
+
   const handleRepeatModalClose = () => {
     setShowRepeatModal(false);
     setRepeatOptions(null); // Reset repeat options to "no_repeat"
@@ -785,7 +793,7 @@ export default function EventModal() {
         />
       )}
       <form
-        className="bg-white dark:bg-zinc-950 rounded-4xl shadow-2xl w-2/5 z-51"
+        className="bg-white dark:bg-zinc-950 rounded-4xl shadow-2xl w-3/5 z-51"
         onSubmit={handleSubmit}
       >
         <header className="bg-gray-100 dark:bg-zinc-900 px-4 py-2 flex justify-between items-center rounded-t-4xl">
@@ -813,22 +821,46 @@ export default function EventModal() {
         </header>
         <div className="p-3 mt-2">
           <div className="flex flex-col gap-y-4">
-            <div className="flex items-center">
-              <span className="material-icons-outlined text-gray-400 dark:text-zinc-200">
+            <div className="flex flex-row items-center mb-8">
+              <p className="text-black dark:text-white ml-12 w-20">
+                Scegli un calendario:
+              </p>
+
+              <div className="grid grid-cols-4 gap-x-10 gap-y-5 items-center ml-10">
+                {sortedCalendar.map((cal, i) => (
+                  <div
+                    key={i}
+                    onClick={() => setSelectedCalendar(cal.id)}
+                    className={`flex items-center justify-center cursor-pointer rounded w-40 h-8 ${
+                      selectedCalendar === cal.id
+                        ? "bg-blue-700"
+                        : "bg-blue-500"
+                    }`}
+                  >
+                    <span className="text-black font-bold text-sm">
+                      {cal.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-row items-center">
+            <div className="flex flex-row items-center">
+              <span className="material-icons-outlined text-gray-400 dark:text-zinc-200 ml-3">
                 edit
               </span>
-              <div className="flex justify-between items-center">
-                <input
-                  type="text"
-                  name="title"
-                  placeholder={t("add_title")}
-                  value={title}
-                  disabled={isChecked && postponable}
-                  required
-                  className="ml-6 mr-6 pt-3 border-0 text-gray-600 dark:text-zinc-200 text-xl font-semibold pb-2 w-60 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-zinc-700 rounded"
-                  onChange={(e) => setTitle(e.target.value)}
-                />
-                <div className="flex items-center -mt-3 ml-32">
+              <div className="flex flex-col items-center">
+                <div className="flex flex-row items-center">
+                  <input
+                    type="text"
+                    name="title"
+                    placeholder={t("add_title")}
+                    value={title}
+                    disabled={isChecked && postponable}
+                    required
+                    className="ml-3 mr-6 pt-3 border-0 text-gray-600 dark:text-zinc-200 text-xl font-semibold pb-2 w-60 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-zinc-700 rounded"
+                    onChange={(e) => setTitle(e.target.value)}
+                  />
                   <input
                     type="checkbox"
                     checked={postponable}
@@ -839,18 +871,18 @@ export default function EventModal() {
                     {t("postponable")}
                   </label>
                 </div>
+                <textarea
+                  name="description"
+                  placeholder={t("add_description")}
+                  value={description}
+                  rows="4"
+                  disabled={isChecked && postponable}
+                  className="ml-9 pt-3 border-0 text-gray-600 dark:text-zinc-200 pb-2 w-96 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 bg-gray-100 dark:bg-zinc-700 rounded"
+                  onChange={(e) => setDescription(e.target.value)}
+                />
               </div>
             </div>
-            <textarea
-              name="description"
-              placeholder={t("add_description")}
-              value={description}
-              rows="4"
-              disabled={isChecked && postponable}
-              className="ml-12 pt-3 border-0 text-gray-600 dark:text-zinc-200 pb-2 w-96 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 bg-gray-100 dark:bg-zinc-700 rounded"
-              onChange={(e) => setDescription(e.target.value)}
-            />
-            <div className="flex items-center flex-row mt-5">
+            <div className="flex items-center flex-row ml-10">
               <div className="flex items-center">
                 <span className="material-icons text-gray-400 dark:text-zinc-200">
                   event
@@ -889,7 +921,7 @@ export default function EventModal() {
                     </select>
                   </div>
                 </div>
-                <div className="flex items-center flex-row ml-20">
+                <div className="flex items-center flex-row ml-5">
                   <span className="material-icons text-gray-400 dark:text-zinc-200">
                     access_time
                   </span>
@@ -921,32 +953,36 @@ export default function EventModal() {
                 disabled={isChecked && postponable}
               />
             </div>
-            <div className="flex flex-row items-center justify-between mt-4 ml-2 mr-6">
-              <div className="grid grid-cols-3 gap-x-16 gap-y-5">
-                {sortedLabels.map((lbl, i) => (
-                  <div
-                    key={i}
-                    onClick={() =>
-                      (!isChecked || !postponable) && setSelectedLabel(lbl.name)
-                    }
-                    className="flex items-center justify-center cursor-pointer rounded w-40"
-                    style={{
-                      backgroundColor:
-                        selectedLabel === lbl.name
-                          ? `${lbl.color}80`
-                          : lbl.color,
-                      border:
-                        selectedLabel === lbl.name
-                          ? `2px solid white`
-                          : "2px solid transparent",
-                      padding: "0.5rem 0", // Double the width
-                    }}
-                  >
-                    <span className="text-black font-bold text-sm">
-                      {lbl.name}
-                    </span>
-                  </div>
-                ))}
+          </div>
+            <div className="flex flex-col items-center justify-between mt-4 ml-2 mr-6">
+              <div className="grid grid-cols-5 gap-x-10 gap-y-5 ml-6">
+                {labels
+                  .filter((label) => label.calendarId === selectedCalendar)
+                  .sort((a, b) => a.code - b.code)
+                  .map((lbl, i) => (
+                    <div
+                      key={i}
+                      onClick={() =>
+                        (!isChecked || !postponable) &&
+                        setSelectedLabel(lbl.name)
+                      }
+                      className="flex items-center justify-center cursor-pointer rounded w-40 h-8"
+                      style={{
+                        backgroundColor:
+                          selectedLabel === lbl.name
+                            ? `${lbl.color}80`
+                            : lbl.color,
+                        border:
+                          selectedLabel === lbl.name
+                            ? `2px solid white`
+                            : "2px solid transparent",
+                      }}
+                    >
+                      <span className="text-black font-bold text-sm">
+                        {lbl.name}
+                      </span>
+                    </div>
+                  ))}
               </div>
             </div>
           </div>

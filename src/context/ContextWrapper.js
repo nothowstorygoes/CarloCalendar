@@ -56,18 +56,27 @@ export default function ContextWrapper(props) {
   );
 
   useEffect(() => {
+    console.log("Labels: ", labels);
+    console.log("Saved Events: ", savedEvents);
+  
     const labelNames = labels.map((lbl) => lbl.name);
-    const filtered = savedEvents.filter((evt) =>
-      labelNames.includes(evt.label)
-    );
+    console.log("Label Names: ", labelNames);
+  
+    const filtered = savedEvents.filter((evt) => {
+      const isIncluded = labelNames.includes(evt.label);
+      return isIncluded;
+    });
+  
+    console.log("Filtered Events: ", filtered);
     setFilteredEvents(filtered);
-  }, [savedEvents, labels]);
+  }, [labels, savedEvents]);
 
   useEffect(() => {
     const visibleCalendars = Object.keys(calendarsVisibility)
-      .filter((calendarId) => calendarsVisibility[calendarId])
-      .map(Number); // Convert keys to integers
-    const filtered = savedEvents.filter((evt) => visibleCalendars.includes(evt.calendarId));
+      .filter((calendarId) => calendarsVisibility[calendarId]);
+  
+    const filtered = savedEvents.filter((evt) => visibleCalendars.includes(evt.calendarId.toString()));
+    
     setFilteredEvents(filtered);
     console.log(filtered);
   }, [savedEvents, calendarsVisibility]);
@@ -145,6 +154,7 @@ export default function ContextWrapper(props) {
         year,
         setYear,
         daySelected,
+        savedEvents,
         setDaySelected,
         showEventModal,
         setShowEventModal,

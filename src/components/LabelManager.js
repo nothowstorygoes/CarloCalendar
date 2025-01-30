@@ -69,12 +69,6 @@ export default function LabelManager() {
     setShowConfirmationModal(true);
   };
 
-  const handleClickOutside = (event) => {
-    if (event.target.id === "label-manager-overlay") {
-      setViewMode("month");
-    }
-  };
-
   const handleEditLabel = (label) => {
     setSelectedLabel(label);
     setShowLabelEditor(true);
@@ -86,36 +80,22 @@ export default function LabelManager() {
   };
 
   const sortedLabels = [...labels]
-    .filter((label) => parseInt(label.calendarId, 10) === selectedCalendar.id)
+    .filter((label) => label.calendarId === selectedCalendar.id)
     .sort((a, b) => a.code - b.code);
+
+  console.log(sortedLabels);
+
   const usedCodes = sortedLabels.map((label) => label.code);
 
   return (
+    <div className="h-[calc(100%-4rem)] w-[calc(100%-1.5rem)] left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-950 rounded-3xl">
     <div
-      id="label-manager-overlay"
-      className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50 dark:bg-zinc-950 dark:bg-opacity-0"
-      onClick={handleClickOutside}
-      style={{
-        "--scrollbar-track-bg": document.documentElement.classList.contains(
-          "dark"
-        )
-          ? "#3f3f46"
-          : "#e5e7eb",
-      }}
+      ref={modalRef}
+      className="bg-white dark:bg-zinc-950 w-[calc(100%-16rem)] h-[calc(100%-2rem)] max-w-none max-h-none overflow-hidden relative mt-8"
     >
-      <div
-        ref={modalRef}
-        className="bg-white dark:bg-zinc-950 w-[calc(100%-16rem)] h-[calc(100%-5.5rem)] max-w-none max-h-none overflow-hidden relative ml-64 mt-16 rounded-3xl mr-5 mb-8"
-      >
-        <button
-          onClick={() => setViewMode("day")}
-          className="material-icons-outlined text-gray-400 dark:text-zinc-50 ml-14 mt-8 flex flex-end"
-        >
-          close
-        </button>
         <div className="p-4 overflow-auto relative">
           <h2 className="text-lg font-bold mb-4 flex justify-center tracking-widest text-gray-600 dark:text-zinc-50">
-            {t("manage_labels")}
+            {t("manage_labels_for")} - {selectedCalendar.name}
           </h2>
           <div className="mb-8 flex justify-center">
             <input
@@ -175,24 +155,24 @@ export default function LabelManager() {
             </div>
           )}
           <div className="grid grid-cols-3 gap-6">
-            {sortedLabels.map(({ id, name, code, color }, idx) => (
+            {sortedLabels.map(({ id, name, code, color, calendarId }, idx) => (
               <div
                 key={idx}
                 className="flex items-center justify-between mb-2 p-4 rounded"
                 style={{ backgroundColor: `${color}` }} // Semi-transparent background
               >
-                <span className="font-bold cursor-pointer" style={{ color: "#000" }} onClick={() => handleLabelClick({ id, name, code, color })}>
+                <span className="font-bold cursor-pointer" style={{ color: "#000" }} onClick={() => handleLabelClick({ id, name, code, color, calendarId })}>
                   {name} ({code})
                 </span>
                 <div>
                   <span
                     className="material-icons text-black ml-2 cursor-pointer mr-5"
-                    onClick={() => handleEditLabel({ id, name, code, color })}
+                    onClick={() => handleEditLabel({ id, name, code, color, calendarId})}
                   >
                     edit
                   </span>
                   <button
-                    onClick={() => deleteLabel({ id, name, code, color })}
+                    onClick={() => deleteLabel({ id, name, code, color, calendarId })}
                     className="material-icons-outlined cursor-pointer"
                     style={{ color: "#000" }} // Set contrast color
                   >

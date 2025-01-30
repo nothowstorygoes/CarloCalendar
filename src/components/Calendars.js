@@ -75,7 +75,9 @@ export default function Calendars() {
           </div>  
         </div>
         <div className="mt-6 ml-4 h-96 overflow-y-auto custom-scrollbar">
-          {calendars.map((calendar) => (
+          {calendars
+           .sort((a, b) => a.id - b.id)
+           .map((calendar) =>( // Sort labels by ascending order of code
             <div key={calendar.id} className="mb-4 mr-4">
               <div
                 className="flex justify-between items-center cursor-pointer"
@@ -110,7 +112,7 @@ export default function Calendars() {
                 <ul className="ml-2 mt-2">
                   {labels
                     .filter((label) => {
-                      return parseInt(label.calendarId, 10) === calendar.id;
+                      return label.calendarId === calendar.id;
                     })
                     .sort((a, b) => a.code - b.code) // Sort labels by ascending order of code
                     .map((label) => (

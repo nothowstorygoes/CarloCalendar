@@ -187,6 +187,15 @@ export default function Backup() {
         ...doc.data(),
       }));
 
+      const calendarsSnapshots = await getDocs(
+        collection(db, `users/${auth.currentUser.uid}/calendars`)
+      );
+
+      const calendars = calendarsSnapshots.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
       const today = dayjs().format("YYYY-MM-DD");
       const backupFolderRef = doc(
         db,
@@ -205,6 +214,12 @@ export default function Backup() {
       for (const label of labels) {
         await setDoc(doc(labelsBackupRef, label.id), label);
       }
+
+      const calendarsBackupRef = collection(backupFolderRef, "calendars");
+      for (const calendar of calendars) {
+        await setDoc(doc(calendarsBackupRef, calendar.id), calendar);
+      }
+
 
       console.log("Backup created successfully");
       setBackupTriggered(!backupTriggered);
@@ -239,8 +254,18 @@ export default function Backup() {
         ...doc.data(),
       }));
 
+      const calendarsSnapshots = await getDocs(
+        collection(db, `users/${auth.currentUser.uid}/calendars`)
+      );
+
+      const calendars = calendarsSnapshots.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
       zip.file('events.json', JSON.stringify(events));
       zip.file('labels.json', JSON.stringify(labels));
+      zip.file('calendars.json', JSON.stringify(calendars));
 
       zip.generateAsync({ type: 'blob' }).then((content) => {
         saveAs(content, 'backup.zip');
