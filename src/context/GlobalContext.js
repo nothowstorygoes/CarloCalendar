@@ -33,6 +33,12 @@ const GlobalContext = React.createContext({
   setShowLabelEventsModal: () => {},
   selectedLabel: null,
   setSelectedLabel: () => {},
+  selectedCalendar: null,
+  setSelectedCalendar: () => {},
+  calendars: [],
+  setCalendars: () => {},
+  calendarsVisibility: {}, // Add calendarsVisibility state
+  setCalendarsVisibility: () => {}, // Add setCalendarsVisibility function
 });
 
 export default GlobalContext;

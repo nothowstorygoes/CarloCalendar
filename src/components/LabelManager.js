@@ -2,15 +2,15 @@ import React, { useContext, useState, useRef } from "react";
 import GlobalContext from "../context/GlobalContext";
 import { useTranslation } from "react-i18next";
 import { auth, db } from "../firebase";
-import { addDoc, collection, doc, deleteDoc } from "firebase/firestore";
+import { addDoc, collection, doc, deleteDoc, updateDoc } from "firebase/firestore";
 import LabelEditor from "./LabelEditor";
 import ConfirmationModal from "./ConfirmationModal";
 import { query, where, getDocs } from "firebase/firestore";
 
-export const checkLabelNameUnique = async (name) => {
+export const checkLabelNameUnique = async (name, calendarId) => {
   try {
     const labelsRef = collection(db, `users/${auth.currentUser.uid}/labels`);
-    const q = query(labelsRef, where("name", "==", name));
+    const q = query(labelsRef, where("name", "==", name), where("calendarId", "==", calendarId));
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.empty) {
@@ -25,7 +25,7 @@ export const checkLabelNameUnique = async (name) => {
 };
 
 export default function LabelManager() {
-  const { labels, setLabels, setViewMode, selectedLabel, setSelectedLabel } = useContext(GlobalContext);
+  const { labels, setLabels, setViewMode, selectedLabel, setSelectedLabel, selectedCalendar } = useContext(GlobalContext);
   const [newLabelName, setNewLabelName] = useState("");
   const [newLabelCode, setNewLabelCode] = useState("");
   const [newLabelColor, setNewLabelColor] = useState("#808080"); // Default to gray
@@ -40,25 +40,26 @@ export default function LabelManager() {
       name: newLabelName,
       code: newLabelCode,
       color: newLabelColor,
+      calendarId: selectedCalendar.id,
     };
-    
+
     try {
-      const isUnique = await checkLabelNameUnique(newLabelName);
+      const isUnique = await checkLabelNameUnique(newLabelName, selectedCalendar.id);
       if (isUnique) {
-      console.log("Creating label:", newLabel);
-      const labelRef = await addDoc(
-        collection(db, `users/${auth.currentUser.uid}/labels`),
-        newLabel
-      );
-      console.log("Label created with ID:", labelRef.id);
-      setLabels([...labels, { id: labelRef.id, ...newLabel }]);
-      setNewLabelName("");
-      setNewLabelCode("");
-      setNewLabelColor("#808080"); // Reset to default gray
-    }
-      else{
+        console.log("Creating label:", newLabel);
+        const labelRef = await addDoc(
+          collection(db, `users/${auth.currentUser.uid}/labels`),
+          newLabel
+        );
+        console.log("Label created with ID:", labelRef.id);
+        setLabels([...labels, { id: labelRef.id, ...newLabel }]);
+        setNewLabelName("");
+        setNewLabelCode("");
+        setNewLabelColor("#808080"); // Reset to default gray
+      } else {
         setShowAlert(true);
-     } } catch (error) {
+      }
+    } catch (error) {
       console.error("Error creating label:", error);
     }
   };
@@ -84,8 +85,10 @@ export default function LabelManager() {
     setViewMode("label");
   };
 
-  const sortedLabels = [...labels].sort((a, b) => a.code - b.code);
-  const usedCodes = labels.map((label) => label.code);
+  const sortedLabels = [...labels]
+    .filter((label) => parseInt(label.calendarId, 10) === selectedCalendar.id)
+    .sort((a, b) => a.code - b.code);
+  const usedCodes = sortedLabels.map((label) => label.code);
 
   return (
     <div
@@ -171,7 +174,7 @@ export default function LabelManager() {
               </span>
             </div>
           )}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-6">
             {sortedLabels.map(({ id, name, code, color }, idx) => (
               <div
                 key={idx}

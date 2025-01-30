@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useReducer } from "react";
 import GlobalContext from "./GlobalContext";
 import dayjs from "dayjs";
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 import { auth, db } from "../firebase";
 
 function savedEventsReducer(state, { type, payload }) {
@@ -38,21 +45,66 @@ export default function ContextWrapper(props) {
   const [selectedLabel, setSelectedLabel] = useState(null);
   const [smallCalendarMonth, setSmallCalendarMonth] = useState(dayjs().month());
   const [user, setUser] = useState(null); // Add user state
+  const [selectedCalendar,setSelectedCalendar] = useState([]);
+  const [calendarsVisibility, setCalendarsVisibility] = useState({}); // Add calendarsVisibility state
+  const [calendars, setCalendars] = useState([]); // Add calendars state
 
-  const [savedEvents, dispatchCalEvent] = useReducer(savedEventsReducer, [], initEvents);
+  const [savedEvents, dispatchCalEvent] = useReducer(
+    savedEventsReducer,
+    [],
+    initEvents
+  );
 
   useEffect(() => {
     const labelNames = labels.map((lbl) => lbl.name);
-    const filtered = savedEvents.filter((evt) => labelNames.includes(evt.label));
+    const filtered = savedEvents.filter((evt) =>
+      labelNames.includes(evt.label)
+    );
     setFilteredEvents(filtered);
   }, [savedEvents, labels]);
 
   useEffect(() => {
-  }, [filteredEvents]);
+    const visibleCalendars = Object.keys(calendarsVisibility)
+      .filter((calendarId) => calendarsVisibility[calendarId])
+      .map(Number); // Convert keys to integers
+    const filtered = savedEvents.filter((evt) => visibleCalendars.includes(evt.calendarId));
+    setFilteredEvents(filtered);
+    console.log(filtered);
+  }, [savedEvents, calendarsVisibility]);
+
+
+  useEffect(() => {
+    const fetchCalendars = async () => {
+      if (user) {
+        const calendarsCollectionRef = collection(
+          db,
+          `users/${user.uid}/calendars`
+        );
+        const calendarsSnapshot = await getDocs(calendarsCollectionRef);
+        const calendarsData = calendarsSnapshot.docs.map((doc) => ({
+          uniqueId: doc.id,
+          ...doc.data(), // Spread the data to include all properties
+        }));
+        const initialVisibility = {};
+        calendarsData.forEach((calendar) => {
+          initialVisibility[calendar.id] = true;
+        });
+        setCalendarsVisibility(initialVisibility);
+
+        setCalendars(calendarsData);
+        console.log(calendarsData);
+      }
+    };
+
+    fetchCalendars();
+  }, [user]);
 
   const createLabel = async (newLabel) => {
     try {
-      const labelRef = await addDoc(collection(db, `users/${auth.currentUser.uid}/labels`), newLabel);
+      const labelRef = await addDoc(
+        collection(db, `users/${auth.currentUser.uid}/labels`),
+        newLabel
+      );
       setLabels([...labels, { id: labelRef.id, ...newLabel }]);
     } catch (error) {
       console.error("Error creating label: ", error);
@@ -61,9 +113,15 @@ export default function ContextWrapper(props) {
 
   const updateLabel = async (updatedLabel) => {
     try {
-      const labelRef = doc(db, `users/${auth.currentUser.uid}/labels`, updatedLabel.id);
+      const labelRef = doc(
+        db,
+        `users/${auth.currentUser.uid}/labels`,
+        updatedLabel.id
+      );
       await updateDoc(labelRef, updatedLabel);
-      setLabels(labels.map((lbl) => (lbl.id === updatedLabel.id ? updatedLabel : lbl)));
+      setLabels(
+        labels.map((lbl) => (lbl.id === updatedLabel.id ? updatedLabel : lbl))
+      );
     } catch (error) {
       console.error("Error updating label: ", error);
     }
@@ -112,6 +170,12 @@ export default function ContextWrapper(props) {
         setSmallCalendarMonth,
         user,
         setUser,
+        calendarsVisibility, // Add calendarsVisibility state
+        setCalendarsVisibility,
+        calendars,
+        setCalendars,
+        selectedCalendar,
+        setSelectedCalendar,
       }}
     >
       {props.children}

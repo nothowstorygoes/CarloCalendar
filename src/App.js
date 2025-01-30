@@ -20,6 +20,7 @@ import Profile from "./components/Profile";
 import { auth, db } from "./firebase"; // Ensure you have configured Firebase
 import Login from "./components/login"; // Import the Login component
 import Spinner from "./assets/spinner"; // Import the Spinner component
+import CalendarSettings from "./components/calendarSettings";
 
 function App() {
   const [currentMonth, setCurrentMonth] = useState(getMonth());
@@ -48,16 +49,23 @@ function App() {
 
         try {
           const eventsRef = collection(db, `users/${user.uid}/events`);
-          const eventsSnapshot = await getDocs(eventsRef);
+          const labelsRef = collection(db, `users/${user.uid}/labels`);
+        
+          // Fetch both collections in parallel
+          const [eventsSnapshot, labelsSnapshot] = await Promise.all([
+            getDocs(eventsRef),
+            getDocs(labelsRef),
+          ]);
+        
+          // Process events
           const events = eventsSnapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
           }));
           console.log("Fetched events:", events);
           dispatchCalEvent({ type: "set", payload: events });
-
-          const labelsRef = collection(db, `users/${user.uid}/labels`);
-          const labelsSnapshot = await getDocs(labelsRef);
+        
+          // Process labels
           const labels = labelsSnapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
@@ -162,6 +170,11 @@ function App() {
                       <div className="w-[calc(100%-16rem)] h-full">
                         <Backup />
                       </div>
+                    )}
+                    {viewMode === "calendarSettings" && (
+                      <div className="w-[calc(100%-16rem)] h-full">
+                      <CalendarSettings />
+                    </div>
                     )}
                   </div>
                 </div>
