@@ -13,12 +13,12 @@ import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: process.env.GOOGLEAPIKEY,
-  authDomain: process.env.GOOGLEAUTHDOMAIN,
-  projectId: process.env.GOOGLEPROJECTID,
-  storageBucket: process.env.GOOGLESTORAGEBUCKET,
-  messagingSenderId: process.env.GOOGLEMESSAGINGSENDERID,
-  appId: process.env.GOOGLEAPPID,
+  apiKey: process.env.REACT_APP_GOOGLEAPIKEY,
+  authDomain: process.env.REACT_APP_GOOGLEAUTHDOMAIN,
+  projectId: process.env.REACT_APP_GOOGLEPROJECTID,
+  storageBucket: process.env.REACT_APP_GOOGLESTORAGEBUCKET,
+  messagingSenderId: process.env.REACT_APP_GOOGLEMESSAGINGSENDERID,
+  appId: process.env.REACT_APP_GOOGLEAPPID,
 };
 
 export const app = initializeApp(firebaseConfig);
