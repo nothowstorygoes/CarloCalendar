@@ -32,7 +32,7 @@ function EditConfirmationModal({
         </h2>
         <p className="mb-4 text-white">
           Vuoi salvare le modifiche per l'evento corrente o tutte le sue
-          occorrenze?
+          occorrenze future?
         </p>
         <div className="flex justify-end">
           <button
@@ -62,7 +62,6 @@ function EditConfirmationModal({
 function DeleteConfirmationModal({
   onClose,
   onDeleteSingle,
-  onDeleteAll,
   onDeleteFuture,
 }) {
   return (
@@ -70,7 +69,7 @@ function DeleteConfirmationModal({
       <div className="bg-white dark:bg-zinc-950 rounded-lg shadow-2xl p-6 z-52">
         <h2 className="text-lg font-semibold mb-4 text-white">Elimina Event</h2>
         <p className="mb-4 text-white">
-          Vuoi eliminare l'evento corrente o tutte le sue occorrenze?
+          Vuoi eliminare l'evento corrente o tutte le sue occorrenze future?
         </p>
         <div className="flex justify-end">
           <button
@@ -90,12 +89,6 @@ function DeleteConfirmationModal({
             className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded text-white mr-2"
           >
             Elimina solo futuri
-          </button>
-          <button
-            onClick={onDeleteAll}
-            className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded text-white"
-          >
-            Elimina tutti
           </button>
         </div>
       </div>
@@ -583,23 +576,6 @@ export default function EventModal() {
     }
   };
 
-  const deleteAllEvents = async (repeatId) => {
-    console.log("Deleting all events with repeatId:", repeatId);
-    try {
-      const eventsQuery = query(
-        collection(db, `users/${auth.currentUser.uid}/events`),
-        where("repeat", "==", repeatId)
-      );
-      const querySnapshot = await getDocs(eventsQuery);
-      querySnapshot.forEach(async (doc) => {
-        await deleteDoc(doc.ref);
-        dispatchCalEvent({ type: "delete", payload: { id: doc.id } });
-      });
-    } catch (error) {
-      console.error("Error deleting events: ", error);
-    }
-  };
-
   const deleteAllFuture = async (repeatId) => {
     console.log("Deleting all future events with repeatId:", repeatId);
     try {
@@ -626,16 +602,6 @@ export default function EventModal() {
     console.log("Delete single event");
     if (deleteTargetEvent) {
       await deleteEvent(deleteTargetEvent);
-      setShowDeleteConfirmation(false);
-      setDeleteTargetEvent(null);
-      handleClose();
-    }
-  };
-
-  const handleDeleteAll = async () => {
-    console.log("Delete all events");
-    if (deleteTargetEvent) {
-      await deleteAllEvents(deleteTargetEvent.repeat);
       setShowDeleteConfirmation(false);
       setDeleteTargetEvent(null);
       handleClose();
@@ -737,7 +703,6 @@ export default function EventModal() {
         <DeleteConfirmationModal
           onClose={() => setShowDeleteConfirmation(false)}
           onDeleteSingle={handleDeleteSingle}
-          onDeleteAll={handleDeleteAll}
           onDeleteFuture={handleDeleteFuture}
         />
       )}
@@ -749,7 +714,7 @@ export default function EventModal() {
         />
       )}
       <form
-        className="bg-white dark:bg-zinc-950 rounded-4xl shadow-2xl w-3/5 z-51"
+        className="bg-white dark:bg-zinc-950 rounded-4xl shadow-2xl w-4/5 z-51"
         onSubmit={handleSubmit}
       >
         <header className="bg-gray-100 dark:bg-zinc-900 px-4 py-2 flex justify-between items-center rounded-t-4xl">
@@ -787,10 +752,10 @@ export default function EventModal() {
                   <div
                     key={i}
                     onClick={() => setSelectedCalendar(cal.id)}
-                    className={`flex items-center justify-center cursor-pointer rounded w-40 h-8 ${
+                    className={`flex items-center justify-center cursor-pointer rounded w-40 h-8 border ${
                       selectedCalendar === cal.id
-                        ? "bg-blue-700"
-                        : "bg-blue-500"
+                        ? "bg-blue-700 border-blue-900 border-2"
+                        : "bg-blue-300 border-none"
                     }`}
                   >
                     <span className="text-black font-bold text-sm">
@@ -838,7 +803,7 @@ export default function EventModal() {
                 />
               </div>
             </div>
-            <div className="flex items-center flex-row ml-10">
+            <div className="flex items-center flex-row ml-20">
               <div className="flex items-center">
                 <span className="material-icons text-gray-400 dark:text-zinc-200">
                   event
@@ -911,7 +876,7 @@ export default function EventModal() {
             </div>
           </div>
             <div className="flex flex-col items-center justify-between mt-4 ml-2 mr-6">
-              <div className="grid grid-cols-5 gap-x-10 gap-y-5 ml-6">
+              <div className="grid grid-cols-6 gap-x-10 gap-y-5 ml-6">
                 {labels
                   .filter((label) => label.calendarId === selectedCalendar)
                   .sort((a, b) => a.code - b.code)
