@@ -13,12 +13,12 @@ import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCaapVIqoXyVJ7wmPKk1tVNHU8RyfVudFk",
-  authDomain: "carlocalendar-57d0c.firebaseapp.com",
-  projectId: "carlocalendar-57d0c",
-  storageBucket: "carlocalendar-57d0c.firebasestorage.app",
-  messagingSenderId: "232893346537",
-  appId: "1:232893346537:web:d16cb4585ccdd3a4037678",
+  apiKey: process.env.GOOGLEAPIKEY,
+  authDomain: process.env.GOOGLEAUTHDOMAIN,
+  projectId: process.env.GOOGLEPROJECTID,
+  storageBucket: process.env.GOOGLESTORAGEBUCKET,
+  messagingSenderId: process.env.GOOGLEMESSAGINGSENDERID,
+  appId: process.env.GOOGLEAPPID,
 };
 
 export const app = initializeApp(firebaseConfig);
