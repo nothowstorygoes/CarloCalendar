@@ -2,12 +2,24 @@ import React, { useContext, useState, useRef, useEffect } from "react";
 import GlobalContext from "../context/GlobalContext";
 import { useTranslation } from "react-i18next";
 import { auth, db } from "../firebase";
-import { addDoc, collection, getDocs, updateDoc, doc, query, where } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  updateDoc,
+  doc,
+  query,
+  where,
+} from "firebase/firestore";
 import ConfirmDelete from "./ConfirmDelete";
+import CalendarEditor from "./calendarEditor";
 
 export const getNextCalendarId = async () => {
   try {
-    const calendarsRef = collection(db, `users/${auth.currentUser.uid}/calendars`);
+    const calendarsRef = collection(
+      db,
+      `users/${auth.currentUser.uid}/calendars`
+    );
     const querySnapshot = await getDocs(calendarsRef);
     const calendarIds = querySnapshot.docs.map((doc) => doc.data().id);
     return Math.max(...calendarIds, 0) + 1;
@@ -30,20 +42,17 @@ export default function CalendarSettings() {
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [editCalendarId, setEditCalendarId] = useState(null);
   const [editCalendarName, setEditCalendarName] = useState("");
+  const [prioritized, setPrioritized] = useState(false);
   const { t } = useTranslation();
   const modalRef = useRef(null);
+  const [showCalendarEditor, setShowCalendarEditor] = useState(false);
   const editInputRef = useRef(null);
-
-  useEffect(() => {
-    if (editCalendarId !== null && editInputRef.current) {
-      editInputRef.current.focus();
-    }
-  }, [editCalendarId]);
 
   const handleCreateCalendar = async () => {
     const newCalendar = {
       name: newCalendarName,
       id: (await getNextCalendarId()).toString(),
+      prioritized: prioritized,
     };
 
     try {
@@ -66,15 +75,8 @@ export default function CalendarSettings() {
   };
 
   const handleEditCalendar = (calendar) => {
-    if (editCalendarId === calendar.id) {
-      // Discard changes
-      setEditCalendarId(null);
-      setEditCalendarName("");
-    } else {
-      // Start editing
-      setEditCalendarId(calendar.id);
-      setEditCalendarName(calendar.name);
-    }
+    setSelectedCalendar(calendar);
+    setShowCalendarEditor(true);
   };
 
   const handleCalendarClick = (calendar) => {
@@ -82,34 +84,8 @@ export default function CalendarSettings() {
     setViewMode("labelManager");
   };
 
-  const handleEditCalendarNameChange = (e) => {
-    setEditCalendarName(e.target.value);
-  };
-
   const handleUpdateCalendarName = async () => {
-    try {
-      const calendarsRef = collection(db, `users/${auth.currentUser.uid}/calendars`);
-      const calendarQuery = query(calendarsRef, where("id", "==", editCalendarId));
-      const calendarSnapshot = await getDocs(calendarQuery);
-  
-      if (calendarSnapshot.empty) {
-        console.log("No matching calendar document found!");
-        return;
-      }
-  
-      const calendarDoc = calendarSnapshot.docs[0];
-      console.log("Calendar document fetched:", calendarDoc.data());
-      await updateDoc(calendarDoc.ref, { name: editCalendarName });
-      setCalendars(
-        calendars.map((cal) =>
-          cal.id === editCalendarId ? { ...cal, name: editCalendarName } : cal
-        )
-      );
-      setEditCalendarId(null);
-      setEditCalendarName("");
-    } catch (error) {
-      console.error("Error updating calendar name:", error);
-    }
+    //modal
   };
 
   const sortedCalendars = [...calendars].sort((a, b) => a.id - b.id);
@@ -125,7 +101,7 @@ export default function CalendarSettings() {
           <h2 className="text-lg font-bold mb-4 flex justify-center tracking-widest text-gray-600 dark:text-zinc-50">
             Gestione Calendari
           </h2>
-          <div className="mb-8 flex justify-center">
+          <div className="mb-8 flex justify-center items-center">
             <input
               type="text"
               placeholder={t("add_calendar")}
@@ -134,6 +110,17 @@ export default function CalendarSettings() {
               onChange={(e) => setNewCalendarName(e.target.value)}
               className="border p-2 rounded mr-4 w-64 bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-zinc-50"
             />
+            <div className="flex justify-center items-center mr-2 ml-2">
+              <label className="text-gray-600 dark:text-zinc-50 mr-2">
+                Priorità :
+              </label>
+              <input
+                type="checkbox"
+                checked={prioritized}
+                onChange={(e) => setPrioritized(e.target.checked)}
+                className="form-checkbox h-5 w-5 text-blue-600 rounded-2xl"
+              />
+            </div>
             <button
               onClick={handleCreateCalendar}
               className="bg-blue-500 text-white p-2 rounded ml-2 w-24"
@@ -142,42 +129,33 @@ export default function CalendarSettings() {
             </button>
           </div>
           <div className="grid grid-cols-3 gap-6">
-            {sortedCalendars.map(({ id, name }, idx) => (
+            {sortedCalendars.map(({ id, name, prioritized }, idx) => (
               <div
                 key={idx}
                 className="flex items-center justify-between mb-2 p-4 rounded"
                 style={{ backgroundColor: "#4285F4" }}
               >
-                {editCalendarId === id ? (
-                  <div className="flex items-center">
-                    <input
-                      ref={editInputRef}
-                      type="text"
-                      value={editCalendarName}
-                      onChange={handleEditCalendarNameChange}
-                      className="border-none p-0 m-0 w-auto bg-transparent rounded-l text-black font-bold focus:outline-none"
-                      style={{ height: "auto" , border: "none" }}
-                    />
-                    <button
-                      onClick={handleUpdateCalendarName}
-                      className="ml-2 bg-blue-700 text-white py-1 px-2.5 rounded-4xl"
-                    >
-                      ✓
-                    </button>
-                  </div>
-                ) : (
-                  <span
-                    className="font-bold cursor-pointer"
-                    style={{ color: "#000" }}
-                    onClick={() => handleCalendarClick({ id, name })}
-                  >
-                    {name}
-                  </span>
-                )}
+                <span
+                  className="font-bold cursor-pointer"
+                  style={{ color: "#000" }}
+                  onClick={() => handleCalendarClick({ id, name })}
+                >
+                  {name}
+                </span>
                 <div>
+                  {prioritized ? (
+                    <span className="material-symbols-outlined text-black ml-2 mr-5">
+                      priority
+                    </span>
+                  ) : (
+                    ""
+                  )}
+
                   <span
                     className="material-icons text-black ml-2 cursor-pointer mr-5"
-                    onClick={() => handleEditCalendar({ id, name })}
+                    onClick={() =>
+                      handleEditCalendar({ id, name, prioritized })
+                    }
                   >
                     edit
                   </span>
@@ -198,6 +176,12 @@ export default function CalendarSettings() {
             calendar={selectedCalendar}
             setShowConfirmationModal={setShowConfirmationModal}
             setCalendars={setCalendars}
+          />
+        )}
+        {showCalendarEditor && (
+          <CalendarEditor
+            selectedCalendar={selectedCalendar}
+            setShowCalendarEditor={setShowCalendarEditor}
           />
         )}
         <style jsx>{`

@@ -41,7 +41,11 @@ export default function Calendars() {
     const allVisible = Object.values(calendarsVisibility).every((visibility) => visibility);
     const newVisibility = {};
     calendars.forEach((calendar) => {
-      newVisibility[calendar.id] = !allVisible;
+      if (!calendar.prioritized) {
+        newVisibility[calendar.id] = !allVisible;
+      } else {
+        newVisibility[calendar.id] = calendarsVisibility[calendar.id]; // Keep the current visibility for prioritized calendars
+      }
     });
     setCalendarsVisibility(newVisibility);
   };
