@@ -15,7 +15,7 @@ import {
 
 export default function LabelEditor({ selectedLabel, setShowLabelEditor }) {
   const { t } = useTranslation();
-  const { labels, setLabels } = useContext(GlobalContext);
+  const { labels, setLabels, dispatchCalEvent } = useContext(GlobalContext);
   const [name, setName] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [code, setCode] = useState("");
@@ -62,6 +62,7 @@ export default function LabelEditor({ selectedLabel, setShowLabelEditor }) {
             const eventRef = doc.ref;
             const updatedEvent = { ...doc.data(), label: name };
             batch.update(eventRef, updatedEvent);
+            dispatchCalEvent({type: "update", payload: updatedEvent});
           });
           await batch.commit();
         }

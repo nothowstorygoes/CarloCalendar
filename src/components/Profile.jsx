@@ -45,86 +45,175 @@ export default function Profile() {
     fetchUserInfo();
   }, [user]);
 
-  const handleDownloadPDF = async () => {
+  const handleDownloadAllPDF = async () => {
     const start = dayjs(startDate);
     const end = dayjs(endDate);
-    console.log("Start date:", start);
-    console.log("End date:", end);
     console.log("Saved events:", savedEvents);
-
+  
     const labels = await getLabels(); // Fetch labels to get colors
-
   
     const filteredEvents = savedEvents
     .filter((event) => {
       const eventDate = dayjs(event.day);
-      return eventDate.isAfter(start) && eventDate.isBefore(end);
+      return eventDate.isAfter(start) && eventDate.isBefore(end) && !event.checked;
     })
     .map((event) => {
       const label = labels.find((lbl) => lbl.name === event.label);
-      return { ...event, labelCode: label ? label.code : 0 };
+      return { ...event, labelCode: label ? label.code : 0, labelColor: label ? label.color : "#000000" };
     })
     .sort((a, b) => {
-      const dayDiff = dayjs(a.day).diff(dayjs(b.day));
-      if (dayDiff !== 0) return dayDiff;
-      return a.labelCode - b.labelCode;
-    }); // Sort events by day and then by label code
-
-  
+      if (a.labelCode !== b.labelCode) {
+        return a.labelCode - b.labelCode; // Sort by label code
+      }
+      return dayjs(a.day).diff(dayjs(b.day)); // Sort by date within each label code
+    });
   
     const doc = new jsPDF();
     doc.setFontSize(12);
-    doc.text(`Eventi dal ${format(start.toDate(), "dd/MM/yyyy")} al ${format(end.toDate(), "dd/MM/yyyy")}`, 10, 10);
+    doc.text(`Eventi dal ${format(start.toDate(), "dd/MM/yyyy")} al ${format(end.toDate(), "dd/MM/yyyy")}`, 105, 10, null, null, "center");
   
-  
-    const eventsPerColumn = 6;
-    const columnWidth = 60;
-    const columnGap = 10;
-    const startX = 10;
-    const startY = 20;
-    const rowHeight = 40;
+    let yOffset = 20;
   
     filteredEvents.forEach((event, index) => {
       const eventDate = format(dayjs(event.day).toDate(), "dd/MM/yyyy");
-      const columnIndex = Math.floor(index / eventsPerColumn) % 3;
-      const rowIndex = index % eventsPerColumn;
-      const xOffset = startX + columnIndex * (columnWidth + columnGap);
-      const yOffset = startY + rowIndex * rowHeight;
   
-      const label = labels.find((lbl) => lbl.name === event.label);
-      const bulletColor = label ? label.color : "#000000";
+      // Check if we need to add a new page
+      if (yOffset > 270) {
+        doc.addPage();
+        yOffset = 20;
+      }
   
-      // Draw bullet point
-      doc.setFillColor(bulletColor);
-      doc.circle(xOffset - 4, yOffset - 2, 2, "F");
-  
-      // Truncate event title and description
-      const truncatedTitle = event.title.length > 20 ? event.title.substring(0, 20) + "..." : event.title;
-      const truncatedDescription = event.description && event.description.length > 10 ? event.description.substring(0, 10) + "..." : event.description;
+      // Draw event rectangle with background color and rounded corners
+    // Draw a dot with the label color
+    doc.setFillColor(event.labelColor);
+    doc.circle(20, yOffset + 8, 2, "F");
+
   
       // Add event title in bold
       doc.setFont("helvetica", "bold");
-      doc.text(`${truncatedTitle}`, xOffset, yOffset);
+      const truncatedName = event.title.length > 45 ? event.title.substring(0, 45) + "..." : event.title;
+
+      if (event.description) {
+        doc.text(`${truncatedName}`, 25, yOffset + 7);
+      } else {
+        doc.text(`${truncatedName}`, 25, yOffset + 8); // Center vertically if no description
+      }
   
       // Add event description if it exists
       doc.setFont("helvetica", "normal");
-      if (truncatedDescription) {
-        doc.text(`Descrizione: ${truncatedDescription}`, xOffset, yOffset + 5);
+      if (event.description) {
+        const truncatedDescription = event.description.length > 45 ? event.description.substring(0, 45) + "..." : event.description;
+        doc.text(`Descrizione: ${truncatedDescription}`, 25, yOffset + 12);
       }
   
-      // Add event label
-      doc.text(`Categoria: ${event.label}`, xOffset, yOffset + 10);
+      // Add event label name
+      if(event.description){
+        doc.text(`Categoria: ${event.label}`, 25, yOffset + 17);
+      }
+      else{
+        doc.text(`Categoria: ${event.label}`, 25, yOffset + 15);
+      }
+  
+      // Add event time if it exists
+      if (event.time) {
+        doc.text(`Ora: ${event.time}`, 150, yOffset + 14);
+      }
   
       // Add event date
-      doc.text(`Data: ${eventDate}`, xOffset, yOffset + 15);
+      doc.text(`Data: ${eventDate}`, 150, yOffset + 9);
   
-      // Check if we need to add a new page
-      if ((index + 1) % (eventsPerColumn * 3) === 0 && index !== filteredEvents.length - 1) {
-        doc.addPage();
-      }
+      yOffset += 20; // Adjusted height
     });
   
     doc.save("eventi.pdf");
+  };
+  
+  
+  const handleDownloadByDayPDF = async () => {
+    const start = dayjs(startDate);
+    const end = dayjs(endDate);
+    console.log("Saved events:", savedEvents);
+  
+    const labels = await getLabels(); // Fetch labels to get colors
+  
+    const filteredEvents = savedEvents
+    .filter((event) => {
+      const eventDate = dayjs(event.day);
+      return eventDate.isAfter(start) && eventDate.isBefore(end) && !event.checked;
+    })
+    .map((event) => {
+      const label = labels.find((lbl) => lbl.name === event.label);
+      return { ...event, labelCode: label ? label.code : 0, labelColor: label ? label.color : "#000000" };
+    })
+    .sort((a, b) => {
+      if (a.labelCode !== b.labelCode) {
+        return a.labelCode - b.labelCode; // Sort by label code
+      }
+      return dayjs(a.day).diff(dayjs(b.day)); // Sort by date within each label code
+    });
+  
+    const doc = new jsPDF();
+    doc.setFontSize(12);
+  
+    let currentDay = null;
+    let yOffset = 20;
+  
+    filteredEvents.forEach((event, index) => {
+      const eventDate = format(dayjs(event.day).toDate(), "dd/MM/yyyy");
+  
+      if (currentDay !== eventDate) {
+        currentDay = eventDate;
+        yOffset += 5;
+        doc.text(`Data: ${eventDate}`, 105, yOffset, null, null, "center");
+        yOffset += 10;
+      }
+  
+      // Draw event rectangle with background color and rounded corners
+    // Draw a dot with the label color
+    doc.setFillColor(event.labelColor);
+    doc.circle(20, yOffset + 8, 2, "F");
+
+  
+      // Add event title in bold
+      doc.setFont("helvetica", "bold");
+      if (event.description) {
+        doc.text(`${event.title}`, 25, yOffset + 7);
+      } else {
+        doc.text(`${event.title}`, 25, yOffset + 8); // Center vertically if no description
+      }
+  
+      // Add event description if it exists
+      doc.setFont("helvetica", "normal");
+      if (event.description) {
+        const truncatedDescription = event.description.length > 50 ? event.description.substring(0, 50) + "..." : event.description;
+        doc.text(`Descrizione: ${truncatedDescription}`, 25, yOffset + 12);
+      }
+  
+      // Add event label name
+      
+      if(event.description)
+      {
+        doc.text(`Categoria: ${event.label}`, 25, yOffset + 17);
+      }
+      else{
+        doc.text(`Categoria: ${event.label}`, 25, yOffset + 15);
+      }
+  
+      // Add event time if it exists
+      if (event.time) {
+        doc.text(`Ora: ${event.time}`, 160, yOffset + 15);
+      }
+  
+      yOffset += 20; // Adjusted height
+  
+      // Check if we need to add a new page
+      if (yOffset > 270) {
+        doc.addPage();
+        yOffset = 20;
+      }
+    });
+  
+    doc.save("eventi_per_giorno.pdf");
   };
   
   const getLabels = async () => {
@@ -227,10 +316,16 @@ export default function Profile() {
                   className="bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-zinc-50 p-2 rounded"
                 />
                 <button
-                  onClick={handleDownloadPDF}
+                  onClick={handleDownloadAllPDF}
                   className="bg-green-500 hover:bg-green-600 text-white p-2 rounded-4xl w-40 mt-4"
                 >
-                  Stampa
+                  Stampa Tutti
+                </button>
+                <button
+                  onClick={handleDownloadByDayPDF}
+                  className="bg-green-500 hover:bg-green-600 text-white p-2 rounded-4xl w-40 mt-4"
+                >
+                  Stampa per Giorno
                 </button>
               </div>
             <div className="flex items-center justify-center">
