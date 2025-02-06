@@ -743,11 +743,11 @@ export default function EventModal() {
         <div className="p-3 mt-2">
           <div className="flex flex-col gap-y-4">
             <div className="flex flex-row items-center mb-8">
-              <p className="text-black dark:text-white ml-12 w-20">
+              <p className="text-black dark:text-white ml-28 w-20">
                 Scegli un calendario:
               </p>
 
-              <div className="grid grid-cols-4 gap-x-10 gap-y-5 items-center ml-10">
+              <div className="grid grid-cols-4 gap-x-10 gap-y-5 items-center ml-16">
                 {sortedCalendar.map((cal, i) => (
                   <div
                     key={i}
@@ -766,7 +766,7 @@ export default function EventModal() {
               </div>
             </div>
             <div className="flex flex-row items-center">
-            <div className="flex flex-row items-center">
+            <div className="flex flex-row items-center ml-12">
               <span className="material-icons-outlined text-gray-400 dark:text-zinc-200 ml-3">
                 edit
               </span>
@@ -803,7 +803,7 @@ export default function EventModal() {
                 />
               </div>
             </div>
-            <div className="flex items-center flex-row ml-20">
+            <div className="flex items-center flex-row ml-56">
               <div className="flex items-center">
                 <span className="material-icons text-gray-400 dark:text-zinc-200">
                   event

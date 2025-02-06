@@ -20,11 +20,13 @@ export default function LabelEditor({ selectedLabel, setShowLabelEditor }) {
   const [showAlert, setShowAlert] = useState(false);
   const [code, setCode] = useState("");
   const [color, setColor] = useState("#808080"); // Default to gray
+  const [calendarId, setCalendarId] = useState(null);
 
   useEffect(() => {
     if (selectedLabel) {
       setName(selectedLabel.name);
       setCode(selectedLabel.code);
+      setCalendarId(selectedLabel.calendarId)
       setColor(selectedLabel.color);
     }
   }, [selectedLabel]);
@@ -34,6 +36,7 @@ export default function LabelEditor({ selectedLabel, setShowLabelEditor }) {
     const updatedLabel = {
       name,
       code,
+      calendarId,
       color,
     };
 
@@ -85,7 +88,9 @@ export default function LabelEditor({ selectedLabel, setShowLabelEditor }) {
     setShowLabelEditor(false);
   };
 
-  const usedCodes = labels.map((label) => label.code);
+  const usedCodes = labels
+  .filter((label) => label.calendarId === calendarId)
+  .map((label) => label.code);
 
   return (
     <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50 z-40 dark:bg-zinc-800 dark:bg-opacity-75">

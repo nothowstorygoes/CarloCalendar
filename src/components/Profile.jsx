@@ -111,7 +111,7 @@ export default function Profile() {
         doc.text(`Categoria: ${event.label}`, 25, yOffset + 17);
       }
       else{
-        doc.text(`Categoria: ${event.label}`, 25, yOffset + 15);
+        doc.text(`Categoria: ${event.label}`, 25, yOffset + 13);
       }
   
       // Add event time if it exists
@@ -122,7 +122,7 @@ export default function Profile() {
       // Add event date
       doc.text(`Data: ${eventDate}`, 150, yOffset + 9);
   
-      yOffset += 20; // Adjusted height
+      yOffset += 16; // Adjusted height
     });
   
     doc.save("eventi.pdf");
@@ -196,7 +196,7 @@ export default function Profile() {
         doc.text(`Categoria: ${event.label}`, 25, yOffset + 17);
       }
       else{
-        doc.text(`Categoria: ${event.label}`, 25, yOffset + 15);
+        doc.text(`Categoria: ${event.label}`, 25, yOffset + 13);
       }
   
       // Add event time if it exists
@@ -204,7 +204,7 @@ export default function Profile() {
         doc.text(`Ora: ${event.time}`, 160, yOffset + 15);
       }
   
-      yOffset += 20; // Adjusted height
+      yOffset += 16; // Adjusted height
   
       // Check if we need to add a new page
       if (yOffset > 270) {
