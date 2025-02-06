@@ -122,6 +122,7 @@ export default function EventModal() {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [deleteTargetEvent, setDeleteTargetEvent] = useState(null);
   const [showEditConfirmation, setShowEditConfirmation] = useState(false);
+  const [repeatTypeString, setRepeatTypeString] = useState("");
 
   useEffect(() => {
     if (selectedEvent) {
@@ -130,6 +131,7 @@ export default function EventModal() {
       setSelectedLabel(selectedEvent.label);
       setPostponable(selectedEvent.postponable);
       setSelectedCalendar(selectedEvent.calendarId);
+      setRepeatTypeString(selectedEvent.repeatType);
       setDate(new Date(selectedEvent.day)); // Set the date from the selected event
       setIsChecked(selectedEvent.checked);
       if (selectedEvent.time) {
@@ -151,6 +153,7 @@ export default function EventModal() {
     setSpecificTime(false);
     setSelectedCalendar(""); // No calendar selected by default
     setPostponable(false);
+    setRepeatTypeString("");
     setDate(daySelected.toDate());
 
     const now = new Date();
@@ -171,6 +174,43 @@ export default function EventModal() {
   useEffect(() => {
     console.log(showEditConfirmation);
   }, [showEditConfirmation]);
+  const getRepeatTypeString = (repeatOptions) => {
+    if (repeatOptions.repeatType === 'custom' && repeatOptions.customRepeat) {
+      const { interval, frequency, daysOfWeek } = repeatOptions.customRepeat;
+      console.log(frequency);
+      let frequencyTranslation;
+      switch (frequency) {
+        case 'week':
+          frequencyTranslation = 'settimane';
+          break;
+        case 'monthly':
+          frequencyTranslation = 'mesi';
+          break;
+        case 'yearly':
+          frequencyTranslation = 'anni';
+          break;
+        case 'monthlyCustom':
+          frequencyTranslation = 'mesi';
+          break;
+        default:
+          frequencyTranslation = '';
+      }
+  
+      let daysOfWeekString = '';
+      if (daysOfWeek && daysOfWeek.length > 0) {
+        daysOfWeekString = `, ${daysOfWeek.length} giorni`;
+      }
+  
+      return `Ogni ${interval} ${frequencyTranslation}${daysOfWeekString}`;
+    } else if (repeatOptions.repeatType==="yearly")
+    {
+      return `Ogni anno`;
+    } else if(repeatOptions.repeatType==="monthly")
+    {
+      return "Ogni mese";
+    }
+  };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -180,6 +220,7 @@ export default function EventModal() {
     }
     setShowLabelWarning(false);
     const repeatId = generateRandomId();
+    console.log(repeatOptions);
     const calendarEvent = {
       title: title,
       description: description || "", // Ensure description can be empty
@@ -190,6 +231,7 @@ export default function EventModal() {
       id: selectedEvent ? selectedEvent.id : Date.now().toString(),
       checked: isChecked,
       repeat: repeatOptions ? repeatId : null,
+      repeatType: repeatOptions ? getRepeatTypeString(repeatOptions) : null,
       time: specificTime ? time : null, // Store time as a string "hh:mm"
       userId: auth.currentUser.uid,
     };
@@ -303,6 +345,8 @@ export default function EventModal() {
         case "monthlyCustom":
           freq = "month";
           break;
+        default:
+          break;
       }
       calculatedEndDate = dayjs(event.day)
         .add(parseInt(occurrences, 10) * parseInt(interval, 10), freq)
@@ -323,6 +367,7 @@ export default function EventModal() {
         calculatedEndDate
       );
       let eventCount = 0;
+      setRepeatTypeString(`Ogni ${interval} settimane, ${daysOfWeek.length} giorni, fino al ${calculatedEndDate}`);
       for (
         let weekIndex = 0;
         weekIndex < weeksMatrix.length;
@@ -332,7 +377,6 @@ export default function EventModal() {
           const dayIndex = daysOfWeek[i][0];
 
           console.log(weekIndex, dayIndex);
-
           const day = weeksMatrix[weekIndex][dayIndex];
           if (weekIndex >= weeksMatrix.length) {
             console.error(
@@ -525,8 +569,6 @@ export default function EventModal() {
     setSelectedEvent(null); // Reset selectedEvent state
     resetForm(); // Reset the form when closing the modal
   };
-
-  const sortedLabels = [...labels].sort((a, b) => a.code - b.code);
 
   const generateTimeOptions = () => {
     const options = [];

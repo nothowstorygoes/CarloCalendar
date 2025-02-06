@@ -1,4 +1,4 @@
-import React, { useContext, useState, useRef, useEffect } from "react";
+import React, { useContext, useState, useRef } from "react";
 import GlobalContext from "../context/GlobalContext";
 import { useTranslation } from "react-i18next";
 import { auth, db } from "../firebase";
@@ -6,10 +6,6 @@ import {
   addDoc,
   collection,
   getDocs,
-  updateDoc,
-  doc,
-  query,
-  where,
 } from "firebase/firestore";
 import ConfirmDelete from "./ConfirmDelete";
 import CalendarEditor from "./calendarEditor";
@@ -38,15 +34,11 @@ export default function CalendarSettings() {
     setSelectedCalendar,
   } = useContext(GlobalContext);
   const [newCalendarName, setNewCalendarName] = useState("");
-  const [showAlert, setShowAlert] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-  const [editCalendarId, setEditCalendarId] = useState(null);
-  const [editCalendarName, setEditCalendarName] = useState("");
   const [prioritized, setPrioritized] = useState(false);
   const { t } = useTranslation();
   const modalRef = useRef(null);
   const [showCalendarEditor, setShowCalendarEditor] = useState(false);
-  const editInputRef = useRef(null);
 
   const handleCreateCalendar = async () => {
     const newCalendar = {
@@ -84,10 +76,6 @@ export default function CalendarSettings() {
     setViewMode("labelManager");
   };
 
-  const handleUpdateCalendarName = async () => {
-    //modal
-  };
-
   const sortedCalendars = [...calendars].sort((a, b) => a.id - b.id);
 
   return (
@@ -112,7 +100,7 @@ export default function CalendarSettings() {
             />
             <div className="flex justify-center items-center mr-2 ml-2">
               <label className="text-gray-600 dark:text-zinc-50 mr-2">
-                Priorità :
+                Predefinito :
               </label>
               <input
                 type="checkbox"

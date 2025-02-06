@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import GlobalContext from "../context/GlobalContext";
 import { db, auth } from "../firebase";
-import { doc, updateDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, updateDoc } from "firebase/firestore";
 
 export default function CalendarEditor({ selectedCalendar, setShowCalendarEditor }) {
   const { t } = useTranslation();
@@ -24,21 +24,26 @@ export default function CalendarEditor({ selectedCalendar, setShowCalendarEditor
       name,
       prioritized,
     };
-
+    console.log(selectedCalendar);
     try {
-      const calendarRef = doc(
-        db,
-        `users/${auth.currentUser.uid}/calendars`,
-        selectedCalendar.id
-      );
-      await updateDoc(calendarRef, updatedCalendar);
+      const calendarsRef = collection(db, `users/${auth.currentUser.uid}/calendars`);
+      const q = query(calendarsRef, where("id", "==", selectedCalendar.id));
+      const querySnapshot = await getDocs(q);
 
-      setCalendars(
-        calendars.map((cal) =>
-          cal.id === selectedCalendar.id ? { ...cal, ...updatedCalendar } : cal
-        )
-      );
-      setShowCalendarEditor(false);
+      if (!querySnapshot.empty) {
+        const calendarDoc = querySnapshot.docs[0].ref;
+        await updateDoc(calendarDoc, updatedCalendar);
+
+        setCalendars(
+          calendars.map((cal) =>
+            cal.id === selectedCalendar.id ? { ...cal, ...updatedCalendar } : cal
+          )
+        );
+        setShowCalendarEditor(false);
+      } else {
+        console.error("Calendar not found");
+        setShowAlert(true);
+      }
     } catch (error) {
       console.error("Error updating calendar: ", error);
       setShowAlert(true);
@@ -75,7 +80,7 @@ export default function CalendarEditor({ selectedCalendar, setShowCalendarEditor
               <input
                 type="text"
                 name="name"
-                placeholder={t("calendar_name")}
+                placeholder="Calendario"
                 value={name}
                 required
                 className="ml-4 border-0 text-gray-600 dark:text-zinc-200 text-xl font-semibold w-40 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 bg-gray-100 dark:bg-zinc-700 rounded"
@@ -87,7 +92,7 @@ export default function CalendarEditor({ selectedCalendar, setShowCalendarEditor
                 star
               </span>
               <label className="ml-4 text-gray-600 dark:text-zinc-200">
-                Priorità
+                Predefinito
               </label>
               <input
                 type="checkbox"
