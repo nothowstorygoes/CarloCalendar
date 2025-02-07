@@ -17,6 +17,7 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import { DeleteConfirmationModal } from "./DeleteConfirmationModal";
+import DaySelector from "./daySelector";
 
 // Utility function to truncate text
 const truncateText = (text, maxLength) => {
@@ -33,10 +34,10 @@ const EventItem = ({
   handleDeleteEvent,
   getLabelColor,
 }) => (
-  <div className="flex justify-center items-center">
+  <div className="flex justify-center items-center flex-col md:flex-row">
     <div
       key={evt.id}
-      className="flex justify-between w-5/6 items-center mb-2 p-2 rounded cursor-pointer transition-all duration-300"
+      className="flex md:justify-between w-5/6 md:w-5/6 md:items-center mb-2 p-2 rounded cursor-pointer transition-all duration-300 flex-col md:flex-row"
       style={{
         backgroundColor:
           evt.time && evt.checked
@@ -48,21 +49,15 @@ const EventItem = ({
     >
       <div className="flex items-center" onClick={() => handleEventClick(evt)}>
         <div className="flex justify-between items-center">
-          <span
-            className="w-2 h-2 rounded-full mr-4"
-            style={{
-              backgroundColor: evt.checked ? "black" : getLabelColor(evt.label),
-            }}
-          ></span>
           <div>
             <div className="flex items-center">
               <div className="relative group">
-                <span className="text-black-600 font-bold w-68 relative">
+                <span className="text-black-600 font-bold md:w-68 relative">
                   <span>
                     {truncateText(evt.title, 40)} &nbsp; &nbsp;
                     {evt.postponable && "↷"}
                   </span>
-                  <div className="absolute left-0 top-full mt-1 w-max p-2 bg-zinc-900 text-white font-bold border border-gray-300 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="!hidden md:!block absolute left-0 top-full mt-1 w-max p-2 bg-zinc-900 text-white font-bold border border-gray-300 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     {evt.title}
                   </div>
                 </span>
@@ -70,14 +65,14 @@ const EventItem = ({
               {evt.repeat && (
                 <div className="relative group ml-2">
                   <span className="text-black-600 font-bold">🗘</span>
-                  <div className="absolute left-0 top-full mt-1 w-max p-2 bg-zinc-900 text-white font-bold border border-gray-300 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="!hidden md:!block absolute left-0 top-full mt-1 w-max p-2 bg-zinc-900 text-white font-bold border border-gray-300 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     {evt.repeatType}
                   </div>
                 </div>
               )}
             </div>
             <p
-              className="text-sm w-96 dark:text-black"
+              className="text-sm md:w-96 dark:text-black"
               style={{
                 color: "black",
                 textOverflow: "ellipsis",
@@ -89,25 +84,27 @@ const EventItem = ({
         </div>
         {evt.time && <p className="text-sm text-black"> alle {evt.time}</p>}
       </div>
-      <div className="flex flex-row items-center">
-        <p className="text-sm mr-3 text-black font-bold">{evt.label}</p>
-        {!evt.time && (
-          <input
-            type="checkbox"
-            className="rounded-full w-6 h-6 cursor-pointer mr-6 ml-6"
-            checked={evt.checked}
-            onChange={(e) => handleCheckboxChange(e, evt)}
-          />
-        )}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleDeleteEvent(evt.id);
-          }}
-          className="material-icons cursor-pointer text-black"
-        >
-          delete
-        </button>
+      <div className="flex flex-row items-center justify-between md:justify-end">
+        <p className="text-sm md:mr-3 text-black font-bold">{evt.label}</p>
+        <div className="items-center flex flex-row">
+          {!evt.time && (
+            <input
+              type="checkbox"
+              className="rounded-full w-6 h-6 cursor-pointer mr-4 md:mr-6 md:ml-6"
+              checked={evt.checked}
+              onChange={(e) => handleCheckboxChange(e, evt)}
+            />
+          )}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteEvent(evt.id);
+            }}
+            className="material-icons cursor-pointer text-black"
+          >
+            delete
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -126,6 +123,7 @@ export default function DayInfoModal() {
   const modalRef = useRef(null);
   const { t } = useTranslation();
   const today = dayjs();
+  const [showDaySelector, setShowDaySelector] = useState(false); // State to control DaySelector modal
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [deleteTargetEvent, setDeleteTargetEvent] = useState(null);
 
@@ -269,7 +267,7 @@ export default function DayInfoModal() {
   const isToday = daySelected.isSame(dayjs(), "day");
 
   return (
-    <div className="h-[calc(100%-4rem)] w-[calc(100%-1.5rem)] left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-950 rounded-3xl">
+    <div className="md:h-[calc(100%-4rem)] w-screen md:w-[calc(100%-1.5rem)] left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-900 md:dark:bg-zinc-950 rounded-3xl overflow-x-hidden">
       {showDeleteConfirmation && (
         <DeleteConfirmationModal
           onClose={() => setShowDeleteConfirmation(false)}
@@ -278,23 +276,30 @@ export default function DayInfoModal() {
           onDeleteFuture={handleDeleteFuture}
         />
       )}
+      {showDaySelector && (
+        <DaySelector
+          setDaySelected={setDaySelected}
+          onClose={() => setShowDaySelector(false)}
+        />
+      )}
       <div
         ref={modalRef}
-        className="bg-white dark:bg-zinc-950 w-[calc(100%-16rem)] h-[calc(100%-2rem)] max-w-none max-h-none overflow-hidden relative mt-8"
+        className="bg-white dark:bg-zinc-900 md:dark:bg-zinc-950 w-screen md:w-[calc(100%-16rem)] md:h-[calc(100%-2rem)] md:max-w-none md:max-h-none overflow-hidden relative md:mt-8"
       >
-        <div className="p-4 relative w-full">
-          <div className="flex items-center justify-between mb-16 w-2/3 mx-auto space-x-1">
+        <div className="md:p-4 relative w-full">
+          <div className="flex items-center justify-center md:justify-between mb-8 md:mb-16 w-screen md:w-2/3 md:mx-auto md:space-x-1">
             <button
               onClick={handlePrevDay}
-              className="bg-gray-200 dark:bg-zinc-700 hover:bg-gray-300 dark:hover:bg-zinc-600 text-gray-600 dark:text-zinc-50 rounded-full p-2 w-10 h-10 flex items-center justify-center transition-all duration-300"
+              className="bg-gray-200 dark:bg-zinc-700 hover:bg-gray-300 dark:hover:bg-zinc-600 text-gray-600 dark:text-zinc-50 rounded-full p-2 w-10 h-10 flex items-center justify-center transition-all duration-300 mr-10 md:mr-0 ml-10 md:ml-0"
             >
               <span className="material-icons dark:text-zinc-50">
                 chevron_left
               </span>
             </button>
             <h2
-              className={`text-lg font-bold text-center text-gray-600 dark:text-zinc-50 ${
-                isToday ? "bg-blue-500 text-white p-6 rounded-3xl" : ""
+              onClick={() => setShowDaySelector(true)}
+              className={`text-lg font-bold text-center text-gray-600 dark:text-zinc-50 p-2 md:p-6 cursor-pointer md:pointer-events-none ${
+                isToday ? "bg-blue-500 text-white p-2 md:p-6 rounded-3xl" : ""
               }`}
             >
               {capitalizeFirstLetter(
@@ -303,7 +308,7 @@ export default function DayInfoModal() {
             </h2>
             <button
               onClick={handleNextDay}
-              className="bg-gray-200 dark:bg-zinc-700 hover:bg-gray-300 dark:hover:bg-zinc-600 text-gray-600 dark:text-zinc-50 rounded-full p-2 w-10 h-10 flex items-center justify-center transition-all duration-300"
+              className="bg-gray-200 dark:bg-zinc-700 hover:bg-gray-300 dark:hover:bg-zinc-600 text-gray-600 dark:text-zinc-50 rounded-full p-2 w-10 h-10 flex items-center justify-center transition-all duration-300 mr-10 md:mr-0 ml-10 md:ml-0"
             >
               <span className="material-icons dark:text-zinc-50">
                 chevron_right
@@ -315,7 +320,7 @@ export default function DayInfoModal() {
               {t("no_events")}
             </p>
           )}
-          <div className="overflow-scroll h-96 overflow-x-hidden custom-scrollbar">
+          <div className="w-screen md:w-auto ml:overflow-scroll overflow-auto h-[36rem] md:h-[36rem] overflow-x-hidden custom-scrollbar">
             {" "}
             {dayEvents.map((evt) => (
               <EventItem

@@ -97,26 +97,34 @@ export default function CalendarHeader() {
   };
 
   return (
-    <header className="px-4 py-2 flex items-center justify-between bg-white dark:bg-zinc-900">
+    <header className="px-4 py-4 md:py-2 flex items-center justify-between bg-white dark:bg-zinc-900">
       <div className="flex items-center ml-1">
         <img src={logo} alt="calendar" className="mr-2 w-12 h-12" />
-        <h1 className="mr-16 text-xl text-gray-500 dark:text-zinc-50 font-bold">
+        <h1 className="md:mr-16 mr-4 text-xl text-gray-500 dark:text-zinc-50 font-bold">
           CarloCalendar
         </h1>
+        <button
+          onClick={handleDarkModeToggle}
+          className="md:hidden top-4 pt-3 text-gray-800 dark:text-zinc-50 p-1 rounded"
+        >
+          <span className="material-icons">
+            {darkMode ? "light_mode" : "dark_mode"}
+          </span>
+        </button>
         {viewMode === "month" ? "" :
-          <h2 className="ml-10 text-xl text-gray-500 dark:text-zinc-50 font-bold mr-4">
+          <h2 className="!hidden md:!flex ml-10 text-xl text-gray-500 dark:text-zinc-50 font-bold">
             {capitalizeFirstLetter(
               dayjs(new Date(year, monthIndex)).format("MMMM YYYY")
             )}
           </h2>}
         <button
           onClick={handleReset}
-          className="border rounded-3xl py-2 px-6 ml-5 bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50"
+          className="flex border rounded-3xl py-2 px-6 ml-5 bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50"
         >
           {t("today")}
         </button>
       </div>
-      <div className="flex items-center justify-center">
+      <div className="!hidden md:!flex items-center justify-center">
         <button
           onClick={() => setShowSearchBox(true)}
           className="top-4 mr-5 pt-3 text-gray-800 dark:text-zinc-50 p-1 rounded"

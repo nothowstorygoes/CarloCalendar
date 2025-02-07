@@ -25,6 +25,7 @@ import CalendarSettings from "./components/calendarSettings";
 function App() {
   const [currentMonth, setCurrentMonth] = useState(getMonth());
   const [loading, setLoading] = useState(true);
+  const [isNavbarOpen, setIsNavbarOpen] = useState(false);
 
   const {
     monthIndex,
@@ -39,6 +40,7 @@ function App() {
     setLabels,
     user,
     setUser,
+    setViewMode,
   } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -50,13 +52,13 @@ function App() {
         try {
           const eventsRef = collection(db, `users/${user.uid}/events`);
           const labelsRef = collection(db, `users/${user.uid}/labels`);
-        
+
           // Fetch both collections in parallel
           const [eventsSnapshot, labelsSnapshot] = await Promise.all([
             getDocs(eventsRef),
             getDocs(labelsRef),
           ]);
-        
+
           // Process events
           const events = eventsSnapshot.docs.map((doc) => ({
             id: doc.id,
@@ -64,7 +66,7 @@ function App() {
           }));
           console.log("Fetched events:", events);
           dispatchCalEvent({ type: "set", payload: events });
-        
+
           // Process labels
           const labels = labelsSnapshot.docs.map((doc) => ({
             id: doc.id,
@@ -93,13 +95,21 @@ function App() {
   useEffect(() => {
     const currentDate = dayjs();
     filteredEvents.forEach((evt) => {
-      if (evt.time && dayjs(evt.day).isBefore(currentDate, "day") && !evt.checked) {
+      if (
+        evt.time &&
+        dayjs(evt.day).isBefore(currentDate, "day") &&
+        !evt.checked
+      ) {
         const updatedEvent = { ...evt, checked: true };
         dispatchCalEvent({ type: "update", payload: updatedEvent });
         const eventRef = doc(db, `users/${user.uid}/events`, evt.id);
         updateDoc(eventRef, updatedEvent);
       }
-      if (!evt.time && dayjs(evt.day).isBefore(currentDate, "day") && !evt.checked) {
+      if (
+        !evt.time &&
+        dayjs(evt.day).isBefore(currentDate, "day") &&
+        !evt.checked
+      ) {
         const updatedEvent = { ...evt, day: currentDate.valueOf() };
         dispatchCalEvent({ type: "update", payload: updatedEvent });
         const eventRef = doc(db, `users/${user.uid}/events`, evt.id);
@@ -108,11 +118,13 @@ function App() {
     });
   }, [filteredEvents, dispatchCalEvent, user]);
 
-
   if (loading) {
-    return <div className="h-96"><Spinner /></div>;
+    return (
+      <div className="h-screen flex justify-center items-center bg-zinc-900">
+        <Spinner />
+      </div>
+    );
   }
-
   return (
     <Router>
       <Routes>
@@ -123,59 +135,79 @@ function App() {
             user ? (
               <React.Fragment>
                 {showEventModal && <EventModal />}
-                <div className="h-screen flex flex-col bg-white dark:bg-zinc-900 overflow-hidden">
+                <div className="h-screen flex flex-col bg-zinc-900 md:bg-white dark:bg-zinc-900 overflow-hidden">
                   <CalendarHeader />
-                  <div className="flex flex-1">
+                  <div className="flex md:flex-1 md:flex-row flex-col h-full overflow-auto md:overflow-hidden items-center md:items-start">
                     <Sidebar />
-                    {viewMode === "month" && <Month month={currentMonth} />}
-                    {viewMode === "day" && (
-                      <div className="w-[calc(100%-16rem)] h-full">
-                        <DayInfoModal />
-                      </div>
-                    )}
-                    {viewMode === "week" && (
-                      <div className="w-[calc(100%-16rem)] h-full">
-                        <WeeklyView />
-                      </div>
-                    )}
-                    {viewMode === "workweek" && (
-                      <div className="w-[calc(100%-16rem)] h-full">
-                        <WorkWeekView />
-                      </div>
-                    )}
-                    {viewMode === "year" && (
-                      <div className="w-[calc(100%-16rem)] h-full">
-                        <YearView />
-                      </div>
-                    )}
-                    {viewMode === "label" && selectedLabel && (
-                      <div className="w-[calc(100%-16rem)] h-full">
-                        <LabelEventsView
-                          label={selectedLabel}
-                          setShowLabelEventsModal={setShowLabelEventsModal}
-                        />
-                      </div>
-                    )}
-                    {viewMode === "labelManager" && (
-                      <div className="w-[calc(100%-16rem)] h-full">
-                        <LabelManager />
-                      </div>
-                    )}
-                    {viewMode === "profile" && (
-                      <div className="w-[calc(100%-16rem)] h-full">
-                        <Profile />
-                      </div>
-                    )}
-                    {viewMode === "backup" && (
-                      <div className="w-[calc(100%-16rem)] h-full">
-                        <Backup />
-                      </div>
-                    )}
-                    {viewMode === "calendarSettings" && (
-                      <div className="w-[calc(100%-16rem)] h-full">
-                      <CalendarSettings />
+                    <div className="flex-1 h-full">
+                      {viewMode === "month" && (
+                        <div className="w-full h-full">
+                          <Month month={currentMonth} />
+                        </div>
+                      )}
+                      {viewMode === "day" && (
+                        <div className="w-full h-full">
+                          <DayInfoModal />
+                        </div>
+                      )}
+                      {viewMode === "week" && (
+                        <div className="w-full h-full">
+                          <WeeklyView />
+                        </div>
+                      )}
+                      {viewMode === "workweek" && (
+                        <div className="w-full h-full">
+                          <WorkWeekView />
+                        </div>
+                      )}
+                      {viewMode === "year" && (
+                        <div className="w-full h-full">
+                          <YearView />
+                        </div>
+                      )}
+                      {viewMode === "label" && selectedLabel && (
+                        <div className="w-full h-full">
+                          <LabelEventsView
+                            label={selectedLabel}
+                            setShowLabelEventsModal={setShowLabelEventsModal}
+                          />
+                        </div>
+                      )}
+                      {viewMode === "labelManager" && (
+                        <div className="w-full h-full">
+                          <LabelManager />
+                        </div>
+                      )}
+                      {viewMode === "profile" && (
+                        <div className="w-full h-full">
+                          <Profile />
+                        </div>
+                      )}
+                      {viewMode === "backup" && (
+                        <div className="w-full h-full">
+                          <Backup />
+                        </div>
+                      )}
+                      {viewMode === "calendarSettings" && (
+                        <div className="w-full h-full">
+                          <CalendarSettings />
+                        </div>
+                      )}
                     </div>
-                    )}
+                    <div className="md:hidden fixed bottom-0 left-0 w-full bg-zinc-800 text-white flex justify-around items-center p-8">
+                      <button
+                        onClick={() => setViewMode("profile")}
+                        className="flex flex-col items-center"
+                      >
+                        <span className="material-icons">person</span>
+                      </button>
+                      <button
+                        onClick={() => setViewMode("day")}
+                        className="flex flex-col items-center"
+                      >
+                        <span className="material-icons">calendar_today</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </React.Fragment>
@@ -184,7 +216,6 @@ function App() {
             )
           }
         />
-        
       </Routes>
     </Router>
   );

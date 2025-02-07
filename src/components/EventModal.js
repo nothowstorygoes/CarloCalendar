@@ -19,11 +19,7 @@ import it from "date-fns/locale/it";
 import dayjs from "dayjs"; // Ensure dayjs is imported
 import RepeatEventModal from "./RepeatEventModal"; // Import RepeatEventModal
 
-function EditConfirmationModal({
-  onClose,
-  onEditSingle,
-  onEditFuture,
-}) {
+function EditConfirmationModal({ onClose, onEditSingle, onEditFuture }) {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-52">
       <div className="bg-white dark:bg-zinc-950 rounded-lg shadow-2xl p-6 z-52">
@@ -59,11 +55,7 @@ function EditConfirmationModal({
   );
 }
 
-function DeleteConfirmationModal({
-  onClose,
-  onDeleteSingle,
-  onDeleteFuture,
-}) {
+function DeleteConfirmationModal({ onClose, onDeleteSingle, onDeleteFuture }) {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-52">
       <div className="bg-white dark:bg-zinc-950 rounded-lg shadow-2xl p-6 z-52">
@@ -175,42 +167,39 @@ export default function EventModal() {
     console.log(showEditConfirmation);
   }, [showEditConfirmation]);
   const getRepeatTypeString = (repeatOptions) => {
-    if (repeatOptions.repeatType === 'custom' && repeatOptions.customRepeat) {
+    if (repeatOptions.repeatType === "custom" && repeatOptions.customRepeat) {
       const { interval, frequency, daysOfWeek } = repeatOptions.customRepeat;
       console.log(frequency);
       let frequencyTranslation;
       switch (frequency) {
-        case 'week':
-          frequencyTranslation = 'settimane';
+        case "week":
+          frequencyTranslation = "settimane";
           break;
-        case 'monthly':
-          frequencyTranslation = 'mesi';
+        case "monthly":
+          frequencyTranslation = "mesi";
           break;
-        case 'yearly':
-          frequencyTranslation = 'anni';
+        case "yearly":
+          frequencyTranslation = "anni";
           break;
-        case 'monthlyCustom':
-          frequencyTranslation = 'mesi';
+        case "monthlyCustom":
+          frequencyTranslation = "mesi";
           break;
         default:
-          frequencyTranslation = '';
+          frequencyTranslation = "";
       }
-  
-      let daysOfWeekString = '';
+
+      let daysOfWeekString = "";
       if (daysOfWeek && daysOfWeek.length > 0) {
         daysOfWeekString = `, ${daysOfWeek.length} giorni`;
       }
-  
+
       return `Ogni ${interval} ${frequencyTranslation}${daysOfWeekString}`;
-    } else if (repeatOptions.repeatType==="yearly")
-    {
+    } else if (repeatOptions.repeatType === "yearly") {
       return `Ogni anno`;
-    } else if(repeatOptions.repeatType==="monthly")
-    {
+    } else if (repeatOptions.repeatType === "monthly") {
       return "Ogni mese";
     }
   };
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -237,7 +226,11 @@ export default function EventModal() {
     };
     console.log(calendarEvent);
     try {
-      if (selectedEvent && selectedEvent.postponable && selectedEvent.day !== calendarEvent.day) {
+      if (
+        selectedEvent &&
+        selectedEvent.postponable &&
+        selectedEvent.day !== calendarEvent.day
+      ) {
         // Duplicate the event if it is postponable
         const duplicatedEvent = {
           ...calendarEvent,
@@ -367,7 +360,9 @@ export default function EventModal() {
         calculatedEndDate
       );
       let eventCount = 0;
-      setRepeatTypeString(`Ogni ${interval} settimane, ${daysOfWeek.length} giorni, fino al ${calculatedEndDate}`);
+      setRepeatTypeString(
+        `Ogni ${interval} settimane, ${daysOfWeek.length} giorni, fino al ${calculatedEndDate}`
+      );
       for (
         let weekIndex = 0;
         weekIndex < weeksMatrix.length;
@@ -674,7 +669,6 @@ export default function EventModal() {
     }
   };
 
-
   const saveFutureEvents = async (event, repeatId) => {
     try {
       const batch = writeBatch(db);
@@ -756,7 +750,7 @@ export default function EventModal() {
         />
       )}
       <form
-        className="bg-white dark:bg-zinc-950 rounded-4xl shadow-2xl w-4/5 z-51"
+        className="bg-white dark:bg-zinc-950 rounded-4xl w-[24rem] shadow-2xl md:w-4/5 z-51"
         onSubmit={handleSubmit}
       >
         <header className="bg-gray-100 dark:bg-zinc-900 px-4 py-2 flex justify-between items-center rounded-t-4xl">
@@ -784,12 +778,12 @@ export default function EventModal() {
         </header>
         <div className="p-3 mt-2">
           <div className="flex flex-col gap-y-4">
-            <div className="flex flex-row items-center mb-8">
-              <p className="text-black dark:text-white ml-28 w-20">
+            <div className="flex flex-row items-center mb-8 mt-2 md:mt-0">
+              <p className="text-black dark:text-white ml-16 md:ml-28 w-20">
                 Scegli un calendario:
               </p>
 
-              <div className="grid grid-cols-4 gap-x-10 gap-y-5 items-center ml-16">
+              <div className="grid grid-cols-4 gap-x-10 gap-y-5 items-center ml-16 hidden md:!grid">
                 {sortedCalendar.map((cal, i) => (
                   <div
                     key={i}
@@ -806,97 +800,119 @@ export default function EventModal() {
                   </div>
                 ))}
               </div>
-            </div>
-            <div className="flex flex-row items-center">
-            <div className="flex flex-row items-center ml-12">
-              <span className="material-icons-outlined text-gray-400 dark:text-zinc-200 ml-3">
-                edit
-              </span>
-              <div className="flex flex-col items-center">
-                <div className="flex flex-row items-center">
-                  <input
-                    type="text"
-                    name="title"
-                    placeholder={t("add_title")}
-                    value={title}
-                    disabled={isChecked && postponable}
-                    required
-                    className="ml-3 mr-6 pt-3 border-0 text-gray-600 dark:text-zinc-200 text-xl font-semibold pb-2 w-60 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-zinc-700 rounded"
-                    onChange={(e) => setTitle(e.target.value)}
-                  />
-                  <input
-                    type="checkbox"
-                    checked={postponable}
-                    onChange={() => setPostponable(!postponable)}
-                    className="mr-2 rounded-full"
-                  />
-                  <label className="text-gray-600 dark:text-zinc-200">
-                    {t("postponable")}
-                  </label>
-                </div>
-                <textarea
-                  name="description"
-                  placeholder={t("add_description")}
-                  value={description}
-                  rows="4"
-                  disabled={isChecked && postponable}
-                  className="ml-9 pt-3 border-0 text-gray-600 dark:text-zinc-200 pb-2 w-96 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 bg-gray-100 dark:bg-zinc-700 rounded"
-                  onChange={(e) => setDescription(e.target.value)}
-                />
+              <div className="md:hidden ml-16">
+                <select
+                  value={selectedCalendar}
+                  onChange={(e) => setSelectedCalendar(e.target.value)}
+                  className="border rounded-2xl p-2 dark:bg-zinc-700 dark:text-white px-4"
+                >
+                  {sortedCalendar.map((cal, i) => (
+                    <option key={i} value={cal.id}>
+                      {cal.name}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
-            <div className="flex items-center flex-row ml-56">
-              <div className="flex items-center">
-                <span className="material-icons text-gray-400 dark:text-zinc-200">
-                  event
+            <div className="flex flex-col md:flex-row md:items-center w-screen">
+              <div className="flex flex-row items-center md:ml-12">
+                <span className="material-icons-outlined text-gray-400 dark:text-zinc-200  ml-2 md:ml-3 -mt-16 md:mt-0">
+                  edit
                 </span>
-              </div>
-              <div className="flex items-center gap-x-2 ml-6 justify-between">
-                <div>
-                  <DatePicker
-                    selected={date}
-                    onChange={(date) => setDate(date)}
-                    dateFormat="dd/MM/yyyy"
-                    className="w-32 p-2 ml-5 border rounded border-black dark:border-zinc-200 bg-gray-100 dark:bg-zinc-700 dark:text-white"
-                    disabled={isChecked && postponable}
-                    locale={it}
-                  />
-                  <div className="flex justify-end mt-4">
-                    <select
-                      value={
-                        repeatOptions ? repeatOptions.repeatType : "no_repeat"
-                      }
+                <div className="flex flex-col items-center">
+                  <div className="flex flex-col md:flex-row md:items-center">
+                    <input
+                      type="text"
+                      name="title"
+                      placeholder={t("add_title")}
+                      value={title}
                       disabled={isChecked && postponable}
-                      onChange={(e) => {
-                        if (e.target.value !== "no_repeat") {
-                          setShowRepeatModal(true);
-                          setRepeatOptions({ repeatType: e.target.value });
-                        } else {
-                          setRepeatOptions(null);
-                        }
-                      }}
-                      className="bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-800 px-8 rounded-2xl text-white mr-2"
-                    >
-                      <option value="no_repeat">{t("no_repeat")}</option>
-                      <option value="monthly">{t("monthly")}</option>
-                      <option value="yearly">{t("yearly")}</option>
-                      <option value="custom">{t("custom")}</option>
-                    </select>
+                      required
+                      className="md:ml-3 md:mr-6 pt-3 border-0 text-gray-600 dark:text-zinc-200 text-xl font-semibold pb-2 md:w-60 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-zinc-700 rounded"
+                      onChange={(e) => setTitle(e.target.value)}
+                    />
+                    <div>
+                      <input
+                        type="checkbox"
+                        checked={postponable}
+                        onChange={() => setPostponable(!postponable)}
+                        className="md:mr-2 rounded-full"
+                      />
+                      <label className="text-gray-600 dark:text-zinc-200 ml-2 md:ml-0">
+                        {t("postponable")}
+                      </label>
+                    </div>
+                  </div>
+                  <textarea
+                    name="description"
+                    placeholder={t("add_description")}
+                    value={description}
+                    rows="4"
+                    disabled={isChecked && postponable}
+                    className="mt-4 md:mt-0 ml-9 pt-3 border-0 text-gray-600 dark:text-zinc-200 pb-2 w-64 md:w-96 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 bg-gray-100 dark:bg-zinc-700 rounded"
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="flex md:items-center flex-col md:flex-row md:ml-56 mt-6 md:mt-0">
+                <div className="flex flex-row">
+                  <div className="flex items-center">
+                    <span className="material-icons text-gray-400 dark:text-zinc-200 ml-2 md:ml-0">
+                      event
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-x-2 ml-9 md:ml-6 justify-between">
+                    <div>
+                      <DatePicker
+                        selected={date}
+                        onChange={(date) => setDate(date)}
+                        dateFormat="dd/MM/yyyy"
+                        className="w-36 md:w-32 p-2 md:ml-5 border rounded-2xl border-black dark:border-zinc-600 bg-gray-100 dark:bg-zinc-700 dark:text-white"
+                        disabled={isChecked && postponable}
+                        locale={it}
+                      />
+                      <div className="flex justify-end mt-4">
+                        <select
+                          value={
+                            repeatOptions
+                              ? repeatOptions.repeatType
+                              : "no_repeat"
+                          }
+                          disabled={isChecked && postponable}
+                          onChange={(e) => {
+                            if (e.target.value !== "no_repeat") {
+                              setShowRepeatModal(true);
+                              setRepeatOptions({
+                                repeatType: e.target.value,
+                              });
+                            } else {
+                              setRepeatOptions(null);
+                            }
+                          }}
+                          className="bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-800 px-8 rounded-2xl text-white mr-2"
+                        >
+                          <option value="no_repeat">{t("no_repeat")}</option>
+                          <option value="monthly">{t("monthly")}</option>
+                          <option value="yearly">{t("yearly")}</option>
+                          <option value="custom">{t("custom")}</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center flex-row ml-5">
+                <div className="flex items-center flex-row ml-2 md:ml-5 mt-4 md:mt-0">
                   <span className="material-icons text-gray-400 dark:text-zinc-200">
                     access_time
                   </span>
-                  <label className="ml-2 text-gray-600 dark:text-zinc-200">
+                  <label className="!hidden md:!block md:ml-2 text-gray-600 dark:text-zinc-200">
                     {t("access_time")}
                   </label>
 
-                  <div className="flex items-center gap-x-2 ml-2">
+                  <div className="flex items-center gap-x-2 ml-9 md:ml-2">
                     <select
                       value={time}
                       onChange={(e) => setTime(e.target.value)}
-                      className={`custom-scrollbar w-32 p-2 border rounded ${
+                      className={`custom-scrollbar w-36 md:w-32 p-2 border rounded-2xl ${
                         specificTime
                           ? "border-black dark:border-zinc-200"
                           : "border-gray-300 bg-gray-100 dark:border-zinc-700 dark:bg-zinc-700"
@@ -906,19 +922,18 @@ export default function EventModal() {
                       {generateTimeOptions()}
                     </select>
                   </div>
+                  <input
+                    type="checkbox"
+                    checked={specificTime}
+                    onChange={() => setSpecificTime(!specificTime)}
+                    className="ml-4 rounded-full"
+                    disabled={isChecked && postponable}
+                  />
                 </div>
               </div>
-              <input
-                type="checkbox"
-                checked={specificTime}
-                onChange={() => setSpecificTime(!specificTime)}
-                className="ml-4 rounded-full"
-                disabled={isChecked && postponable}
-              />
             </div>
-          </div>
             <div className="flex flex-col items-center justify-between mt-4 ml-2 mr-6">
-              <div className="grid grid-cols-6 gap-x-10 gap-y-5 ml-6">
+              <div className="grid grid-cols-6 gap-x-10 gap-y-5 ml-6 hidden md:!grid">
                 {labels
                   .filter((label) => label.calendarId === selectedCalendar)
                   .sort((a, b) => a.code - b.code)
@@ -946,6 +961,25 @@ export default function EventModal() {
                       </span>
                     </div>
                   ))}
+              </div>
+              <div className="md:hidden -ml-4 flex flex-row items-center">
+                <p className="text-black dark:text-white w-20 mr-8">
+                  Scegli una categoria:
+                </p>
+                <select
+                  value={selectedLabel}
+                  onChange={(e) => setSelectedLabel(e.target.value)}
+                  className="border rounded-2xl p-2 px-6 dark:bg-zinc-700 dark:text-white"
+                >
+                  {labels
+                    .filter((label) => label.calendarId === selectedCalendar)
+                    .sort((a, b) => a.code - b.code)
+                    .map((lbl, i) => (
+                      <option key={i} value={lbl.name}>
+                        {lbl.name}
+                      </option>
+                    ))}
+                </select>
               </div>
             </div>
           </div>
