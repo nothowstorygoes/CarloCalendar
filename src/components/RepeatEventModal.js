@@ -73,7 +73,7 @@ export default function RepeatEventModal({
 
   return (
     <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50 z-52 dark:bg-zinc-800 dark:bg-opacity-75">
-      <div className="bg-white dark:bg-zinc-950 rounded-4xl shadow-2xl w-2/5 z-52">
+      <div className="w-[25rem] md:w-auto bg-white dark:bg-zinc-950 rounded-4xl shadow-2xl w-2/5 z-52">
         <header className="w-full bg-gray-100 dark:bg-zinc-900 px-4 py-4 flex justify-between items-center rounded-t-4xl">
           <h2 className="text-lg font-bold text-gray-600 dark:text-zinc-50 ml-4">
             {t("repeat_event")}
@@ -92,7 +92,7 @@ export default function RepeatEventModal({
                 <label className="text-gray-600 dark:text-zinc-200">
                   {t("end_date")}
                 </label>
-                <div className="flex flex-row gap-x-8 mb-4">
+                <div className="flex flex-col mt-10 md:mt-0 md:flex-row gap-x-8 gap-y-4 mb-10 md:mb-4">
                   <label className="flex items-center text-white">
                     <input
                       type="radio"
@@ -191,7 +191,7 @@ export default function RepeatEventModal({
                     <label className="text-gray-600 dark:text-zinc-200">
                       {t("days_of_week")}
                     </label>
-                    <div className="flex gap-x-2">
+                    <div className="md:flex md:flex-row md:gap-x-2 grid grid-cols-4 gap-x-4 gap-y-4">
                       {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
                         (day, index) => (
                           <button
@@ -241,7 +241,7 @@ export default function RepeatEventModal({
                 <label className="text-gray-600 dark:text-zinc-200">
                   {t("end_date")}
                 </label>
-                <div className="flex flex-row gap-x-8 mb-4">
+                <div className="flex flex-col gap-y-4 md:flex-row gap-x-8 mt-6 md:mt-0 mb-4">
                   <label className="flex items-center text-white">
                     <input
                       type="radio"
@@ -305,7 +305,7 @@ export default function RepeatEventModal({
                 <label className="text-gray-600 dark:text-zinc-200">
                   {t("end_year")}
                 </label>
-                <div className="flex flex-row gap-x-8 mb-4">
+                <div className="flex flex-col mt-10 md:mt-0 md:flex-row gap-x-8 gap-y-4 mb-10 md:mb-4">
                   <label className="flex items-center text-white">
                     <input
                       type="radio"

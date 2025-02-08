@@ -267,7 +267,7 @@ export default function DayInfoModal() {
   const isToday = daySelected.isSame(dayjs(), "day");
 
   return (
-    <div className="md:h-[calc(100%-4rem)] w-screen md:w-[calc(100%-1.5rem)] left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-900 md:dark:bg-zinc-950 rounded-3xl overflow-x-hidden">
+    <div className="h-[48.7rem] -mt-5 md:mt-0 md:h-[calc(100%-4rem)] w-screen md:w-[calc(100%-1.5rem)] left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-900 md:dark:bg-zinc-950 rounded-3xl overflow-x-hidden">
       {showDeleteConfirmation && (
         <DeleteConfirmationModal
           onClose={() => setShowDeleteConfirmation(false)}

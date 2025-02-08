@@ -47,8 +47,8 @@ export default function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900">
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg w-96">
+    <div className="flex items-center justify-center h-screen bg-zinc-100 dark:bg-zinc-900">
+      <div className="bg-white dark:bg-zinc-800 p-8 rounded-lg shadow-lg w-96">
         <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">Login</h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         <form onSubmit={handleEmailLogin}>
@@ -74,14 +74,14 @@ export default function Login() {
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white p-2 rounded mb-4"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-2xl mb-4"
           >
             {t('login_with_email')}
           </button>
         </form>
         <button
           onClick={handleGoogleLogin}
-          className="w-full bg-red-500 hover:bg-red-600 text-white p-2 rounded"
+          className="w-full bg-red-500 hover:bg-red-600 text-white p-2 rounded-2xl"
         >
           {t('login_with_google')}
         </button>

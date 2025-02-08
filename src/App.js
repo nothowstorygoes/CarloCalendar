@@ -41,6 +41,7 @@ function App() {
     user,
     setUser,
     setViewMode,
+    setShowEventModal
   } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -135,7 +136,7 @@ function App() {
             user ? (
               <React.Fragment>
                 {showEventModal && <EventModal />}
-                <div className="h-screen flex flex-col bg-zinc-900 md:bg-white dark:bg-zinc-900 overflow-hidden">
+                <div className="h-screen flex flex-col bg-zinc-800 md:bg-white dark:bg-zinc-900 overflow-hidden">
                   <CalendarHeader />
                   <div className="flex md:flex-1 md:flex-row flex-col h-full overflow-auto md:overflow-hidden items-center md:items-start">
                     <Sidebar />
@@ -206,6 +207,12 @@ function App() {
                         className="flex flex-col items-center"
                       >
                         <span className="material-icons">calendar_today</span>
+                      </button>
+                      <button
+                        onClick={() => setShowEventModal(true)}
+                        className="flex flex-col items-center"
+                      >
+                        <span className="material-icons">add</span>
                       </button>
                     </div>
                   </div>

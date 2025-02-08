@@ -819,8 +819,8 @@ export default function EventModal() {
                 <span className="material-icons-outlined text-gray-400 dark:text-zinc-200  ml-2 md:ml-3 -mt-16 md:mt-0">
                   edit
                 </span>
-                <div className="flex flex-col items-center">
-                  <div className="flex flex-col md:flex-row md:items-center">
+                <div className="flex flex-col items-center ml-10">
+                  <div className="flex flex-col md:flex-row md:items-center items-start">
                     <input
                       type="text"
                       name="title"
@@ -828,7 +828,7 @@ export default function EventModal() {
                       value={title}
                       disabled={isChecked && postponable}
                       required
-                      className="md:ml-3 md:mr-6 pt-3 border-0 text-gray-600 dark:text-zinc-200 text-xl font-semibold pb-2 md:w-60 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-zinc-700 rounded"
+                      className="md:-ml-6 md:mr-6 pt-3 border-0 text-gray-600 dark:text-zinc-200 w-64 text-xl font-semibold pb-2 md:w-60 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 mb-4 bg-gray-100 dark:bg-zinc-700 rounded"
                       onChange={(e) => setTitle(e.target.value)}
                     />
                     <div>
@@ -849,7 +849,7 @@ export default function EventModal() {
                     value={description}
                     rows="4"
                     disabled={isChecked && postponable}
-                    className="mt-4 md:mt-0 ml-9 pt-3 border-0 text-gray-600 dark:text-zinc-200 pb-2 w-64 md:w-96 border-b-2 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 bg-gray-100 dark:bg-zinc-700 rounded"
+                    className="mt-4 md:mt-0 pt-3 text-gray-600 dark:text-zinc-200 pb-2 w-64 md:w-96 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 bg-gray-100 dark:bg-zinc-700 rounded"
                     onChange={(e) => setDescription(e.target.value)}
                   />
                 </div>
@@ -867,11 +867,11 @@ export default function EventModal() {
                         selected={date}
                         onChange={(date) => setDate(date)}
                         dateFormat="dd/MM/yyyy"
-                        className="w-36 md:w-32 p-2 md:ml-5 border rounded-2xl border-black dark:border-zinc-600 bg-gray-100 dark:bg-zinc-700 dark:text-white"
+                        className="w-38 md:w-32 p-2 md:ml-5 border rounded-2xl border-black dark:border-zinc-600 bg-gray-100 dark:bg-zinc-700 dark:text-white"
                         disabled={isChecked && postponable}
                         locale={it}
                       />
-                      <div className="flex justify-end mt-4">
+                      <div className="flex md:justify-end mt-4">
                         <select
                           value={
                             repeatOptions
@@ -889,7 +889,7 @@ export default function EventModal() {
                               setRepeatOptions(null);
                             }
                           }}
-                          className="bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-800 px-8 rounded-2xl text-white mr-2"
+                          className="w-38 bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-800 px-8 rounded-2xl text-white mr-2"
                         >
                           <option value="no_repeat">{t("no_repeat")}</option>
                           <option value="monthly">{t("monthly")}</option>
@@ -962,8 +962,8 @@ export default function EventModal() {
                     </div>
                   ))}
               </div>
-              <div className="md:hidden -ml-4 flex flex-row items-center">
-                <p className="text-black dark:text-white w-20 mr-8">
+              <div className="md:hidden -ml-2 flex flex-row items-center">
+                <p className="text-black dark:text-white w-20 mr-4 -ml-2">
                   Scegli una categoria:
                 </p>
                 <select

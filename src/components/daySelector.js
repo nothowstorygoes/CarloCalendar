@@ -28,7 +28,7 @@ const DaySelector = ({ onClose }) => {
     <div className="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50 z-50 dark:bg-zinc-800 dark:bg-opacity-75">
       <div className="bg-white dark:bg-zinc-950 rounded-4xl shadow-2xl w-5/4 z-50">
         <header className="bg-gray-100 dark:bg-zinc-900 px-4 py-4 flex justify-between items-center rounded-t-4xl">
-          <h2 className="text-gray-600 dark:text-zinc-50 ml-4">Select a Date</h2>
+          <h2 className="text-gray-600 dark:text-zinc-50 ml-4">Seleziona una data</h2>
           <button
             onClick={onClose}
             className="material-icons-outlined text-gray-400 dark:text-zinc-200 mr-2"
@@ -66,13 +66,13 @@ const DaySelector = ({ onClose }) => {
             onClick={onClose}
             className="hover:bg-zinc-900 px-6 py-2 rounded-4xl text-white mr-4"
           >
-            Cancel
+            Cancella
           </button>
           <button
             onClick={handleSubmit}
             className="bg-blue-500 hover:bg-blue-600 px-6 py-2 rounded-4xl text-white mr-4"
           >
-            Select
+            Vai
           </button>
         </footer>
       </div>

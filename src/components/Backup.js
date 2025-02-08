@@ -279,8 +279,8 @@ export default function Backup() {
 
   if (!backupInfo) {
     return (
-      <div className="h-[calc(100%-4rem)] w-[calc(100%-1.5rem)] left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-950 rounded-3xl">
-        <div className="bg-white dark:bg-zinc-950 w-[calc(100%-16rem)] h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative mt-8 justify-center flex items-center">
+      <div className="w-screen h-[49rem] -mt-6 md:h-[calc(100%-4rem)] md:w-[calc(100%-1.5rem)] left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-900 md:dark:bg-zinc-950 rounded-3xl">
+        <div className="bg-white dark:bg-zinc-900 md:dark:bg-zinc-950 w-[calc(100%-16rem)] h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative mt-8 justify-center flex items-center">
           <div>
             <Spinner />
           </div>
@@ -290,23 +290,23 @@ export default function Backup() {
   }
 
   return (
-    <div className="h-[calc(100%-4rem)] w-[calc(100%-1.5rem)] left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-950 rounded-3xl">
-      <div className="bg-white dark:bg-zinc-950 w-[calc(100%-16rem)] h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative mt-8">
+    <div className="w-screen h-[49rem] md:mt-0 -mt-6 md:h-[calc(100%-4rem)] md:w-[calc(100%-1.5rem)] left-0 top-0 flex justify-center items-center bg-white dark:bg-zinc-900 md:dark:bg-zinc-950 rounded-3xl">
+      <div className="bg-white dark:bg-zinc-900 md:dark:bg-zinc-950 w-screen h-[49rem] md:w-[calc(100%-16rem)] md:h-[calc(100%-4rem)] max-w-none max-h-none overflow-hidden relative mt-8">
         <div className="p-4 relative w-full">
           <div className="flex justify-between overflow-x-hidden custom-scrollbar">
             <div className="flex flex-col items-center w-full">
-              <div className="flex items-center w-full mb-20">
-                <p className="text-2xl font-bold text-gray-600 dark:text-zinc-50">
+              <div className="flex items-center w-full mb-20 justify-center md:justify-start">
+                <p className="text-2xl font-bold text-gray-600 dark:text-zinc-50 mr-12 md:mr-0">
                   I tuoi backup
                 </p>
                 <button
                   onClick={handleCreateBackup}
-                  className=" ml-52 mr-12 bg-blue-500 hover:bg-blue-600 text-white font-bold text-3xl px-2 rounded-4xl"
+                  className=" md:ml-52 md:mr-12 bg-blue-500 hover:bg-blue-600 text-white font-bold text-3xl px-2 rounded-2xl md:px-2 md:rounded-4xl"
                 >
                   +
                 </button>
                 {creating && (
-                  <div role="status">
+                  <div role="status" className="ml-10">
                     <svg
                       aria-hidden="true"
                       className="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-gray-600 dark:fill-gray-300"

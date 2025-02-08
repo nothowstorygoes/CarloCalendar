@@ -67,11 +67,14 @@ export default function CalendarHeader() {
   function handleDarkModeToggle() {
     const newDarkMode = !darkMode;
     setDarkMode(newDarkMode);
+  
     localStorage.setItem("darkMode", newDarkMode);
     if (newDarkMode) {
       document.documentElement.classList.add("dark");
+      document.querySelector('meta[name="theme-color"]').setAttribute("content", "#18181b");
     } else {
       document.documentElement.classList.remove("dark");
+      document.querySelector('meta[name="theme-color"]').setAttribute("content", "#ffffff");
     }
   }
 
@@ -117,9 +120,17 @@ export default function CalendarHeader() {
               dayjs(new Date(year, monthIndex)).format("MMMM YYYY")
             )}
           </h2>}
+          {viewMode === "day" ? (
+          <button
+          onClick={handleReset}
+          className="md:hidden flex border rounded-3xl py-2 px-6 ml-5 bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50"
+        >
+          {t("today")}
+        </button>
+          ) : ""}
         <button
           onClick={handleReset}
-          className="flex border rounded-3xl py-2 px-6 ml-5 bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50"
+          className="hidden md:!flex flex border rounded-3xl py-2 px-6 ml-5 bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-50"
         >
           {t("today")}
         </button>
