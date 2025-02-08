@@ -190,13 +190,13 @@ export default function EventModal() {
       }
   
       const daysOfWeekTranslation = {
-        0: "domenica",
-        1: "lunedì",
-        2: "martedì",
-        3: "mercoledì",
-        4: "giovedì",
-        5: "venerdì",
-        6: "sabato",
+        0: "lunedì",
+        1: "martedì",
+        2: "mercoledì",
+        3: "giovedì",
+        4: "venerdì",
+        5: "sabato",
+        6: "domenica",
       };
   
       let daysOfWeekString = "";
@@ -818,6 +818,7 @@ export default function EventModal() {
                   onChange={(e) => setSelectedCalendar(e.target.value)}
                   className="border rounded-2xl p-2 dark:bg-zinc-700 dark:text-white px-4"
                 >
+                  <option>Scegli</option>
                   {sortedCalendar.map((cal, i) => (
                     <option key={i} value={cal.id}>
                       {cal.name}
@@ -981,8 +982,9 @@ export default function EventModal() {
                 <select
                   value={selectedLabel}
                   onChange={(e) => setSelectedLabel(e.target.value)}
-                  className="border rounded-2xl p-2 px-6 dark:bg-zinc-700 dark:text-white"
+                  className="border rounded-2xl p-2 px-10 dark:bg-zinc-700 dark:text-white"
                 >
+                  <option>Scegli</option>
                   {labels
                     .filter((label) => label.calendarId === selectedCalendar)
                     .sort((a, b) => a.code - b.code)
