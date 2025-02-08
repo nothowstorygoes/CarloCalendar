@@ -82,10 +82,15 @@ const EventItem = ({
             </p>
           </div>
         </div>
-        {evt.time && <p className="text-sm text-black"> alle {evt.time}</p>}
+        <div className="w-16">
+          {evt.time && <p className="text-sm text-black"> alle {evt.time}</p>}
+        </div>
       </div>
       <div className="flex flex-row items-center justify-between md:justify-end">
         <p className="text-sm md:mr-3 text-black font-bold">{evt.label}</p>
+        <p className="text-sm md:mr-3 text-black">
+        creato il {dayjs(Number(evt.id.substring(0, 13))).format("DD/MM/YYYY")}
+        </p>
         <div className="items-center flex flex-row">
           {!evt.time && (
             <input
@@ -95,6 +100,7 @@ const EventItem = ({
               onChange={(e) => handleCheckboxChange(e, evt)}
             />
           )}
+          {evt.time ? (<div className="w-[4.5rem]"></div>) :""}
           <button
             onClick={(e) => {
               e.stopPropagation();

@@ -166,6 +166,7 @@ export default function EventModal() {
   useEffect(() => {
     console.log(showEditConfirmation);
   }, [showEditConfirmation]);
+  
   const getRepeatTypeString = (repeatOptions) => {
     if (repeatOptions.repeatType === "custom" && repeatOptions.customRepeat) {
       const { interval, frequency, daysOfWeek } = repeatOptions.customRepeat;
@@ -187,12 +188,23 @@ export default function EventModal() {
         default:
           frequencyTranslation = "";
       }
-
+  
+      const daysOfWeekTranslation = {
+        0: "domenica",
+        1: "lunedì",
+        2: "martedì",
+        3: "mercoledì",
+        4: "giovedì",
+        5: "venerdì",
+        6: "sabato",
+      };
+  
       let daysOfWeekString = "";
       if (daysOfWeek && daysOfWeek.length > 0) {
-        daysOfWeekString = `, ${daysOfWeek.length} giorni`;
+        const daysOfWeekNames = daysOfWeek.map(day => daysOfWeekTranslation[day[0]]);
+        daysOfWeekString = ` ( ${daysOfWeekNames.join(" ")} )`;
       }
-
+  
       return `Ogni ${interval} ${frequencyTranslation}${daysOfWeekString}`;
     } else if (repeatOptions.repeatType === "yearly") {
       return `Ogni anno`;
@@ -361,7 +373,7 @@ export default function EventModal() {
       );
       let eventCount = 0;
       setRepeatTypeString(
-        `Ogni ${interval} settimane, ${daysOfWeek.length} giorni, fino al ${calculatedEndDate}`
+        `Ogni ${interval} settimane, ${daysOfWeek.length} giorni`
       );
       for (
         let weekIndex = 0;

@@ -157,6 +157,7 @@ export default function RepeatEventModal({
                   {t("custom_repeat")}
                 </label>
                 <div className="flex items-center gap-x-2">
+                  <p className="text-black dark:text-white">Ogni</p>
                   <input
                     type="number"
                     value={customRepeat.interval}
@@ -181,8 +182,8 @@ export default function RepeatEventModal({
                     <option value="">
                       Seleziona frequenza
                     </option>
-                    <option value="week">Settimana</option>
-                    <option value="monthlyCustom">Mese</option>
+                    <option value="week">Settimane</option>
+                    <option value="monthlyCustom">Mesi</option>
                   </select>
                 </div>
 
