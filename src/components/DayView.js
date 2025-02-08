@@ -37,7 +37,7 @@ const EventItem = ({
   <div className="flex justify-center items-center flex-col md:flex-row">
     <div
       key={evt.id}
-      className="flex md:justify-between w-5/6 md:w-5/6 md:items-center mb-2 p-2 rounded cursor-pointer transition-all duration-300 flex-col md:flex-row"
+      className="flex md:justify-between w-5/6 md:w-[70rem] md:items-center mb-2 p-2 rounded cursor-pointer transition-all duration-300 flex-col md:flex-row"
       style={{
         backgroundColor:
           evt.time && evt.checked
@@ -54,7 +54,7 @@ const EventItem = ({
               <div className="relative group">
                 <span className="text-black-600 font-bold md:w-68 relative">
                   <span>
-                    {truncateText(evt.title, 40)} &nbsp; &nbsp;
+                    {truncateText(evt.title, 30)} &nbsp; &nbsp;
                     {evt.postponable && "↷"}
                   </span>
                   <div className="!hidden md:!block absolute left-0 top-full mt-1 w-max p-2 bg-zinc-900 text-white font-bold border border-gray-300 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -129,6 +129,7 @@ export default function DayInfoModal() {
   const modalRef = useRef(null);
   const { t } = useTranslation();
   const today = dayjs();
+  const [loading, setLoading] = useState(false);
   const [showDaySelector, setShowDaySelector] = useState(false); // State to control DaySelector modal
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [deleteTargetEvent, setDeleteTargetEvent] = useState(null);
@@ -198,6 +199,7 @@ export default function DayInfoModal() {
 
   const handleDeleteFuture = async () => {
     console.log("Delete all future events");
+    setLoading(true);
     if (deleteTargetEvent) {
       try {
         const eventsQuery = query(
@@ -215,22 +217,7 @@ export default function DayInfoModal() {
       } catch (error) {
         console.error("Error deleting future events: ", error);
       }
-      setShowDeleteConfirmation(false);
-      setDeleteTargetEvent(null);
-    }
-  };
-
-  const handleDeleteAll = async () => {
-    if (deleteTargetEvent) {
-      const eventsQuery = query(
-        collection(db, `users/${auth.currentUser.uid}/events`),
-        where("repeat", "==", deleteTargetEvent.repeat)
-      );
-      const querySnapshot = await getDocs(eventsQuery);
-      querySnapshot.forEach(async (doc) => {
-        await deleteDoc(doc.ref);
-        dispatchCalEvent({ type: "delete", payload: { id: doc.id } });
-      });
+      setLoading(false);
       setShowDeleteConfirmation(false);
       setDeleteTargetEvent(null);
     }
@@ -278,8 +265,8 @@ export default function DayInfoModal() {
         <DeleteConfirmationModal
           onClose={() => setShowDeleteConfirmation(false)}
           onDeleteSingle={handleDeleteSingle}
-          onDeleteAll={handleDeleteAll}
-          onDeleteFuture={handleDeleteFuture}
+ì         onDeleteFuture={handleDeleteFuture}
+          laoding={loading}
         />
       )}
       {showDaySelector && (
