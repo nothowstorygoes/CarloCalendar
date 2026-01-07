@@ -28,6 +28,7 @@ module.exports = {
         '51': '51',
         '49': '49',
         '52': '52',
+        '55': '55',
       },
       gridTemplateColumns: {
         "1/5": "1fr 5fr"

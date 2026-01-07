@@ -313,7 +313,7 @@ export default function DayInfoModal() {
               {t("no_events")}
             </p>
           )}
-          <div className="w-screen md:w-auto ml:overflow-scroll overflow-auto h-[35rem] md:h-96 overflow-x-hidden custom-scrollbar">
+          <div className="w-screen md:w-auto ml:overflow-scroll overflow-auto h-[35rem] md:h-[60vh] overflow-x-hidden custom-scrollbar">
             {" "}
             {dayEvents.map((evt) => (
               <EventItem

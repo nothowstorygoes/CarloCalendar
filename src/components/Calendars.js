@@ -52,7 +52,7 @@ export default function Calendars() {
 
   return (
     <React.Fragment>
-      <div className="h-96 overflow-hidden w-64">
+      <div className="h-[90vh] overflow-hidden w-64">
         <div className="flex justify-between items-center">
           <p className="font-bold text-black dark:text-white">Calendari</p>
           <div>
@@ -78,7 +78,7 @@ export default function Calendars() {
           </span>
           </div>  
         </div>
-        <div className="mt-6 ml-4 h-96 overflow-y-auto custom-scrollbar">
+        <div className="mt-6 ml-4 h-[45vh] overflow-y-auto custom-scrollbar">
           {calendars
            .sort((a, b) => a.id - b.id)
            .map((calendar) =>( // Sort labels by ascending order of code
@@ -110,7 +110,7 @@ export default function Calendars() {
               </div>
               <div
                 className={`transition-all duration-3000 ease-in-out overflow-hidden ${
-                  collapsedCalendars[calendar.id] ? "max-h-0" : "max-h-96"
+                  collapsedCalendars[calendar.id] ? "max-h-0" : "max-h-[40vh]"
                 }`}
               >
                 <ul className="ml-2 mt-2">
