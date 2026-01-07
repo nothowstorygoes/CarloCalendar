@@ -110,7 +110,7 @@ export default function Calendars() {
               </div>
               <div
                 className={`transition-all duration-3000 ease-in-out overflow-hidden ${
-                  collapsedCalendars[calendar.id] ? "max-h-0" : "max-h-[40vh]"
+                  collapsedCalendars[calendar.id] ? "max-h-0" : "max-h-[60vh]"
                 }`}
               >
                 <ul className="ml-2 mt-2">
