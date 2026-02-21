@@ -99,26 +99,32 @@ export default function ContextWrapper(props) {
           for (const pointer of sharedPointersSnap.docs) {
             const { ownerId, calendarId, role } = pointer.data();
             
-            const realCalendarRef = doc(db, `users/${ownerId}/calendars/${calendarId}`);
-            const realCalendarSnap = await getDoc(realCalendarRef);
+            try {
+              const realCalendarRef = doc(db, `users/${ownerId}/calendars/${calendarId}`);
+              const realCalendarSnap = await getDoc(realCalendarRef);
 
-            if (realCalendarSnap.exists()) {
-              const realCalendarData = realCalendarSnap.data();
-              // QUI LA MAGIA: leggiamo il ruolo freschissimo dal dizionario 'sharedWith' dell'Owner
-              const actualRole = realCalendarData.sharedWith && realCalendarData.sharedWith[user.uid] 
-                                  ? realCalendarData.sharedWith[user.uid] 
-                                  : role;
+              if (realCalendarSnap.exists()) {
+                const realCalendarData = realCalendarSnap.data();
+                const actualRole = realCalendarData.sharedWith && realCalendarData.sharedWith[user.uid] 
+                                    ? realCalendarData.sharedWith[user.uid] 
+                                    : role;
 
-              sharedCalendars.push({
-                ...realCalendarData,
-                id: realCalendarSnap.id,  
-                originalId: realCalendarData.id,
-                uniqueId: realCalendarSnap.id,
-                docId: realCalendarSnap.id,
-                isShared: true,
-                role: actualRole, // <-- Sostituisci "role: role" con questo!
-                ownerId: ownerId
-              });
+                sharedCalendars.push({
+                  ...realCalendarData,
+                  id: realCalendarSnap.id,  
+                  uniqueId: realCalendarSnap.id,
+                  docId: realCalendarSnap.id,
+                  originalId: realCalendarData.id,
+                  isShared: true,
+                  role: actualRole,
+                  ownerId: ownerId
+                });
+              }
+            } catch (pointerError) {
+              // SE ARRIVIAMO QUI, SIGNIFICA CHE L'OWNER CI HA REVOCATO L'ACCESSO!
+              console.warn(`Accesso revocato al calendario ${calendarId}. Pulizia del puntatore...`);
+              // Il frontend cancella autonomamente il puntatore obsoleto dal database di Utente B
+              await deleteDoc(pointer.ref);
             }
           }
 

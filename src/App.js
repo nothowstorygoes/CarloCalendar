@@ -75,44 +75,50 @@ function App() {
 
           // 2. SCARICA I DATI CONDIVISI DAGLI OWNER
           for (const pointer of sharedPointersSnap.docs) {
-            const { ownerId, calendarId } = pointer.data(); // calendarId qui è quello lungo (Kq0...)
+            const { ownerId, calendarId } = pointer.data(); 
 
-            const realCalendarRef = doc(db, `users/${ownerId}/calendars/${calendarId}`);
-            const realCalendarSnap = await getDoc(realCalendarRef);
+            try {
+              const realCalendarRef = doc(db, `users/${ownerId}/calendars/${calendarId}`);
+              const realCalendarSnap = await getDoc(realCalendarRef);
 
-            if (realCalendarSnap.exists()) {
-              const internalId = realCalendarSnap.data().id; // Questo è l'"1"
+              if (realCalendarSnap.exists()) {
+                const internalId = realCalendarSnap.data().id;
 
-              // A. Scarica gli eventi dell'Owner
-              const eventsQuery = query(
-                collection(db, `users/${ownerId}/events`),
-                where("calendarId", "==", internalId)
-              );
-              const sharedEventsSnap = await getDocs(eventsQuery);
-              
-              const sharedEvents = sharedEventsSnap.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-                isShared: true,
-                calendarId: calendarId // LA MAGIA SULLE LABEL
-              }));
-              allEvents = [...allEvents, ...sharedEvents];
+                // A. Scarica gli eventi dell'Owner
+                const eventsQuery = query(
+                  collection(db, `users/${ownerId}/events`),
+                  where("calendarId", "==", internalId)
+                );
+                const sharedEventsSnap = await getDocs(eventsQuery);
+                
+                const sharedEvents = sharedEventsSnap.docs.map((doc) => ({
+                  id: doc.id,
+                  ...doc.data(),
+                  isShared: true,
+                  calendarId: calendarId 
+                }));
+                allEvents = [...allEvents, ...sharedEvents];
 
-              // B. Scarica le label dell'Owner (ORA CON LA MAGIA ANCHE QUI!)
-              const labelsQuery = query(
-                collection(db, `users/${ownerId}/labels`),
-                where("calendarId", "==", internalId) // Filtra solo le label di questo specifico calendario
-              );
-              const sharedLabelsSnap = await getDocs(labelsQuery);
-              
-              const sharedLabels = sharedLabelsSnap.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-                isShared: true,
-                calendarId: calendarId // <--- ECCOLA! Sostituiamo l'"1" con il "Kq0..."
-              }));
-              
-              allLabels = [...allLabels, ...sharedLabels];
+                // B. Scarica le label dell'Owner
+                const labelsQuery = query(
+                  collection(db, `users/${ownerId}/labels`),
+                  where("calendarId", "==", internalId) 
+                );
+                const sharedLabelsSnap = await getDocs(labelsQuery);
+                
+                const sharedLabels = sharedLabelsSnap.docs.map((doc) => ({
+                  id: doc.id,
+                  ...doc.data(),
+                  isShared: true,
+                  calendarId: calendarId 
+                }));
+                
+                allLabels = [...allLabels, ...sharedLabels];
+              }
+            } catch (pointerError) {
+              // Accesso negato o calendario cancellato. Non facciamo crashare l'app.
+              console.warn(`Impossibile scaricare gli eventi del calendario condiviso ${calendarId}.`);
+              // (Il puntatore viene già eliminato nel ContextWrapper, qui ci basta ignorare l'errore)
             }
           }
 

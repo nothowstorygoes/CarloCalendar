@@ -33,8 +33,18 @@ export default function CalendarEditor({ selectedCalendar, setShowCalendarEditor
 
   const fetchPermissions = async () => {
     try {
-      const targetId = selectedCalendar.docId || selectedCalendar.id.toString();
-      const q = query(collection(db, "invitations"), where("calendarId", "==", targetId));
+      // Per coprire i vecchi e nuovi inviti, facciamo due query parallele o usiamo l'operatore "in"
+      // selectedCalendar.id è l'ID interno numerico/corto. selectedCalendar.docId è quello di firebase
+      const possibleIds = [];
+      if (selectedCalendar.id) possibleIds.push(selectedCalendar.id.toString());
+      if (selectedCalendar.docId) possibleIds.push(selectedCalendar.docId.toString());
+
+      // Query "in" accetta array fino a 10 elementi
+      const q = query(
+        collection(db, "invitations"), 
+        where("calendarId", "in", possibleIds)
+      );
+      
       const snap = await getDocs(q);
       const invites = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       setPermissionsList(invites);
@@ -46,10 +56,13 @@ export default function CalendarEditor({ selectedCalendar, setShowCalendarEditor
 
   // INVIA NUOVO INVITO TRAMITE API
   const handleSendInvite = async (e) => {
-    e.preventDefault(); // Evita che il form principale si invii
+    e.preventDefault(); 
     if (!targetEmail) return;
     setSendingInvite(true);
     
+    // Per sicurezza, cerchiamo sempre di inviare il docId
+    const safeCalendarId = selectedCalendar.docId || selectedCalendar.id.toString();
+
     try {
       const response = await fetch('/api/shareCalendar', {
         method: 'POST',
@@ -57,7 +70,7 @@ export default function CalendarEditor({ selectedCalendar, setShowCalendarEditor
         body: JSON.stringify({
           targetEmail: targetEmail,
           ownerId: auth.currentUser.uid,
-          calendarId: selectedCalendar.docId || selectedCalendar.id,
+          calendarId: safeCalendarId,
           calendarName: selectedCalendar.name,
           permissionLevel: newPermission,
         }),
@@ -67,7 +80,7 @@ export default function CalendarEditor({ selectedCalendar, setShowCalendarEditor
       if (response.ok) {
         alert("Invito inviato con successo!");
         setTargetEmail("");
-        fetchPermissions(); // Ricarica la lista degli utenti
+        fetchPermissions(); // Ricarica la lista
       } else {
         alert(data.error || "Errore durante l'invio.");
       }
@@ -78,7 +91,7 @@ export default function CalendarEditor({ selectedCalendar, setShowCalendarEditor
     setSendingInvite(false);
   };
 
-  // CAMBIA PERMESSO NEL DROPDOWN (Solo UI, si salva col tasto Salva finale)
+  // CAMBIA PERMESSO NEL DROPDOWN
   const handlePermissionChange = (id, newLevel) => {
     setPermissionsList(prev => prev.map(inv => inv.id === id ? { ...inv, permissionLevel: newLevel } : inv));
   };
@@ -103,20 +116,18 @@ export default function CalendarEditor({ selectedCalendar, setShowCalendarEditor
     }
   };
 
-  // SALVATAGGIO TOTALE (Nome, Priorità, Modifiche ai permessi)
+  // SALVATAGGIO TOTALE
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const batch = writeBatch(db);
       
-      // 1. Prepara l'aggiornamento per Nome e Priorità
       const calRef = doc(db, `users/${auth.currentUser.uid}/calendars`, selectedCalendar.docId);
       batch.update(calRef, { 
         name: name,
         prioritized: prioritized
       });
 
-      // 2. Prepara l'aggiornamento dei permessi
       permissionsList.forEach(inv => {
         const invRef = doc(db, "invitations", inv.id);
         batch.update(invRef, { permissionLevel: inv.permissionLevel });
@@ -128,10 +139,8 @@ export default function CalendarEditor({ selectedCalendar, setShowCalendarEditor
         }
       });
 
-      // 3. Esegui la scrittura di massa
       await batch.commit();
 
-      // 4. Aggiorna lo stato globale
       setCalendars(
         calendars.map((cal) =>
           cal.id === selectedCalendar.id ? { ...cal, name, prioritized } : cal
@@ -169,7 +178,7 @@ export default function CalendarEditor({ selectedCalendar, setShowCalendarEditor
         </header>
 
         <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
-          {/* SEZIONE: INFO BASE */}
+          {/* INFO BASE */}
           <div className="flex flex-col gap-y-6 mb-8">
             <div className="flex items-center">
               <span className="material-icons-outlined text-gray-400 dark:text-zinc-200">
@@ -204,7 +213,7 @@ export default function CalendarEditor({ selectedCalendar, setShowCalendarEditor
 
           <hr className="border-gray-200 dark:border-zinc-700 mb-6" />
 
-          {/* SEZIONE: CONDIVISIONE (Nuovo Invito) */}
+          {/* CONDIVISIONE (Nuovo Invito) */}
           <div className="mb-8">
             <h3 className="text-gray-600 dark:text-zinc-200 font-bold mb-4 flex items-center">
               <span className="material-icons-outlined mr-2">person_add</span>
@@ -237,7 +246,7 @@ export default function CalendarEditor({ selectedCalendar, setShowCalendarEditor
             </div>
           </div>
 
-          {/* SEZIONE: LISTA UTENTI CONDIVISI */}
+          {/* LISTA UTENTI CONDIVISI */}
           <div>
             <h3 className="text-gray-600 dark:text-zinc-200 font-bold mb-4 flex items-center">
               <span className="material-icons-outlined mr-2">group</span>
