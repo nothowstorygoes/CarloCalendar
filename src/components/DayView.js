@@ -1,9 +1,8 @@
-import React, { useContext, useRef, useMemo } from "react";
+import React, { useContext, useRef, useMemo, useState } from "react";
 import dayjs from "dayjs";
-import "dayjs/locale/it"; // Import Italian locale
+import "dayjs/locale/it";
 import GlobalContext from "../context/GlobalContext";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
 import {
   doc,
   deleteDoc,
@@ -19,7 +18,6 @@ import { auth, db } from "../firebase";
 import { DeleteConfirmationModal } from "./DeleteConfirmationModal";
 import DaySelector from "./daySelector";
 
-// Utility function to truncate text
 const truncateText = (text, maxLength) => {
   if (text.length > maxLength) {
     return text.substring(0, maxLength) + "...";
@@ -27,17 +25,22 @@ const truncateText = (text, maxLength) => {
   return text;
 };
 
+// --- EVENT ITEM AGGIORNATO CON isShared e isReadOnly ---
 const EventItem = ({
   evt,
   handleEventClick,
   handleCheckboxChange,
   handleDeleteEvent,
   getLabelColor,
+  isShared,
+  isReadOnly
 }) => (
   <div className="flex justify-center items-center flex-col md:flex-row">
     <div
       key={evt.id}
-      className="flex md:justify-between w-5/6 md:w-[70rem] md:items-center mb-2 p-2 rounded cursor-pointer transition-all duration-300 flex-col md:flex-row"
+      className={`flex md:justify-between w-5/6 md:w-[70rem] md:items-center mb-2 p-2 rounded transition-all duration-300 flex-col md:flex-row ${
+        isReadOnly ? "cursor-default" : "cursor-pointer"
+      }`}
       style={{
         backgroundColor:
           evt.time && evt.checked
@@ -47,18 +50,34 @@ const EventItem = ({
             : getLabelColor(evt.label),
       }}
     >
-      <div className="flex items-center" onClick={() => handleEventClick(evt)}>
+      <div 
+        className="flex items-center" 
+        onClick={() => {
+          if (!isReadOnly) handleEventClick(evt);
+        }}
+      >
         <div className="flex justify-between items-center">
           <div>
             <div className="flex items-center">
               <div className="relative group">
-                <span className="text-black-600 font-bold md:w-68 relative">
+                <span className="text-black-600 font-bold md:w-68 relative flex items-center">
                   <span>
                     {truncateText(evt.title, 30)} &nbsp; &nbsp;
                     {evt.postponable && "↷"}
                   </span>
+                  
+                  {/* ICONA DUE OMINI PER EVENTO CONDIVISO */}
+                  {isShared && (
+                    <span 
+                      className="material-icons ml-2 text-sm text-gray-800" 
+                      title={isReadOnly ? "Condiviso (Sola lettura)" : "Condiviso"}
+                    >
+                      group
+                    </span>
+                  )}
+
                   <div className="!hidden md:!block absolute left-0 top-full mt-1 w-max p-2 bg-zinc-900 text-white font-bold border border-gray-300 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    {evt.title}
+                    {evt.title} {isReadOnly && "(Sola Lettura)"}
                   </div>
                 </span>
               </div>
@@ -95,21 +114,30 @@ const EventItem = ({
           {!evt.time && (
             <input
               type="checkbox"
-              className="rounded-full w-6 h-6 cursor-pointer mr-4 md:mr-6 md:ml-6"
+              className={`rounded-full w-6 h-6 mr-4 md:mr-6 md:ml-6 ${
+                isReadOnly ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+              }`}
               checked={evt.checked}
-              onChange={(e) => handleCheckboxChange(e, evt)}
+              disabled={isReadOnly} // Disabilita la spunta se è solo lettura!
+              onChange={(e) => {
+                if (!isReadOnly) handleCheckboxChange(e, evt);
+              }}
             />
           )}
           {evt.time ? (<div className="w-[4.5rem]"></div>) :""}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDeleteEvent(evt.id);
-            }}
-            className="material-icons cursor-pointer text-black"
-          >
-            delete
-          </button>
+          
+          {/* MOSTRA IL TASTO DELETE SOLO SE NON È IN SOLA LETTURA */}
+          {!isReadOnly && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteEvent(evt.id);
+              }}
+              className="material-icons cursor-pointer text-black"
+            >
+              delete
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -125,12 +153,13 @@ export default function DayInfoModal() {
     setSelectedEvent,
     setShowEventModal,
     labels,
+    calendars, // <--- AGGIUNTO CALENDARS DAL CONTESTO
   } = useContext(GlobalContext);
   const modalRef = useRef(null);
   const { t } = useTranslation();
   const today = dayjs();
   const [loading, setLoading] = useState(false);
-  const [showDaySelector, setShowDaySelector] = useState(false); // State to control DaySelector modal
+  const [showDaySelector, setShowDaySelector] = useState(false); 
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [deleteTargetEvent, setDeleteTargetEvent] = useState(null);
 
@@ -140,14 +169,12 @@ export default function DayInfoModal() {
         dayjs(evt.day).format("DD-MM-YY") === daySelected.format("DD-MM-YY")
     );
 
-    // Sort events based on the code property of the label associated with the event
     events.sort((a, b) => {
       const labelA = labels.find((lbl) => lbl.name === a.label);
       const labelB = labels.find((lbl) => lbl.name === b.label);
       return (labelA?.code || 0) - (labelB?.code || 0);
     });
 
-    // Sort events by time in ascending order if time is specified
     events.sort((a, b) => {
       if (a.time && b.time) {
         const [hoursA, minutesA] = a.time.split(":").map(Number);
@@ -159,7 +186,6 @@ export default function DayInfoModal() {
       return 0;
     });
 
-    // Sort events again to place every event with checked = true at the end
     events.sort((a, b) => a.checked - b.checked);
 
     return events;
@@ -198,7 +224,6 @@ export default function DayInfoModal() {
   };
 
   const handleDeleteFuture = async () => {
-    console.log("Delete all future events");
     setLoading(true);
     if (deleteTargetEvent) {
       try {
@@ -208,12 +233,12 @@ export default function DayInfoModal() {
           where("checked", "==", false)
         );
         const querySnapshot = await getDocs(eventsQuery);
-        const batch = writeBatch(db); // Use batch to group multiple operations
+        const batch = writeBatch(db); 
         querySnapshot.forEach((doc) => {
           batch.delete(doc.ref);
           dispatchCalEvent({ type: "delete", payload: { id: doc.id } });
         });
-        await batch.commit(); // Commit the batch
+        await batch.commit(); 
       } catch (error) {
         console.error("Error deleting future events: ", error);
       }
@@ -265,7 +290,7 @@ export default function DayInfoModal() {
         <DeleteConfirmationModal
           onClose={() => setShowDeleteConfirmation(false)}
           onDeleteSingle={handleDeleteSingle}
-ì         onDeleteFuture={handleDeleteFuture}
+          onDeleteFuture={handleDeleteFuture}
           laoding={loading}
         />
       )}
@@ -314,17 +339,32 @@ export default function DayInfoModal() {
             </p>
           )}
           <div className="w-screen md:w-auto ml:overflow-scroll overflow-auto h-[35rem] md:h-[60vh] overflow-x-hidden custom-scrollbar">
-            {" "}
-            {dayEvents.map((evt) => (
-              <EventItem
-                key={evt.id}
-                evt={evt}
-                handleEventClick={handleEventClick}
-                handleCheckboxChange={handleCheckboxChange}
-                handleDeleteEvent={handleDeleteEvent}
-                getLabelColor={getLabelColor}
-              />
-            ))}
+            
+            {/* LOGICA DELLA MAGIA: CALCOLO PERMESSI */}
+            {dayEvents.map((evt) => {
+              // Cerchiamo il calendario a cui appartiene l'evento (tramite calendarId)
+              const calendar = calendars.find(
+                (c) => c.id === evt.calendarId || c.docId === evt.calendarId
+              );
+              
+              // Capiamo se è condiviso e se l'utente ha solo permessi di lettura
+              const isShared = calendar?.isShared || evt.isShared;
+              const isReadOnly = isShared && calendar?.role === "read";
+
+              return (
+                <EventItem
+                  key={evt.id}
+                  evt={evt}
+                  handleEventClick={handleEventClick}
+                  handleCheckboxChange={handleCheckboxChange}
+                  handleDeleteEvent={handleDeleteEvent}
+                  getLabelColor={getLabelColor}
+                  isShared={isShared}
+                  isReadOnly={isReadOnly}
+                />
+              );
+            })}
+
             <style jsx>{`
               .custom-scrollbar::-webkit-scrollbar {
                 width: 12px;

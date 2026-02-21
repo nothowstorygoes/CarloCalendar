@@ -8,6 +8,7 @@ import {
   updateDoc,
   deleteDoc,
   doc,
+  getDoc,
 } from "firebase/firestore";
 import { auth, db } from "../firebase";
 
@@ -44,10 +45,10 @@ export default function ContextWrapper(props) {
   const [showLabelEventsModal, setShowLabelEventsModal] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState(null);
   const [smallCalendarMonth, setSmallCalendarMonth] = useState(dayjs().month());
-  const [user, setUser] = useState(null); // Add user state
+  const [user, setUser] = useState(null); 
   const [selectedCalendar,setSelectedCalendar] = useState([]);
-  const [calendarsVisibility, setCalendarsVisibility] = useState({}); // Add calendarsVisibility state
-  const [calendars, setCalendars] = useState([]); // Add calendars state
+  const [calendarsVisibility, setCalendarsVisibility] = useState({}); 
+  const [calendars, setCalendars] = useState([]); 
 
   const [savedEvents, dispatchCalEvent] = useReducer(
     savedEventsReducer,
@@ -55,53 +56,86 @@ export default function ContextWrapper(props) {
     initEvents
   );
 
+  // Filtro base (Label)
   useEffect(() => {
-    console.log("Labels: ", labels);
-    console.log("Saved Events: ", savedEvents);
-  
     const labelNames = labels.map((lbl) => lbl.name);
-    console.log("Label Names: ", labelNames);
-  
     const filtered = savedEvents.filter((evt) => {
-      const isIncluded = labelNames.includes(evt.label);
-      return isIncluded;
+      return labelNames.includes(evt.label);
     });
-  
-    console.log("Filtered Events: ", filtered);
     setFilteredEvents(filtered);
   }, [labels, savedEvents]);
 
+  // Filtro Calendari (Quello che faceva mischiare tutto!)
   useEffect(() => {
     const visibleCalendars = Object.keys(calendarsVisibility)
       .filter((calendarId) => calendarsVisibility[calendarId]);
   
+    // Ora i calendari condivisi avranno l'ID lungo, quindi non si sovrapporranno!
     const filtered = savedEvents.filter((evt) => visibleCalendars.includes(evt.calendarId.toString()));
     
     setFilteredEvents(filtered);
-    console.log(filtered);
   }, [savedEvents, calendarsVisibility]);
 
 
   useEffect(() => {
     const fetchCalendars = async () => {
       if (user) {
-        const calendarsCollectionRef = collection(
-          db,
-          `users/${user.uid}/calendars`
-        );
-        const calendarsSnapshot = await getDocs(calendarsCollectionRef);
-        const calendarsData = calendarsSnapshot.docs.map((doc) => ({
-          uniqueId: doc.id,
-          ...doc.data(), // Spread the data to include all properties
-        }));
-        const initialVisibility = {};
-        calendarsData.forEach((calendar) => {
-          initialVisibility[calendar.id] = true;
-        });
-        setCalendarsVisibility(initialVisibility);
+        try {
+          const calendarsCollectionRef = collection(db, `users/${user.uid}/calendars`);
+          const calendarsSnapshot = await getDocs(calendarsCollectionRef);
+          const personalCalendars = calendarsSnapshot.docs.map((doc) => ({
+            uniqueId: doc.id,
+            id: doc.data().id, // Questo è l'"1" personale
+            docId: doc.id,
+            isShared: false,
+            ...doc.data(),
+          }));
 
-        setCalendars(calendarsData);
-        console.log(calendarsData);
+          const sharedPointersRef = collection(db, `users/${user.uid}/shared_calendars`);
+          const sharedPointersSnap = await getDocs(sharedPointersRef);
+          
+          const sharedCalendars = [];
+
+          for (const pointer of sharedPointersSnap.docs) {
+            const { ownerId, calendarId, role } = pointer.data();
+            
+            const realCalendarRef = doc(db, `users/${ownerId}/calendars/${calendarId}`);
+            const realCalendarSnap = await getDoc(realCalendarRef);
+
+            if (realCalendarSnap.exists()) {
+              const realCalendarData = realCalendarSnap.data();
+              // QUI LA MAGIA: leggiamo il ruolo freschissimo dal dizionario 'sharedWith' dell'Owner
+              const actualRole = realCalendarData.sharedWith && realCalendarData.sharedWith[user.uid] 
+                                  ? realCalendarData.sharedWith[user.uid] 
+                                  : role;
+
+              sharedCalendars.push({
+                ...realCalendarData,
+                id: realCalendarSnap.id,  
+                originalId: realCalendarData.id,
+                uniqueId: realCalendarSnap.id,
+                docId: realCalendarSnap.id,
+                isShared: true,
+                role: actualRole, // <-- Sostituisci "role: role" con questo!
+                ownerId: ownerId
+              });
+            }
+          }
+
+          const allCalendars = [...personalCalendars, ...sharedCalendars];
+          
+          const initialVisibility = {};
+          allCalendars.forEach((calendar) => {
+            // Ora l'oggetto sarà: { "1": true, "Kq0...": true }
+            initialVisibility[calendar.id] = true;
+          });
+          
+          setCalendarsVisibility(initialVisibility);
+          setCalendars(allCalendars);
+
+        } catch (error) {
+          console.error("ERRORE FIREBASE BLOCCANTE: ", error);
+        }
       }
     };
 
@@ -180,7 +214,7 @@ export default function ContextWrapper(props) {
         setSmallCalendarMonth,
         user,
         setUser,
-        calendarsVisibility, // Add calendarsVisibility state
+        calendarsVisibility, 
         setCalendarsVisibility,
         calendars,
         setCalendars,

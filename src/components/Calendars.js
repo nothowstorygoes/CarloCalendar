@@ -80,16 +80,28 @@ export default function Calendars() {
         </div>
         <div className="mt-6 ml-4 h-[45vh] overflow-y-auto custom-scrollbar">
           {calendars
-           .sort((a, b) => a.id - b.id)
-           .map((calendar) =>( // Sort labels by ascending order of code
+            .sort((a, b) => a.id - b.id)
+            .map((calendar) =>( 
             <div key={calendar.id} className="mb-4 mr-4">
               <div
-                className="flex justify-between items-center cursor-pointer"
+                className="flex justify-between items-center cursor-pointer mb-2"
                 onClick={() => toggleCollapse(calendar.id)}
               >
-                <span className="font-bold text-gray-600 dark:text-zinc-50">
-                  {calendar.name}
-                </span>
+                <div className="flex items-center">
+                  <span className="font-bold text-gray-600 dark:text-zinc-50">
+                    {calendar.name}
+                  </span>
+                  {/* ICONA DEI DUE OMINI SE È CONDIVISO */}
+                  {calendar.isShared && (
+                    <span 
+                      className="material-icons ml-2 text-sm text-gray-500 dark:text-gray-400" 
+                      title={calendar.role === "read" ? "Condiviso (Sola Lettura)" : "Condiviso"}
+                    >
+                      group
+                    </span>
+                  )}
+                </div>
+                
                 <button
                   className="material-icons"
                   onClick={(e) => {
@@ -118,7 +130,7 @@ export default function Calendars() {
                     .filter((label) => {
                       return label.calendarId === calendar.id;
                     })
-                    .sort((a, b) => a.code - b.code) // Sort labels by ascending order of code
+                    .sort((a, b) => a.code - b.code) 
                     .map((label) => (
                       <div
                         key={label.code}

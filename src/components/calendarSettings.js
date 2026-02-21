@@ -2,26 +2,19 @@ import React, { useContext, useState, useRef } from "react";
 import GlobalContext from "../context/GlobalContext";
 import { useTranslation } from "react-i18next";
 import { auth, db } from "../firebase";
-import {
-  addDoc,
-  collection,
-  getDocs,
-} from "firebase/firestore";
+import { addDoc, collection, getDocs } from "firebase/firestore";
 import ConfirmDelete from "./ConfirmDelete";
 import CalendarEditor from "./calendarEditor";
 
 export const getNextCalendarId = async () => {
   try {
-    const calendarsRef = collection(
-      db,
-      `users/${auth.currentUser.uid}/calendars`
-    );
+    const calendarsRef = collection(db, `users/${auth.currentUser.uid}/calendars`);
     const querySnapshot = await getDocs(calendarsRef);
     const calendarIds = querySnapshot.docs.map((doc) => doc.data().id);
     return Math.max(...calendarIds, 0) + 1;
   } catch (error) {
     console.error("Error getting next calendar ID: ", error);
-    return 1; // Default to 1 in case of error
+    return 1; 
   }
 };
 
@@ -33,6 +26,7 @@ export default function CalendarSettings() {
     selectedCalendar,
     setSelectedCalendar,
   } = useContext(GlobalContext);
+  
   const [newCalendarName, setNewCalendarName] = useState("");
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [prioritized, setPrioritized] = useState(false);
@@ -48,12 +42,10 @@ export default function CalendarSettings() {
     };
 
     try {
-      console.log("Creating calendar:", newCalendar);
       const calendarRef = await addDoc(
         collection(db, `users/${auth.currentUser.uid}/calendars`),
-        newCalendar
+        newCalendar,
       );
-      console.log("Calendar created with ID:", calendarRef.id);
       setCalendars([...calendars, { id: calendarRef.id, ...newCalendar }]);
       setNewCalendarName("");
     } catch (error) {
@@ -67,7 +59,13 @@ export default function CalendarSettings() {
   };
 
   const handleEditCalendar = (calendar) => {
-    setSelectedCalendar(calendar);
+    // Cerchiamo di passare sempre il docId se manca
+    let calToEdit = { ...calendar };
+    if (!calToEdit.docId) {
+       // Se per caso manca il docId, lo troviamo noi (fallback di sicurezza)
+       calToEdit.docId = calendars.find(c => c.id === calendar.id)?.docId;
+    }
+    setSelectedCalendar(calToEdit);
     setShowCalendarEditor(true);
   };
 
@@ -117,48 +115,62 @@ export default function CalendarSettings() {
             </button>
           </div>
           <div className="grid grid-cols-3 gap-6">
-            {sortedCalendars.map(({ id, name, prioritized }, idx) => (
+            {sortedCalendars.map((calendar, idx) => (
               <div
                 key={idx}
                 className="flex items-center justify-between mb-2 p-4 rounded"
                 style={{ backgroundColor: "#4285F4" }}
               >
-                <span
-                  className="font-bold cursor-pointer"
-                  style={{ color: "#000" }}
-                  onClick={() => handleCalendarClick({ id, name })}
-                >
-                  {name}
-                </span>
-                <div>
-                  {prioritized ? (
+                <div className="flex items-center">
+                  <span
+                    className="font-bold cursor-pointer"
+                    style={{ color: "#000" }}
+                    onClick={() => handleCalendarClick(calendar)}
+                  >
+                    {calendar.name}
+                  </span>
+                  {calendar.isShared && (
+                    <span 
+                      className="material-icons ml-2 text-xl text-gray-800" 
+                      title={calendar.role === "read" ? "Condiviso (Sola Lettura)" : "Condiviso"}
+                    >
+                      group
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center">
+                  {calendar.prioritized && (
                     <span className="material-symbols-outlined text-black ml-2 mr-5">
                       priority
                     </span>
-                  ) : (
-                    ""
                   )}
 
-                  <span
-                    className="material-icons text-black ml-2 cursor-pointer mr-5"
-                    onClick={() =>
-                      handleEditCalendar({ id, name, prioritized })
-                    }
-                  >
-                    edit
-                  </span>
-                  <button
-                    onClick={() => handleDeleteCalendar({ id, name })}
-                    className="material-icons-outlined cursor-pointer"
-                    style={{ color: "#000" }} // Set contrast color
-                  >
-                    delete
-                  </button>
+                  {/* UNICA ICONA EDIT CHE APRE IL PANNELLO AVANZATO */}
+                  {!calendar.isShared && (
+                    <>
+                      <span
+                        className="material-icons text-black ml-2 cursor-pointer mr-5  rounded-full p-1 hover:bg-opacity-50 transition"
+                        onClick={() => handleEditCalendar(calendar)}
+                        title="Impostazioni Calendario"
+                      >
+                        edit
+                      </span>
+                      <button
+                        onClick={() => handleDeleteCalendar(calendar)}
+                        className="material-icons-outlined cursor-pointer text-black hover:text-red-900 transition"
+                        title="Elimina Calendario"
+                      >
+                        delete
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         </div>
+
         {showConfirmationModal && (
           <ConfirmDelete
             calendar={selectedCalendar}
@@ -166,26 +178,21 @@ export default function CalendarSettings() {
             setCalendars={setCalendars}
           />
         )}
+        
+        {/* IL NUOVO SUPER EDITOR */}
         {showCalendarEditor && (
           <CalendarEditor
             selectedCalendar={selectedCalendar}
             setShowCalendarEditor={setShowCalendarEditor}
           />
         )}
+
         <style jsx>{`
-          .custom-scrollbar::-webkit-scrollbar {
-            width: 12px;
-          }
-          .custom-scrollbar::-webkit-scrollbar-track {
-            background: var(--scrollbar-track-bg);
-          }
-          .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 4px;
-          }
-          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #555;
-          }
+          .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+          .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+          .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+          .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         `}</style>
       </div>
     </div>
