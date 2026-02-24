@@ -54,6 +54,11 @@ export default function EventModal() {
   const [duplicateRepeatOptions, setDuplicateRepeatOptions] = useState(null);
   const [showDuplicateRepeatModal, setShowDuplicateRepeatModal] = useState(false);
 
+  // --- FILTRO I CALENDARI SCRIVIBILI ---
+  // Rimuoviamo i calendari con role === 'read' dalla lista delle scelte
+  const writableCalendars = calendars.filter(cal => !cal.isShared || cal.role === "write");
+  const sortedCalendar = [...writableCalendars].sort((a, b) => a.id - b.id);
+
   // --- FUNZIONE PER TROVARE L'OWNER DEL CALENDARIO ---
   const getTargetUserId = (calId) => {
     const cal = calendars.find((c) => c.id === calId || c.docId === calId);
@@ -472,7 +477,7 @@ export default function EventModal() {
       title: duplicateData.title,
       description: duplicateData.description || "",
       label: duplicateData.label,
-      calendarId: duplicateData.calendarId, // UI usa quello lungo
+      calendarId: duplicateData.calendarId, 
       day: duplicateData.date.getTime(),
       postponable: selectedEvent ? selectedEvent.postponable : false,
       id: `${Date.now().toString()}-${generateRandomId()}`,
@@ -486,7 +491,7 @@ export default function EventModal() {
 
     const newEventDB = {
       ...newEventLocal,
-      calendarId: idForDB // DB usa quello corto dell'owner
+      calendarId: idForDB 
     };
 
     try {
@@ -502,8 +507,6 @@ export default function EventModal() {
     }
     setDuplicateLoading(false);
   };
-
-  const sortedCalendar = [...calendars].sort((a, b) => a.id - b.id);
 
   const handleRepeatModalClose = () => {
     setShowRepeatModal(false);
@@ -867,6 +870,7 @@ export default function EventModal() {
               </p>
 
               <div className="grid grid-cols-4 gap-x-10 gap-y-5 items-center ml-16 hidden md:!grid">
+                {/* USA L'ARRAY FILTRATO sortedCalendar */}
                 {sortedCalendar.map((cal, i) => (
                   <div
                     key={i}
@@ -890,6 +894,7 @@ export default function EventModal() {
                   className="border rounded-2xl p-2 dark:bg-zinc-700 dark:text-white px-4"
                 >
                   <option>Scegli</option>
+                  {/* USA L'ARRAY FILTRATO sortedCalendar */}
                   {sortedCalendar.map((cal, i) => (
                     <option key={i} value={cal.id}>
                       {cal.name}
