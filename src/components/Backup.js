@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { doc, getDoc, updateDoc, writeBatch, collection, getDocs, setDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, writeBatch, collection, getDocs, setDoc, deleteDoc } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import GlobalContext from "../context/GlobalContext";
 import { useTranslation } from "react-i18next";
@@ -44,6 +44,20 @@ export default function Backup() {
     fetchBackupInfo();
   }, [user, backupTriggered]);
 
+  // FUNZIONE HELPER: Elimina array di DocumentReference in pacchetti (batch) da 400
+  const deleteInBatches = async (docRefs) => {
+    const BATCH_SIZE = 400; // Limite di Firebase è 500, stiamo più bassi per sicurezza
+    for (let i = 0; i < docRefs.length; i += BATCH_SIZE) {
+      const batch = writeBatch(db);
+      const chunk = docRefs.slice(i, i + BATCH_SIZE);
+      chunk.forEach(ref => {
+        batch.delete(ref);
+      });
+      await batch.commit();
+      console.log(`Deleted chunk of ${chunk.length} documents.`);
+    }
+  };
+
   const handleRollback = async (backup) => {
     console.log("Rolling back to backup:", backup);
     if (!user) {
@@ -74,36 +88,39 @@ export default function Backup() {
       const labelsCollectionRef = collection(db, `users/${user.uid}/labels`);
       const labelsSnapshot = await getDocs(labelsCollectionRef);
 
-      const batch = writeBatch(db);
+      // Sostituiamo il writeBatch() singolo con il nostro Helper in lotti
+      const refsToDelete = [];
+      eventsSnapshot.forEach((doc) => refsToDelete.push(doc.ref));
+      labelsSnapshot.forEach((doc) => refsToDelete.push(doc.ref));
 
-      eventsSnapshot.forEach((doc) => {
-        batch.delete(doc.ref);
-      });
+      await deleteInBatches(refsToDelete);
 
-      labelsSnapshot.forEach((doc) => {
-        batch.delete(doc.ref);
-      });
-
-      await batch.commit();
-
+      // RIPRISTINO - Poiché anche le scritture sono limitate a 500 per batch, le spezziamo
       const backupEventsCollectionRef = collection(backupFolderRef, "events");
       const backupEventsSnapshot = await getDocs(backupEventsCollectionRef);
       const backupLabelsCollectionRef = collection(backupFolderRef, "labels");
       const backupLabelsSnapshot = await getDocs(backupLabelsCollectionRef);
 
-      const restoreBatch = writeBatch(db);
-
+      const docsToRestore = [];
       backupEventsSnapshot.forEach((backupDoc) => {
         const eventRef = doc(db, `users/${user.uid}/events`, backupDoc.id);
-        restoreBatch.set(eventRef, backupDoc.data());
+        docsToRestore.push({ ref: eventRef, data: backupDoc.data() });
       });
-
       backupLabelsSnapshot.forEach((backupDoc) => {
         const labelRef = doc(db, `users/${user.uid}/labels`, backupDoc.id);
-        restoreBatch.set(labelRef, backupDoc.data());
+        docsToRestore.push({ ref: labelRef, data: backupDoc.data() });
       });
 
-      await restoreBatch.commit();
+      // Eseguiamo il restore in pacchetti da 400
+      const BATCH_SIZE = 400;
+      for (let i = 0; i < docsToRestore.length; i += BATCH_SIZE) {
+        const restoreBatch = writeBatch(db);
+        const chunk = docsToRestore.slice(i, i + BATCH_SIZE);
+        chunk.forEach(item => {
+          restoreBatch.set(item.ref, item.data);
+        });
+        await restoreBatch.commit();
+      }
 
       console.log("Rollback completed successfully");
     } catch (error) {
@@ -136,23 +153,24 @@ export default function Backup() {
 
       const backupFolderRef = doc(db, `users/${user.uid}/backup`, matchedBackup.id);
 
-      const batch = writeBatch(db);
-
       const backupEventsCollectionRef = collection(backupFolderRef, "events");
       const backupEventsSnapshot = await getDocs(backupEventsCollectionRef);
-      backupEventsSnapshot.forEach((backupDoc) => {
-        batch.delete(backupDoc.ref);
-      });
-
       const backupLabelsCollectionRef = collection(backupFolderRef, "labels");
       const backupLabelsSnapshot = await getDocs(backupLabelsCollectionRef);
-      backupLabelsSnapshot.forEach((backupDoc) => {
-        batch.delete(backupDoc.ref);
-      });
+      // Se avevi salvato i calendari, aggiungiamoli per l'eliminazione
+      const backupCalendarsCollectionRef = collection(backupFolderRef, "calendars");
+      const backupCalendarsSnapshot = await getDocs(backupCalendarsCollectionRef);
 
-      batch.delete(backupFolderRef);
+      const refsToDelete = [];
+      backupEventsSnapshot.forEach((doc) => refsToDelete.push(doc.ref));
+      backupLabelsSnapshot.forEach((doc) => refsToDelete.push(doc.ref));
+      backupCalendarsSnapshot.forEach((doc) => refsToDelete.push(doc.ref));
 
-      await batch.commit();
+      // Elimina tutti i documenti interni in pacchetti da 400
+      await deleteInBatches(refsToDelete);
+
+      // Infine elimina il documento radice della cartella di backup
+      await deleteDoc(backupFolderRef);
 
       console.log("Backup deleted successfully");
       setBackupTriggered(true);
@@ -203,23 +221,30 @@ export default function Backup() {
         today
       );
 
+      // Anche la creazione può superare i 500 documenti. La spezziamo.
+      const docsToCreate = [];
+      
       const eventsBackupRef = collection(backupFolderRef, "events");
-      for (const event of events) {
-        await setDoc(doc(eventsBackupRef, event.id), event);
-      }
-
-      await setDoc(backupFolderRef, { created: dayjs().toISOString() });
+      events.forEach(event => docsToCreate.push({ ref: doc(eventsBackupRef, event.id), data: event }));
 
       const labelsBackupRef = collection(backupFolderRef, "labels");
-      for (const label of labels) {
-        await setDoc(doc(labelsBackupRef, label.id), label);
-      }
+      labels.forEach(label => docsToCreate.push({ ref: doc(labelsBackupRef, label.id), data: label }));
 
       const calendarsBackupRef = collection(backupFolderRef, "calendars");
-      for (const calendar of calendars) {
-        await setDoc(doc(calendarsBackupRef, calendar.id), calendar);
+      calendars.forEach(calendar => docsToCreate.push({ ref: doc(calendarsBackupRef, calendar.id), data: calendar }));
+
+      const BATCH_SIZE = 400;
+      for (let i = 0; i < docsToCreate.length; i += BATCH_SIZE) {
+        const createBatch = writeBatch(db);
+        const chunk = docsToCreate.slice(i, i + BATCH_SIZE);
+        chunk.forEach(item => {
+          createBatch.set(item.ref, item.data);
+        });
+        await createBatch.commit();
       }
 
+      // Crea il documento radice
+      await setDoc(backupFolderRef, { created: dayjs().toISOString() });
 
       console.log("Backup created successfully");
       setBackupTriggered(!backupTriggered);
