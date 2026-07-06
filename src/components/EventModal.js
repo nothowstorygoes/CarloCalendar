@@ -251,7 +251,7 @@ export default function EventModal() {
       repeatType: repeatOptions
         ? getRepeatTypeString(repeatOptions)
         : selectedEvent
-          ? selectedEvent.repeatType
+        ? (selectedEvent.repeatType ?? null)
           : null,
       time: specificTime ? time : null,
       userId: auth.currentUser.uid,
