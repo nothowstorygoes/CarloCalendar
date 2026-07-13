@@ -28,6 +28,7 @@ const resources = {
       "chevron_right": "Next",
       "close": "Close",
       "edit": "Edit",
+      "add_calendar": "Add Calendar",
       "bookmark_border": "Bookmark Border",
       "access_time": "at",
       "event": "Event",
@@ -43,7 +44,7 @@ const resources = {
       "year": "Year",
       "loading_user_info": "Loading user info...",
       "Profile": "Profile",
-      "Sign Out": "Sign Out",
+      "sign_out": "Sign Out",
     }
   },
   it: {

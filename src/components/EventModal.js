@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import GlobalContext from "../context/GlobalContext";
 import DatePicker from "react-datepicker";
@@ -19,6 +19,8 @@ import {
 import it from "date-fns/locale/it";
 import dayjs from "dayjs";
 import RepeatEventModal from "./RepeatEventModal";
+import EventAttachment from "./EventAttachment";
+import { deleteAttachment } from "./AttachmentService";
 
 export default function EventModal() {
   const { t } = useTranslation();
@@ -45,6 +47,7 @@ export default function EventModal() {
   const [repeatOptions, setRepeatOptions] = useState(null);
   const [repeatTypeString, setRepeatTypeString] = useState("");
   const [loading, setLoading] = useState(false);
+    const attachmentRef = useRef(null);
 
   // Stati per Duplicazione
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
@@ -174,6 +177,18 @@ export default function EventModal() {
       );
       await deleteDoc(eventRef);
       dispatchCalEvent({ type: "delete", payload: { id: selectedEvent.id } });
+      if (!selectedEvent.repeat) {
+        await deleteAttachment(targetUserId, selectedEvent);
+      } else {
+        const remainingQuery = query(
+          collection(db, `users/${targetUserId}/events`),
+          where("repeat", "==", selectedEvent.repeat),
+        );
+        const remainingSnap = await getDocs(remainingQuery);
+        if (remainingSnap.empty) {
+          await deleteAttachment(targetUserId, selectedEvent);
+        }
+      }
       handleClose();
     } catch (error) {
       console.error("Error deleting event: ", error);
@@ -190,14 +205,23 @@ export default function EventModal() {
       );
       const querySnapshot = await getDocs(eventsQuery);
       const batch = writeBatch(db);
+            let anySurvives = false;
+
       querySnapshot.forEach((docSnap) => {
         let ev = docSnap.data();
         if (ev.checked === false) {
           batch.delete(docSnap.ref);
           dispatchCalEvent({ type: "delete", payload: { id: ev.id } });
+        } else {
+                    anySurvives = true;
+
         }
       });
       await batch.commit();
+
+      if (!anySurvives) {
+        await deleteAttachment(targetUserId, selectedEvent);
+      }
       handleClose();
     } catch (error) {
       console.error("Error deleting future events: ", error);
@@ -369,6 +393,7 @@ export default function EventModal() {
       if (repeatOptions && !updateFutureSerie) {
         await createRepeatedEvents(localEvent, dbEvent, repeatOptions);
       }
+            await attachmentRef.current?.commitPending(localEvent, targetUserId);
 
       handleClose();
     } catch (error) {
@@ -1193,8 +1218,8 @@ export default function EventModal() {
             <span className="material-icons-outlined text-gray-400 dark:text-zinc-200 ml-2 md:ml-3 -mt-16 md:mt-0">
               edit
             </span>
-            <div className="flex flex-col items-center ml-10">
-              <div className="flex flex-col md:flex-row md:items-center items-start">
+            <div className="flex flex-col items-center ml-10 gap-y-4">
+              <div className="flex flex-col md:flex-row md:items-center items-start ml-0 md:ml-5">
                 <input
                   type="text"
                   name="title"
@@ -1226,6 +1251,18 @@ export default function EventModal() {
                 className="mt-4 md:mt-0 pt-3 text-gray-600 dark:text-zinc-200 pb-2 w-64 md:w-96 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 bg-gray-100 dark:bg-zinc-700 rounded"
                 onChange={(e) => setDescription(e.target.value)}
               />
+              <div className="ml-0 md:ml-[-7vw]">
+               <EventAttachment
+               className="ml-0"
+                ref={attachmentRef}
+                event={selectedEvent}
+                ownerId={
+                  selectedEvent
+                    ? getTargetUserId(selectedEvent.calendarId)
+                    : getTargetUserId(selectedCalendar)
+                }
+              />
+              </div>
             </div>
           </div>
 

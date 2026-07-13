@@ -39,6 +39,8 @@ const GlobalContext = React.createContext({
   setCalendars: () => {},
   calendarsVisibility: {}, // Add calendarsVisibility state
   setCalendarsVisibility: () => {}, // Add setCalendarsVisibility function
+  attachmentIndex: {},
+  setAttachmentIndex: () => {},
 });
 
 export default GlobalContext;

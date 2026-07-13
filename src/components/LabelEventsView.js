@@ -4,6 +4,7 @@ import GlobalContext from "../context/GlobalContext";
 import { useTranslation } from "react-i18next";
 import { doc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../firebase";
+import { getAttachmentKey } from "./AttachmentService";
 
 export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
   const {
@@ -11,6 +12,7 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
     setSelectedEvent,
     setShowEventModal,
     dispatchCalEvent,
+    calendars, attachmentIndex,
   } = useContext(GlobalContext);
   const modalRef = useRef(null);
   const { t } = useTranslation();
@@ -19,6 +21,10 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
   const handleEventClick = (event) => {
     setSelectedEvent(event);
     setShowEventModal(true);
+  };
+  const getOwnerId = (evt) => {
+    const cal = calendars.find((c) => c.id === evt.calendarId || c.docId === evt.calendarId);
+    return cal?.isShared ? cal.ownerId : auth.currentUser.uid;
   };
 
   const handleCheckboxChange = async (event, evt) => {
@@ -120,6 +126,11 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
                           {evt.title}
                         </div>
                       </div>{" "}
+                      {!!attachmentIndex[`${getOwnerId(evt)}:${getAttachmentKey(evt)}`] && (
+                          <span className="material-icons ml-1 text-xs align-middle text-black">
+                            attach_file
+                          </span>
+                        )}
                       <p
                         className="text-sm w-44"
                         style={{
@@ -183,6 +194,11 @@ export default function LabelEventsModal({ label, setShowLabelEventsModal }) {
                             {evt.title}
                           </div>
                         </div>
+                        {!!attachmentIndex[`${getOwnerId(evt)}:${getAttachmentKey(evt)}`] && (
+                          <span className="material-icons ml-1 text-lg align-middle text-black">
+                            attach_file
+                          </span>
+                        )}
                         {evt.repeat && (
                           <div className="relative group ml-2">
                             <span className="text-black font-bold">🗘</span>

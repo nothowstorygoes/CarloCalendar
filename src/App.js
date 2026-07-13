@@ -22,6 +22,7 @@ import { auth, db } from "./firebase";
 import Login from "./components/login"; 
 import Spinner from "./assets/spinner"; 
 import CalendarSettings from "./components/calendarSettings";
+import { fetchAttachmentIndex } from "./components/AttachmentService";
 
 function App() {
   const [currentMonth, setCurrentMonth] = useState(getMonth());
@@ -41,6 +42,7 @@ function App() {
     setLabels,
     user,
     setUser,
+    setAttachmentIndex,
     setViewMode,
     setShowEventModal
   } = useContext(GlobalContext);
@@ -124,7 +126,17 @@ function App() {
 
           // Rimuovi eventuali label duplicate
           const uniqueLabels = Array.from(new Map(allLabels.map(item => [item.id, item])).values());
-
+          const ownerIds = new Set([user.uid]);
+          sharedPointersSnap.docs.forEach((p) => ownerIds.add(p.data().ownerId));
+          const idxEntries = await Promise.all(
+            Array.from(ownerIds).map(async (ownerId) => {
+              const keys = await fetchAttachmentIndex(ownerId);
+              return keys.map((key) => `${ownerId}:${key}`);
+            })
+          );
+          const flatIndex = {};
+          idxEntries.flat().forEach((k) => { flatIndex[k] = true; });
+          setAttachmentIndex(flatIndex);
           dispatchCalEvent({ type: "set", payload: allEvents });
           setLabels(uniqueLabels);
           

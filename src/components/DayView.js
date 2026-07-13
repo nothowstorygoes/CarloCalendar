@@ -17,6 +17,7 @@ import {
 import { auth, db } from "../firebase";
 import { DeleteConfirmationModal } from "./DeleteConfirmationModal";
 import DaySelector from "./daySelector";
+import { getAttachmentKey } from "./AttachmentService";
 
 const truncateText = (text, maxLength) => {
   if (text.length > maxLength) {
@@ -32,6 +33,7 @@ const EventItem = ({
   handleCheckboxChange,
   handleDeleteEvent,
   getLabelColor,
+  hasAttachment,
   isShared,
   isReadOnly
 }) => (
@@ -73,6 +75,11 @@ const EventItem = ({
                       title={isReadOnly ? "Condiviso (Sola lettura)" : "Condiviso"}
                     >
                       group
+                    </span>
+                  )}
+                  {hasAttachment && (
+                    <span className="material-icons ml-2 text-lg text-gray-800" title="PDF allegato">
+                      attach_file
                     </span>
                   )}
 
@@ -150,6 +157,7 @@ export default function DayInfoModal() {
     setDaySelected,
     filteredEvents,
     dispatchCalEvent,
+    attachmentIndex,
     setSelectedEvent,
     setShowEventModal,
     labels,
@@ -350,12 +358,15 @@ export default function DayInfoModal() {
               // Capiamo se è condiviso e se l'utente ha solo permessi di lettura
               const isShared = calendar?.isShared || evt.isShared;
               const isReadOnly = isShared && calendar?.role === "read";
+              const ownerId = calendar?.isShared ? calendar.ownerId : auth.currentUser.uid;
+              const hasAttachment = !!attachmentIndex[`${ownerId}:${getAttachmentKey(evt)}`];
 
               return (
                 <EventItem
                   key={evt.id}
                   evt={evt}
                   handleEventClick={handleEventClick}
+                  hasAttachment={hasAttachment}
                   handleCheckboxChange={handleCheckboxChange}
                   handleDeleteEvent={handleDeleteEvent}
                   getLabelColor={getLabelColor}

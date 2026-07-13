@@ -49,6 +49,7 @@ export default function ContextWrapper(props) {
   const [selectedCalendar,setSelectedCalendar] = useState([]);
   const [calendarsVisibility, setCalendarsVisibility] = useState({}); 
   const [calendars, setCalendars] = useState([]); 
+  const [attachmentIndex, setAttachmentIndex] = useState({});
 
   const [savedEvents, dispatchCalEvent] = useReducer(
     savedEventsReducer,
@@ -226,6 +227,8 @@ export default function ContextWrapper(props) {
         setCalendars,
         selectedCalendar,
         setSelectedCalendar,
+        attachmentIndex,
+        setAttachmentIndex,
       }}
     >
       {props.children}
