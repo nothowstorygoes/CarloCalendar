@@ -1108,9 +1108,9 @@ export default function EventModal() {
           </div>
         </header>
         <div className="p-3 mt-2">
-          <div className="flex flex-col gap-y-4">
+          <div className="flex flex-col">
             {/* --- SEZIONE CALENDARI --- */}
-            <div className="flex flex-col md:flex-row md:items-center mb-8 mt-2 md:mt-0 gap-y-4">
+            <div className="flex flex-col md:flex-row md:items-center md:mt-0">
               <p className="text-black dark:text-white ml-16 md:ml-28 w-20 shrink-0">
                 Scegli un calendario:
               </p>
@@ -1156,7 +1156,7 @@ export default function EventModal() {
             </div>
 
             {/* --- SEZIONE CATEGORIE (LABELS) --- */}
-            <div className="flex flex-col md:flex-row md:items-start mt-6 gap-y-4">
+            <div className="flex flex-col md:flex-row md:items-start mt-8">
               <p className="text-black dark:text-white ml-16 md:ml-28 w-20 shrink-0">
                 Scegli una categoria:
               </p>
@@ -1213,7 +1213,7 @@ export default function EventModal() {
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row md:items-center w-screen mt-10">
+        <div className="flex flex-col md:flex-row md:items-center w-screen mt-4">
           <div className="flex flex-row items-center md:ml-10">
             <span className="material-icons-outlined text-gray-400 dark:text-zinc-200 ml-2 md:ml-3 -mt-16 md:mt-0">
               edit
@@ -1251,7 +1251,7 @@ export default function EventModal() {
                 className="mt-4 md:mt-0 pt-3 text-gray-600 dark:text-zinc-200 pb-2 w-64 md:w-96 border-gray-200 dark:border-zinc-700 focus:outline-none focus:ring-0 focus:border-blue-500 bg-gray-100 dark:bg-zinc-700 rounded"
                 onChange={(e) => setDescription(e.target.value)}
               />
-              <div className="ml-0 md:ml-[-7vw]">
+              <div className="-ml-40 md:ml-[-7vw]">
                <EventAttachment
                className="ml-0"
                 ref={attachmentRef}
